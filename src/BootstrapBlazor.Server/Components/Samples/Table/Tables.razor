@@ -17,6 +17,54 @@
     <p>@((MarkupString)Localizer["TableBaseTips4"].Value)</p>
 </Tips>
 
+<DemoBlock Title="动态展示测试">
+    <section ignore>
+        <Button Text="点击测试" OnClick="OpenDialog" />
+    </section>
+    <section ignore>
+        <div style="position:absolute;z-index:9999; @DialogStyleString">
+            <div class="d-flex border border-1 rounded-2 bg-white p-2" style="height:450px;width:600px;">
+                <Table TItem="Foo" Items="@Items.Take(3)" IsBordered="true" ShowToolbar="true" ShowEmpty="true">
+                    <TableColumns>
+                        <TableColumn @bind-Field="@context.DateTime" Width="180" />
+                        <TableColumn @bind-Field="@context.Name" />
+                        <TableColumn @bind-Field="@context.Address" />
+                    </TableColumns>
+                </Table>
+            </div>
+        </div>
+    </section>
+</DemoBlock>
+
+<DemoBlock Title="Tab动态展示测试">
+    <section ignore>
+        <Tab IsBorderCard="true">
+            <TabItem Text="选项卡 1">
+                <div class="d-flex border border-1 rounded-2 bg-white p-2" style="height:450px;width:600px;">
+                    <Table TItem="Foo" Items="@Items.Take(3)" IsBordered="true" ShowToolbar="true" ShowEmpty="true">
+                        <TableColumns>
+                            <TableColumn @bind-Field="@context.DateTime" Width="180" />
+                            <TableColumn @bind-Field="@context.Name" />
+                            <TableColumn @bind-Field="@context.Address" />
+                        </TableColumns>
+                    </Table>
+                </div>
+            </TabItem>
+            <TabItem Text="选项卡 2">
+                <div class="d-flex border border-1 rounded-2 bg-white p-2" style="height:450px;width:600px;">
+                    <Table TItem="Foo" Items="@Items.Take(3)" IsBordered="true" ShowToolbar="true" ShowEmpty="true">
+                        <TableColumns>
+                            <TableColumn @bind-Field="@context.DateTime" Width="180" />
+                            <TableColumn @bind-Field="@context.Name" />
+                            <TableColumn @bind-Field="@context.Address" />
+                        </TableColumns>
+                    </Table>
+                </div>
+            </TabItem>
+        </Tab>
+    </section>
+</DemoBlock>
+
 <DemoBlock Title="@Localizer["TableBaseNormalTitle"]"
            Introduction="@Localizer["TableBaseNormalIntro"]"
            Name="Normal">

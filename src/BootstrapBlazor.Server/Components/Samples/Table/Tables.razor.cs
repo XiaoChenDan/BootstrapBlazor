@@ -20,6 +20,10 @@ public partial class Tables
     [NotNull]
     private string? RefreshText { get; set; }
 
+    private bool ShowDialog { get; set; } = false;
+
+    private string DialogStyleString=>ShowDialog ? "display:flex;" : "display:none;";
+
     /// <summary>
     /// OnInitialized
     /// </summary>
@@ -36,6 +40,12 @@ public partial class Tables
     private void OnClick()
     {
         Items = Foo.GenerateFoo(FooLocalizer);
+    }
+
+    private void OpenDialog()
+    {
+        ShowDialog = !ShowDialog;
+        StateHasChanged();
     }
 
     private AttributeItem[] GetTableColumnAttributes() =>
