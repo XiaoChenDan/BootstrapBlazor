@@ -3,7 +3,6 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using BootstrapBlazor.Localization;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
@@ -178,9 +177,12 @@ public class JsonStringLocalizerTest : BootstrapBlazorTestBase
         var items = localizer.GetAllStrings(false);
 
         // TODO: vs+windows pass
-        // mac linux rider+windows failed
-        //Assert.NotEmpty(items);
-        //Assert.Equal("test-name", items.First(i => i.Name == "Name").Value);
+        // mac Linux rider+windows failed
+        Assert.NotEmpty(items);
+        Assert.Equal("test-name", items.First(i => i.Name == "Name").Value);
+
+        var name = Utility.GetDisplayName(typeof(Dummy), "DummyName");
+        Assert.Equal("test-name", name);
     }
 
     [Fact]
@@ -195,7 +197,7 @@ public class JsonStringLocalizerTest : BootstrapBlazorTestBase
 
         var items = localizer.GetAllStrings(false);
         Assert.Equal("姓名", items.First(i => i.Name == "Name").Value);
-        Assert.Empty(items.Where(i => i.Name == "Test-JsonName"));
+        Assert.DoesNotContain("Test-JsonName", items.Select(i => i.Name));
     }
 
     [Fact]
@@ -210,6 +212,28 @@ public class JsonStringLocalizerTest : BootstrapBlazorTestBase
         var localizer = provider.GetRequiredService<IStringLocalizer<Foo>>();
         Assert.Equal("name", localizer["test-localizer-name"]);
         Assert.Equal("test-name", localizer["test-name"]);
+    }
+
+    [Fact]
+    public void HandleMissingItem()
+    {
+        var sc = new ServiceCollection();
+        sc.AddConfiguration();
+        sc.AddSingleton<ILocalizationMissingItemHandler, MockLocalizationMissingItemHandler>();
+        sc.AddBootstrapBlazor();
+
+        var provider = sc.BuildServiceProvider();
+        var localizer = provider.GetRequiredService<IStringLocalizer<Foo>>();
+        var val = localizer["missing-item"];
+
+        var handler = provider.GetRequiredService<ILocalizationMissingItemHandler>();
+        MockLocalizationMissingItemHandler? mockHandler = null;
+        if (handler is MockLocalizationMissingItemHandler h)
+        {
+            mockHandler = h;
+        }
+        Assert.NotNull(mockHandler);
+        Assert.Equal("missing-item", mockHandler.Name);
     }
 
     [Fact]
@@ -317,6 +341,7 @@ public class JsonStringLocalizerTest : BootstrapBlazorTestBase
 
     private class Dummy
     {
+        [Display(Name = "Name")]
         public string? DummyName { get; set; }
     }
 
@@ -327,6 +352,17 @@ public class JsonStringLocalizerTest : BootstrapBlazorTestBase
             new("test-localizer-name", "name"),
             new("test-localizer-age", "age")
         };
+    }
+
+    internal class MockLocalizationMissingItemHandler : ILocalizationMissingItemHandler
+    {
+        [NotNull]
+        public string? Name { get; set; }
+
+        public void HandleMissingItem(string name, string typeName, string cultureName)
+        {
+            Name = name;
+        }
     }
 }
 

@@ -21,7 +21,7 @@ public class AutoGenerateClassTest
             ShowTips = true,
             Align = Alignment.Center
         };
-        Assert.True(!attr.Ignore);
+        Assert.False(attr.Ignore);
         Assert.True(attr.Readonly);
         Assert.True(attr.Sortable);
         Assert.True(attr.Filterable);
@@ -104,6 +104,7 @@ public class AutoGenerateClassTest
         var attrInterface = (ITableColumn)attr;
         attrInterface.ShowLabelTooltip = true;
         Assert.True(attrInterface.ShowLabelTooltip);
+
         attrInterface.ShowLabelTooltip = null;
         Assert.False(attrInterface.ShowLabelTooltip);
 
@@ -149,11 +150,50 @@ public class AutoGenerateClassTest
         attrInterface.IsReadonlyWhenEdit = true;
         Assert.True(attrInterface.IsReadonlyWhenEdit);
 
-        attrInterface.GetTooltipTextCallback = new Func<object?, Task<string?>>(_ => Task.FromResult((string?)"Test"));
+        attrInterface.GetTooltipTextCallback = _ => Task.FromResult((string?)"Test");
         Assert.NotNull(attrInterface.GetTooltipTextCallback);
 
-        attrInterface.CustomSearch = new Func<ITableColumn, string?, SearchFilterAction>((_, _) => new SearchFilterAction("test", "test"));
+        attrInterface.CustomSearch = (_, _) => new SearchFilterAction("test", "test");
         Assert.NotNull(attrInterface.CustomSearch);
+
+        attrInterface.Searchable = null;
+        Assert.False(attrInterface.Searchable);
+
+        attrInterface.Filterable = null;
+        Assert.False(attrInterface.Filterable);
+
+        attrInterface.Searchable = null;
+        Assert.False(attrInterface.Searchable);
+
+        attrInterface.Sortable = null;
+        Assert.False(attrInterface.Sortable);
+
+        attrInterface.TextWrap = null;
+        Assert.False(attrInterface.TextWrap);
+
+        attrInterface.TextEllipsis = null;
+        Assert.False(attrInterface.TextEllipsis);
+
+        attrInterface.Ignore = null;
+        Assert.False(attrInterface.Ignore);
+
+        attrInterface.Readonly = null;
+        Assert.False(attrInterface.Readonly);
+
+        attrInterface.ShowTips = null;
+        Assert.False(attrInterface.ShowTips);
+
+        attrInterface.ShowCopyColumn = null;
+        Assert.False(attrInterface.ShowCopyColumn);
+
+        attrInterface.Visible = null;
+        Assert.True(attrInterface.Visible);
+
+        attrInterface.Align = null;
+        Assert.Equal(Alignment.None, attrInterface.Align);
+
+        attrInterface.ToolboxTemplate = col => builder => builder.AddContent(0, "test");
+        Assert.NotNull(attrInterface.ToolboxTemplate);
 
         var attrEditor = (IEditorItem)attr;
         attrEditor.Items = null;

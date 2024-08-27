@@ -164,6 +164,25 @@
             <TableColumn @bind-Field="@context.Complete" IsVisibleWhenEdit="false" />
         </TableColumns>
     </Table>
+
+    <section ignore>
+        <p>@((MarkupString)Localizer["TablesEditModeDrawer"].Value)</p>
+    </section>
+    <Table TItem="Foo"
+           IsPagination="true" PageItemsSource="@PageItemsSource"
+           IsStriped="true" IsBordered="true" IsMultipleSelect="true"
+           ShowToolbar="true" ShowExtendButtons="true" ShowSkeleton="true"
+           AddModalTitle="@Localizer["TablesEditModeAddModalTitle"]" EditModalTitle="@Localizer["TablesEditModeEditModalTitle"]"
+           EditMode="EditMode.Drawer" @bind-Items="@BindItems" InsertRowMode="InsertMode">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.DateTime" Width="180" />
+            <TableColumn @bind-Field="@context.Name" />
+            <TableColumn @bind-Field="@context.Address" Rows="3" />
+            <TableColumn @bind-Field="@context.Education" />
+            <TableColumn @bind-Field="@context.Count" IsVisibleWhenAdd="false" />
+            <TableColumn @bind-Field="@context.Complete" IsVisibleWhenEdit="false" />
+        </TableColumns>
+    </Table>
 </DemoBlock>
 
 <DemoBlock Title="@Localizer["TablesEditInjectDataServiceTitle"]" Introduction="@Localizer["TablesEditInjectDataServiceIntro"]" Name="InjectDataService">
@@ -177,7 +196,7 @@
         </ul>
         <div class="mb-3">@Localizer["TablesEditInjectDataServiceTips1"] <a href="@DataServiceUrl" target="_blank">@Localizer["TablesEditInjectDataServiceTips2"]</a></div>
         <b>@Localizer["TablesEditInjectDataServiceTips3"]</b>
-        <div class="mt-1">@Localizer["TablesEditInjectDataServiceTips4"]</div>
+        <div class="mt-1">@((MarkupString)Localizer["TablesEditInjectDataServiceTips4"].Value)</div>
         <Pre class="no-highlight my-3">services.AddTableDemoDataService();</Pre>
     </section>
     <Table TItem="Foo"
@@ -251,5 +270,43 @@
                 </div>
             </div>
         </EditTemplate>
+    </Table>
+</DemoBlock>
+
+<DemoBlock Title="@Localizer["TablesReadonlyColumnTitle"]" Introduction="@Localizer["TablesReadonlyColumnIntro"]" Name="ReadonlyColumn">
+    <section ignore>
+        <p>@Localizer["TablesReadonlyColumnDescription"]</p>
+        <p>@((MarkupString)Localizer["TablesReadonlyColumnTips1"].Value)</p>
+        <Pre class="no-highlight my-3 mb-3">&lt;TableColumn Field="@@context.ReadonlyColumn" FieldName="ReadonlyColumn" /&gt;</Pre>
+        <p>@((MarkupString)Localizer["TablesReadonlyColumnTips2"].Value)</p>
+        <Pre class="no-highlight my-3 mb-3">&lt;TableColumn TItem="Foo1" TType="string" Field="@@context.ReadonlyColumn" FieldName="ReadonlyColumn" /&gt;</Pre>
+    </section>
+    <Table TItem="Foo" EditDialogShowMaximizeButton="true"
+           IsPagination="true" PageItemsSource="@PageItemsSource" DataService="@CustomerDataService"
+           IsStriped="true" IsBordered="true" IsMultipleSelect="true" AutoGenerateColumns="true"
+           ShowToolbar="true" ShowExtendButtons="true" ShowSkeleton="true">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.Hobby" Items="@Hobbies" Ignore="true" />
+            <TableColumn Field="@context.ReadonlyColumn" FieldName="@nameof(context.ReadonlyColumn)" Text="@LocalizerFoo[nameof(context.ReadonlyColumn)]" />
+        </TableColumns>
+    </Table>
+</DemoBlock>
+
+<DemoBlock Title="@Localizer["TablesTemplateColumnTitle"]" Introduction="@Localizer["TablesTemplateColumnIntro"]" Name="TableTemplateColumn">
+    <section ignore>
+        <p>@((MarkupString)Localizer["TablesTemplateColumnDescription"].Value)</p>
+    </section>
+    <Table TItem="Foo" EditDialogShowMaximizeButton="true"
+           IsPagination="true" PageItemsSource="@PageItemsSource" DataService="@CustomerDataService"
+           IsStriped="true" IsBordered="true" IsMultipleSelect="true" AutoGenerateColumns="true"
+           ShowToolbar="true" ShowExtendButtons="true" ShowSkeleton="true">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.Hobby" Items="@Hobbies" Ignore="true" />
+            <TableTemplateColumn Text="@Localizer["TableTemplateColumnText"]">
+                <Template Context="v">
+                    Test
+                </Template>
+            </TableTemplateColumn>
+        </TableColumns>
     </Table>
 </DemoBlock>

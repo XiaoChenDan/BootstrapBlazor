@@ -59,10 +59,10 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
     public Expression<Func<TType>>? FieldExpression { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否排序 默认 false
+    /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public bool Sortable { get; set; }
+    public bool? Sortable { get; set; }
 
     /// <summary>
     /// 获得/设置 是否为默认排序列 默认为 false
@@ -71,16 +71,16 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
     public bool DefaultSort { get; set; }
 
     /// <summary>
-    /// 获得/设置 本列是否允许换行 默认为 false
+    /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public bool TextWrap { get; set; }
+    public bool? TextWrap { get; set; }
 
     /// <summary>
-    /// 获得/设置 本列文本超出省略 默认为 false
+    /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public bool TextEllipsis { get; set; }
+    public bool? TextEllipsis { get; set; }
 
     /// <summary>
     /// 获得/设置 是否显示标签 Tooltip 多用于标签文字过长导致裁减时使用 默认 null
@@ -131,36 +131,36 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
     public SortOrder DefaultSortOrder { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否可过滤数据 默认 false
+    /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public bool Filterable { get; set; }
-
-    /// <summary>
-    /// 获得/设置 是否参与搜索自动生成 默认 false
-    /// </summary>
-    [Parameter]
-    public bool Searchable { get; set; }
+    public bool? Filterable { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public bool Ignore { get; set; }
+    public bool? Searchable { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    [Parameter]
+    public bool? Ignore { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     [Parameter]
     [ExcludeFromCodeCoverage]
-    [Obsolete("已弃用，是否显示使用 Visible 参数，新建时使用 IsVisibleWhenAdd 编辑时使用 IsVisibleWhenEdit 只读使用 Readonly 参数，新建时使用 IsReadonlyWhenAdd 编辑时使用 IsReadonlyWhenEdit 参数; Discarded, use Visible parameter. IsVisibleWhenAdd should be used when creating a new one, and IsVisibleWhenEdit should be used when editing")]
+    [Obsolete("已弃用，是否可编辑改用 Readonly 参数，是否可见改用 Ignore 参数; Deprecated If it is editable, use the Readonly parameter. If it is visible, use the Ignore parameter.")]
     public bool Editable { get; set; } = true;
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public bool Readonly { get; set; }
+    public bool? Readonly { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
@@ -178,7 +178,7 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
     /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public bool Visible { get; set; } = true;
+    public bool? Visible { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
@@ -232,13 +232,13 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
     /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public bool ShowCopyColumn { get; set; }
+    public bool? ShowCopyColumn { get; set; }
 
     /// <summary>
     /// 获得/设置 字段鼠标悬停提示
     /// </summary>
     [Parameter]
-    public bool ShowTips { get; set; }
+    public bool? ShowTips { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
@@ -253,10 +253,10 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
     public string? CssClass { get; set; }
 
     /// <summary>
-    /// 获得/设置 文字对齐方式 默认为 Alignment.None
+    /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    public Alignment Align { get; set; }
+    public Alignment? Align { get; set; }
 
     /// <summary>
     /// 获得/设置 格式化字符串 如时间类型设置 yyyy-MM-dd
@@ -295,7 +295,7 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
         }
     }
 #elif NET6_0_OR_GREATER
-    public RenderFragment<TableColumnContext<TItem, TType>>? Template { get; set; }
+    public RenderFragment<TableColumnContext<TItem, TType?>>? Template { get; set; }
 
     /// <summary>
     /// 内部使用负责把 object 类型的绑定数据值转化为泛型数据传递给前端
@@ -305,9 +305,16 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
         get => Template == null ? null : new RenderFragment<object>(context => builder =>
         {
             // 此处 context 为行数据
-            var fieldName = GetFieldName();
-            var value = Utility.GetPropertyValue<object, TType>(context, fieldName);
-            builder.AddContent(0, Template.Invoke(new TableColumnContext<TItem, TType>((TItem)context, value)));
+            if (this is TableTemplateColumn<TItem> col)
+            {
+                builder.AddContent(0, Template.Invoke(new TableColumnContext<TItem, TType?>((TItem)context, default)));
+            }
+            else
+            {
+                var fieldName = GetFieldName();
+                var value = Utility.GetPropertyValue<object, TType?>(context, fieldName);
+                builder.AddContent(0, Template.Invoke(new TableColumnContext<TItem, TType?>((TItem)context, value)));
+            }
         });
         set
         {
@@ -376,6 +383,12 @@ public class TableColumn<TItem, TType> : BootstrapComponentBase, ITableColumn
     /// </summary>
     [Parameter]
     public RenderFragment<ITableColumn>? HeaderTemplate { get; set; }
+
+    /// <summary>
+    /// 获得/设置 列工具栏模板 默认 null
+    /// </summary>
+    [Parameter]
+    public RenderFragment<ITableColumn>? ToolboxTemplate { get; set; }
 
     /// <summary>
     /// 获得/设置 显示节点阈值 默认值 BreakPoint.None 未设置

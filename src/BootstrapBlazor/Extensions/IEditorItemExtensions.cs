@@ -22,13 +22,13 @@ public static class IEditorItemExtensions
 
     private static bool IsReadonly(this IEditorItem item, ItemChangedType changedType)
     {
-        bool ret = item.Readonly;
+        bool ret = item.GetReadonly();
         if (item is ITableColumn col)
         {
             ret = changedType switch
             {
-                ItemChangedType.Add => col.IsReadonlyWhenAdd ?? col.Readonly,
-                _ => col.IsReadonlyWhenEdit ?? col.Readonly
+                ItemChangedType.Add => (col.IsReadonlyWhenAdd ?? false) || col.GetReadonly(),
+                _ => (col.IsReadonlyWhenEdit ?? false) || col.GetReadonly()
             };
         }
         return ret;
@@ -46,13 +46,13 @@ public static class IEditorItemExtensions
     private static bool IsVisible(this IEditorItem item, ItemChangedType changedType)
     {
         // IEditorItem 无 Visible 属性
-        bool ret = !item.Ignore;
+        bool ret = !item.GetIgnore();
         if (item is ITableColumn col)
         {
             ret = changedType switch
             {
-                ItemChangedType.Add => col.IsVisibleWhenAdd ?? col.Visible,
-                _ => col.IsVisibleWhenEdit ?? col.Visible
+                ItemChangedType.Add => col.IsVisibleWhenAdd ?? col.GetVisible(),
+                _ => col.IsVisibleWhenEdit ?? col.GetVisible()
             };
         }
         return ret;
@@ -82,7 +82,7 @@ public static class IEditorItemExtensions
         {
             var ret = false;
             var fieldName = item.GetFieldName();
-            var propertyNames = fieldName.Split('.');
+            var propertyNames = fieldName.Split('.', StringSplitOptions.RemoveEmptyEntries);
             PropertyInfo? propertyInfo = null;
             Type? propertyType = null;
             foreach (var name in propertyNames)
@@ -100,9 +100,13 @@ public static class IEditorItemExtensions
             }
             if (propertyInfo != null)
             {
-                ret = propertyInfo.CanWrite;
+                ret = propertyInfo.IsCanWrite();
             }
             return ret;
         }
     }
+
+    internal static bool GetIgnore(this IEditorItem col) => col.Ignore ?? false;
+
+    internal static bool GetReadonly(this IEditorItem col) => col.Readonly ?? false;
 }

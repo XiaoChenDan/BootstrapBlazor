@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
@@ -91,7 +90,7 @@ public class DataTableDynamicContextTest : BootstrapBlazorTestBase
         var localizer = Context.Services.GetRequiredService<IStringLocalizer<Foo>>();
         var fooData = GenerateDataTable(localizer);
         var context = new DataTableDynamicContext(fooData);
-        context.AddAttribute(nameof(Foo.Name), typeof(DisplayAttribute), Type.EmptyTypes, Array.Empty<object>(), null, null);
+        context.AddAttribute(nameof(Foo.Name), typeof(DisplayAttribute), Type.EmptyTypes, [], null, null);
     }
 
     [Fact]
@@ -134,7 +133,7 @@ public class DataTableDynamicContextTest : BootstrapBlazorTestBase
                 return Task.CompletedTask;
             }
         };
-        await context.AddAsync(Enumerable.Empty<IDynamicObject>());
+        await context.AddAsync([]);
         Assert.True(changed);
     }
 
@@ -188,7 +187,7 @@ public class DataTableDynamicContextTest : BootstrapBlazorTestBase
         Assert.Equal(4, context.GetItems().Count());
 
         // add empty
-        await context.AddAsync(Enumerable.Empty<IDynamicObject>());
+        await context.AddAsync([]);
 
         // 在选中行位置插入
         await context.AddAsync(context.GetItems().Take(2));

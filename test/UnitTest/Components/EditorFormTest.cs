@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -67,10 +66,10 @@ public class EditorFormTest : BootstrapBlazorTestBase
         Context.RenderComponent<EditorForm<Foo>>(pb =>
         {
             pb.Add(a => a.Model, foo);
-            pb.Add(a => a.Items, new List<InternalTableColumn>
+            pb.Add(a => a.Items, new List<IEditorItem>
             {
-                new("Id", typeof(int)),
-                new("Name", typeof(string))
+                new InternalTableColumn("Id", typeof(int)) { Ignore = true },
+                new TableTemplateColumn<Foo>()
             });
         });
     }

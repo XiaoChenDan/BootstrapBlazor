@@ -9,9 +9,6 @@ namespace UnitTest.Core;
 /// <summary>
 /// 
 /// </summary>
-/// <remarks>
-/// 构造函数
-/// </remarks>
 /// <param name="options"></param>
 public class FooContext(DbContextOptions<FooContext> options) : DbContext(options)
 {
@@ -33,5 +30,6 @@ public class FooContext(DbContextOptions<FooContext> options) : DbContext(option
         modelBuilder.Entity<Foo>().Ignore(f => f.Complete);
         modelBuilder.Entity<Foo>().Ignore(f => f.Education);
         modelBuilder.Entity<Foo>().Ignore(f => f.Hobby);
+        modelBuilder.Entity<Foo>().Ignore(f => f.ReadonlyColumn);
     }
 }

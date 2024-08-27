@@ -15,6 +15,12 @@
 <ResizeNotification></ResizeNotification>
 <BrowserFinger></BrowserFinger>
 <ConnectionHub></ConnectionHub>
+<Mask></Mask>
+
+@foreach(var com in Generators)
+{
+    @com.Generator()
+}
 
 @code {
     RenderFragment RenderChildContent =>

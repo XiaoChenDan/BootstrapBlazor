@@ -20,7 +20,7 @@ public partial class TablesEdit
     [NotNull]
     private IEnumerable<Foo>? EditItems { get; set; }
 
-    private static IEnumerable<int> PageItemsSource => new int[] { 4, 10, 20 };
+    private static IEnumerable<int> PageItemsSource => new[] { 4, 10, 20 };
 
     [NotNull]
     private IDataService<Foo>? CustomerDataService { get; set; }
@@ -129,7 +129,7 @@ public partial class TablesEdit
         });
     }
 
-    private class FooDataService<TModel>(IStringLocalizer<TModel> localizer) : TableDemoDataService<TModel>(localizer) where TModel : class, new()
+    private class FooDataService<TModel>(IStringLocalizer<TModel> localizer) : TableDemoDataService<TModel>(localizer) where TModel : class
     {
     }
 

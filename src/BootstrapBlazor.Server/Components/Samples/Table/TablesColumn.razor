@@ -90,11 +90,44 @@
            OnQueryAsync="@OnQueryAsync">
         <TableColumns>
             <TableColumn @bind-Field="@context.DateTime" Width="120" FormatString="yyyy-MM-dd" ShowCopyColumn="true" />
-            <TableColumn @bind-Field="@context.Name" Width="100" ShowCopyColumn="true" />
+            <TableColumn @bind-Field="@context.Name" Width="100" ShowCopyColumn="true" Sortable="true" />
             <TableColumn @bind-Field="@context.Address" ShowCopyColumn="true" />
             <TableColumn @bind-Field="@context.Count" ShowCopyColumn="true" />
             <TableColumn @bind-Field="@context.Education" ShowCopyColumn="true" />
             <TableColumn @bind-Field="@context.Complete" ShowCopyColumn="true" />
+        </TableColumns>
+    </Table>
+</DemoBlock>
+
+<DemoBlock Title="@Localizer["ShowColumnToolboxTitle"]" Introduction="@Localizer["ShowColumnToolboxIntro"]" Name="ToolboxTemplate">
+    <Table TItem="Foo"
+           IsPagination="true" PageItemsSource="@PageItemsSource" AllowResizing="true"
+           IsStriped="true" IsBordered="true" IsMultipleSelect="true"
+           ShowToolbar="false" ShowExtendButtons="false"
+           OnQueryAsync="@OnQueryAsync">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.DateTime" Width="120" FormatString="yyyy-MM-dd" ShowCopyColumn="true" Align="@_dateTimeAlign">
+                <ToolboxTemplate Context="v">
+                    <div class="custom-column-toolbox">
+                        <Button Size="Size.ExtraSmall" Icon="fa-solid fa-align-left" OnClick="() => SetAlign(v, Alignment.Left)"></Button>
+                        <Button Size="Size.ExtraSmall" Icon="fa-solid fa-align-center" OnClick="() => SetAlign(v, Alignment.Center)"></Button>
+                        <Button Size="Size.ExtraSmall" Icon="fa-solid fa-align-right" OnClick="() => SetAlign(v, Alignment.Right)"></Button>
+                    </div>
+                </ToolboxTemplate>
+            </TableColumn>
+            <TableColumn @bind-Field="@context.Name" Width="150" Sortable="true" Filterable="true" Align="@_nameAlign">
+                <ToolboxTemplate Context="v">
+                    <div class="custom-column-toolbox">
+                        <Button Size="Size.ExtraSmall" Icon="fa-solid fa-align-left" OnClick="() => SetAlign(v, Alignment.Left)"></Button>
+                        <Button Size="Size.ExtraSmall" Icon="fa-solid fa-align-center" OnClick="() => SetAlign(v, Alignment.Center)"></Button>
+                        <Button Size="Size.ExtraSmall" Icon="fa-solid fa-align-right" OnClick="() => SetAlign(v, Alignment.Right)"></Button>
+                    </div>
+                </ToolboxTemplate>
+            </TableColumn>
+            <TableColumn @bind-Field="@context.Address" Sortable="true" />
+            <TableColumn @bind-Field="@context.Count" Width="100" />
+            <TableColumn @bind-Field="@context.Education" Width="100" Filterable="true" />
+            <TableColumn @bind-Field="@context.Complete" Width="100" />
         </TableColumns>
     </Table>
 </DemoBlock>
@@ -154,6 +187,9 @@
            ShowToolbar="true" IsMultipleSelect="true" ShowExtendButtons="true"
            ShowDefaultButtons="true" OnSaveAsync="@OnSaveAsync"
            OnQueryAsync="@OnQueryAsync" OnColumnCreating="@OnColumnCreating" ShowEditButton="true">
+           <TableColumns>
+               <TableColumn @bind-Field="context.Hobby" Ignore="true"></TableColumn>
+           </TableColumns>
     </Table>
 </DemoBlock>
 

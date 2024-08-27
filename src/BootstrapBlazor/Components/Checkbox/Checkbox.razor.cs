@@ -9,7 +9,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// Checkbox 组件
 /// </summary>
-[BootstrapModuleAutoLoader(ModuleName = "utility", AutoInvokeInit = false, AutoInvokeDispose = false)]
+[BootstrapModuleAutoLoader(JSObjectReference = true)]
 public partial class Checkbox<TValue> : ValidateBase<TValue>
 {
     /// <summary>
@@ -75,11 +75,17 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     public CheckboxState State { get; set; }
 
     /// <summary>
-    /// State 状态改变回调方法
+    /// 获得/设置 State 状态改变回调方法
     /// </summary>
     /// <value></value>
     [Parameter]
     public EventCallback<CheckboxState> StateChanged { get; set; }
+
+    /// <summary>
+    /// 获得/设置 选中状态改变前回调此方法 返回 false 可以阻止状态改变
+    /// </summary>
+    [Parameter]
+    public Func<CheckboxState, Task<bool>>? OnBeforeStateChanged { get; set; }
 
     /// <summary>
     /// 获得/设置 选择框状态改变时回调此方法
@@ -94,7 +100,7 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     public bool StopPropagation { get; set; }
 
     /// <summary>
-    /// OnInitialized 方法
+    /// <inheritdoc/>
     /// </summary>
     protected override void OnInitialized()
     {
@@ -104,7 +110,7 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     }
 
     /// <summary>
-    /// OnParametersSet 方法
+    /// <inheritdoc/>
     /// </summary>
     protected override void OnParametersSet()
     {
@@ -122,7 +128,7 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     }
 
     /// <summary>
-    /// OnAfterRender 方法
+    /// <inheritdoc/>
     /// </summary>
     /// <param name="firstRender"></param>
     protected override void OnAfterRender(bool firstRender)
@@ -133,7 +139,7 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     }
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -144,45 +150,83 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     }
 
     /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task InvokeInitAsync()
+    {
+        if (OnBeforeStateChanged != null)
+        {
+            await InvokeVoidAsync("init", Id, Interop, new { Callback = nameof(TriggerOnBeforeStateChanged) });
+        }
+    }
+
+    /// <summary>
+    /// 触发 OnBeforeStateChanged 回调方法 由 JavaScript 调用
+    /// </summary>
+    [JSInvokable]
+    public async Task TriggerOnBeforeStateChanged()
+    {
+        if (OnBeforeStateChanged != null)
+        {
+            var state = State == CheckboxState.Checked ? CheckboxState.UnChecked : CheckboxState.Checked;
+            var ret = await OnBeforeStateChanged(state);
+            if (ret)
+            {
+                var render = await InternalStateChanged(state);
+                if (render)
+                {
+                    StateHasChanged();
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 点击选择框方法
     /// </summary>
     private async Task OnToggleClick()
     {
         if (!IsDisabled)
         {
-            _paddingStateChanged = true;
             await InternalStateChanged(State == CheckboxState.Checked ? CheckboxState.UnChecked : CheckboxState.Checked);
         }
     }
+
+    private bool TriggerClick => !IsDisabled && OnBeforeStateChanged == null;
 
     /// <summary>
     /// 此变量为了提高性能，避免循环更新
     /// </summary>
     private bool _paddingStateChanged;
 
-    private async Task InternalStateChanged(CheckboxState state)
+    private async Task<bool> InternalStateChanged(CheckboxState state)
     {
-        if (_paddingStateChanged)
+        var ret = true;
+
+        _paddingStateChanged = true;
+
+        if (IsBoolean)
         {
-            if (IsBoolean)
+            CurrentValue = (TValue)(object)(state == CheckboxState.Checked);
+        }
+
+        if (State != state)
+        {
+            State = state;
+            if (StateChanged.HasDelegate)
             {
-                CurrentValue = (TValue)(object)(state == CheckboxState.Checked);
+                await StateChanged.InvokeAsync(State);
+                ret = false;
             }
 
-            if (State != state)
+            if (OnStateChanged != null)
             {
-                State = state;
-                if (StateChanged.HasDelegate)
-                {
-                    await StateChanged.InvokeAsync(State);
-                }
-
-                if (OnStateChanged != null)
-                {
-                    await OnStateChanged.Invoke(State, Value);
-                }
+                await OnStateChanged(State, Value);
             }
         }
+
+        return ret;
     }
 
     /// <summary>
@@ -193,10 +237,11 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     {
         if (!_paddingStateChanged)
         {
-            _paddingStateChanged = true;
-
-            await InternalStateChanged(state);
-            StateHasChanged();
+            var render = await InternalStateChanged(state);
+            if (render)
+            {
+                StateHasChanged();
+            }
         }
     }
 

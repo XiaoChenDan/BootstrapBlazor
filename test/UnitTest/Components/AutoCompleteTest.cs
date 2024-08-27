@@ -13,8 +13,9 @@ public class AutoCompleteTest : BootstrapBlazorTestBase
     {
         var cut = Context.RenderComponent<AutoComplete>(builder =>
         {
-            builder.Add(a => a.Items, new String[] { "test1", "test2" });
+            builder.Add(a => a.Items, new string[] { "test1", "test2" });
             builder.Add(a => a.NoDataTip, "test3");
+            builder.Add(a => a.ShowNoDataTip, true);
             builder.Add(a => a.DisplayCount, 10);
             builder.Add(a => a.IsLikeMatch, true);
             builder.Add(a => a.IgnoreCase, false);
@@ -226,6 +227,27 @@ public class AutoCompleteTest : BootstrapBlazorTestBase
             input.FocusAsync(new FocusEventArgs());
             Assert.True(filter);
         });
+    }
+
+    [Fact]
+    public async Task OnFocus_Ok()
+    {
+        IEnumerable<string> items = new List<string>() { "test1", "test2" };
+        var cut = Context.RenderComponent<AutoComplete>(pb =>
+        {
+            pb.Add(a => a.Items, items);
+            pb.Add(a => a.DisplayCount, 1);
+        });
+
+        // trigger focus
+        await cut.InvokeAsync(async () =>
+        {
+            var input = cut.Find("input");
+            await input.FocusAsync(new FocusEventArgs());
+        });
+
+        var filters = cut.FindAll(".dropdown-item");
+        Assert.Single(filters);
     }
 
     [Fact]

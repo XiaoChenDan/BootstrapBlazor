@@ -272,13 +272,36 @@ public partial class Table<TItem>
         }
         else
         {
-            EditModel = new TItem();
+            EditModel = CreateTItem();
             if (Items == null)
             {
                 var d = DataService ?? InjectDataService;
                 await d.AddAsync(EditModel);
             }
         }
+    }
+
+    /// <summary>
+    /// 获得/设置 新建模型回调方法 默认 null 未设置时使用默认无参构造函数创建
+    /// </summary>
+    [Parameter]
+    public Func<TItem>? CreateItemCallback { get; set; }
+
+    private TItem CreateTItem()
+    {
+        var item = CreateItemCallback?.Invoke();
+        if (item == null)
+        {
+            try
+            {
+                item = Activator.CreateInstance<TItem>();
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException($"{typeof(TItem)} missing new() method. Please provider {nameof(CreateItemCallback)} create the {typeof(TItem)} instance. {typeof(TItem)} 未提供无参构造函数 new() 请通过 {nameof(CreateItemCallback)} 回调方法创建实例");
+            }
+        }
+        return item;
     }
 
     /// <summary>
@@ -332,7 +355,7 @@ public partial class Table<TItem>
     protected virtual bool CheckActive(TItem val) => SelectedRows.Any(row => Equals(val, row));
 
     /// <summary>
-    /// 
+    /// 刷新按钮回调方法
     /// </summary>
     /// <returns></returns>
     protected Task OnClickRefreshAsync() => QueryAsync();
@@ -444,9 +467,9 @@ public partial class Table<TItem>
         {
             var queryData = await InternalOnQueryAsync(queryOption);
             PageIndex = queryOption.PageIndex;
-            PageItems = queryOption.PageItems;
+            _pageItems = queryOption.PageItems;
             TotalCount = queryData.TotalCount;
-            PageCount = (int)Math.Ceiling(TotalCount * 1.0 / Math.Max(1, PageItems));
+            PageCount = (int)Math.Ceiling(TotalCount * 1.0 / Math.Max(1, _pageItems));
             IsAdvanceSearch = queryData.IsAdvanceSearch;
             QueryItems = queryData.Items ?? [];
 
@@ -553,7 +576,7 @@ public partial class Table<TItem>
         {
             IsPage = IsPagination,
             PageIndex = PageIndex,
-            PageItems = PageItems,
+            PageItems = _pageItems,
             SearchText = SearchText,
             SortOrder = SortOrder,
             SortName = SortName,
@@ -585,6 +608,10 @@ public partial class Table<TItem>
         if (SelectedRows.Count > 0)
         {
             SelectedRows = items.Where(i => SelectedRows.Any(row => Equals(i, row))).ToList();
+            if (SelectedRowsChanged.HasDelegate)
+            {
+                _ = SelectedRowsChanged.InvokeAsync(SelectedRows);
+            }
         }
     }
 

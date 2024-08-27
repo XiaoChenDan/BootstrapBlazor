@@ -2,12 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace BootstrapBlazor.Server.Components.Samples.Table;
 
 /// <summary>
@@ -15,7 +9,7 @@ namespace BootstrapBlazor.Server.Components.Samples.Table;
 /// </summary>
 public partial class TablesFooter
 {
-    private static IEnumerable<int> PageItemsSource => new int[] { 2, 4, 10, 20 };
+    private static IEnumerable<int> PageItemsSource => new int[] { 10, 20, 40 };
 
     /// <summary>
     /// Foo 类为Demo测试用，如有需要请自行下载源码查阅

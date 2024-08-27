@@ -105,9 +105,6 @@ public partial class Chart
     /// 获得/设置 组件数据初始化委托方法
     /// </summary>
     [Parameter]
-#if NET6_0_OR_GREATER
-    [EditorRequired]
-#endif
     public Func<Task<ChartDataSource>>? OnInitAsync { get; set; }
 
     /// <summary>
@@ -156,16 +153,20 @@ public partial class Chart
         {
             if (OnInitAsync == null)
             {
-                throw new InvalidOperationException("OnInit parameter must be set");
+                throw new InvalidOperationException($"{nameof(OnInitAsync)} parameter must be set. {nameof(OnInitAsync)} 回调方法必须设置");
             }
 
-            var ds = await OnInitAsync();
-            UpdateOptions(ds);
-
-            if (Height != null && Width != null)
+            ChartDataSource? ds = null;
+            if (OnInitAsync != null)
             {
-                //设置了高度和宽度,会自动禁用约束图表比例,图表充满容器
-                ds.Options.MaintainAspectRatio = false;
+                ds = await OnInitAsync();
+                UpdateOptions(ds);
+
+                if (Height != null && Width != null)
+                {
+                    //设置了高度和宽度,会自动禁用约束图表比例,图表充满容器
+                    ds.Options.MaintainAspectRatio = false;
+                }
             }
 
             await InvokeVoidAsync("init", Id, Interop, nameof(Completed), ds);
@@ -176,9 +177,12 @@ public partial class Chart
     /// 图表绘制完成后回调此方法
     /// </summary>
     [JSInvokable]
-    public void Completed()
+    public async Task Completed()
     {
-        OnAfterInitAsync?.Invoke();
+        if (OnAfterInitAsync != null)
+        {
+            await OnAfterInitAsync();
+        }
     }
 
     /// <summary>
@@ -206,7 +210,7 @@ public partial class Chart
             var ds = await OnInitAsync();
             UpdateOptions(ds);
 
-            await InvokeVoidAsync("update", Id, ds, action.ToDescriptionString(), Angle);
+            await InvokeVoidAsync("update", Id, Interop, ds, action.ToDescriptionString(), Angle);
 
             if (OnAfterUpdateAsync != null)
             {

@@ -127,6 +127,7 @@ public class IconThemeOptions
         { ComponentIcons.RibbonTabArrowDownIcon, "fa-solid fa-angle-down" },
         { ComponentIcons.RibbonTabArrowPinIcon, "fa-solid fa-thumbtack fa-rotate-90" },
 
+        { ComponentIcons.MultiSelectDropdownIcon, "fa-solid fa-angle-up" },
         { ComponentIcons.MultiSelectClearIcon, "fa-solid fa-xmark" },
 
         { ComponentIcons.SelectTreeDropdownIcon, "fa-solid fa-angle-up" },
@@ -153,6 +154,8 @@ public class IconThemeOptions
         { ComponentIcons.TabNextIcon, "fa-solid fa-chevron-right" },
         { ComponentIcons.TabDropdownIcon, "fa-solid fa-chevron-down" },
         { ComponentIcons.TabCloseIcon, "fa-solid fa-xmark" },
+
+        { ComponentIcons.TableColumnToolboxIcon, "fa-solid fa-gear" },
 
         { ComponentIcons.TableSortIconAsc, "fa-solid fa-sort-up" },
         { ComponentIcons.TableSortDesc, "fa-solid fa-sort-down" },
@@ -192,7 +195,7 @@ public class IconThemeOptions
         { ComponentIcons.TreeViewExpandNodeIcon, "fa-solid fa-caret-right fa-rotate-90" },
         { ComponentIcons.TreeViewNodeIcon, "fa-solid fa-caret-right" },
         { ComponentIcons.TreeViewSearchIcon, "fa-solid fa-magnifying-glass" },
-        { ComponentIcons.TreeViewResetSearchIcon, "fa-regular fa-trash-can" },
+        { ComponentIcons.TreeViewResetSearchIcon, "fa-solid fa-delete-left" },
 
         // Upload
         { ComponentIcons.AvatarUploadDeleteIcon, "fa-regular fa-trash-can" },

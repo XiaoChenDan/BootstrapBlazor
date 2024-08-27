@@ -15,8 +15,21 @@ namespace BootstrapBlazor.Components;
 #if NET6_0_OR_GREATER
 [CascadingTypeParameter(nameof(TItem))]
 #endif
-public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where TItem : class, new()
+public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where TItem : class
 {
+    /// <summary>
+    /// 获得/设置 Loading 模板
+    /// </summary>
+    [Parameter]
+    public RenderFragment? LoadingTemplate { get; set; }
+
+    /// <summary>
+    /// 获得/设置 列工具栏图标 fa-solid fa-gear
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? ColumnToolboxIcon { get; set; }
+
     /// <summary>
     /// 获得/设置 内置虚拟化组件实例
     /// </summary>
@@ -62,7 +75,7 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
         .AddClass("table-striped table-hover", ActiveRenderMode == TableRenderMode.CardView && IsStriped)
         .Build();
 
-    private string? FooterClassString => CssBuilder.Default()
+    private string? FooterClassString => CssBuilder.Default("table-footer")
         .AddClass("table-footer-fixed", IsFixedFooter)
         .Build();
 
@@ -136,9 +149,9 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
 
     private bool IsShowFooter => ShowFooter && (Rows.Count > 0 || !IsHideFooterWhenNoData);
 
-    private int PageStartIndex => Rows.Count > 0 ? (PageIndex - 1) * PageItems + 1 : 0;
+    private int PageStartIndex => Rows.Count > 0 ? (PageIndex - 1) * _pageItems + 1 : 0;
 
-    private string PageInfoLabelString => Localizer[nameof(PageInfoText), PageStartIndex, (PageIndex - 1) * PageItems + Rows.Count, TotalCount];
+    private string PageInfoLabelString => Localizer[nameof(PageInfoText), PageStartIndex, (PageIndex - 1) * _pageItems + Rows.Count, TotalCount];
 
     private static string? GetColWidthString(int? width) => width.HasValue ? $"width: {width.Value}px;" : null;
 
@@ -153,6 +166,18 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
     /// </summary>
     [Parameter]
     public int? ScrollHoverWidth { get; set; }
+
+    /// <summary>
+    /// 获得/设置 列调整提示前缀文字 默认 null 未设置使用资源文件中文字
+    /// </summary>
+    [Parameter]
+    public string? ColumnWidthTooltipPrefix { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否显示列宽提示信息，默认 false 显示
+    /// </summary>
+    [Parameter]
+    public bool ShowColumnWidthTooltip { get; set; }
 
     private string ScrollWidthString => $"width: {ActualScrollWidth}px;";
 
@@ -292,7 +317,19 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
     /// 获得/设置 Table 组件渲染完毕回调
     /// </summary>
     [Parameter]
-    public Func<Table<TItem>, Task>? OnAfterRenderCallback { get; set; }
+    public Func<Table<TItem>, bool, Task>? OnAfterRenderCallback { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否自动将选中行滚动到可视区域 默认 false
+    /// </summary>
+    [Parameter]
+    public bool AutoScrollLastSelectedRowToView { get; set; }
+
+    /// <summary>
+    /// 获得/设置 选中行滚动到可视区域对齐方式 默认 ScrollToViewAlign.Center
+    /// </summary>
+    [Parameter]
+    public ScrollToViewAlign AutoScrollVerticalAlign { get; set; } = ScrollToViewAlign.Center;
 
     /// <summary>
     /// 获得/设置 双击单元格回调委托
@@ -412,6 +449,18 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
     /// </summary>
     [Parameter]
     public RenderFragment<TItem>? DetailRowTemplate { get; set; }
+
+    /// <summary>
+    /// 获得/设置 行模板
+    /// </summary>
+    [Parameter]
+    public RenderFragment<TableRowContext<TItem>>? RowTemplate { get; set; }
+
+    /// <summary>
+    /// 获得/设置 行内容模板
+    /// </summary>
+    [Parameter]
+    public RenderFragment<TableRowContext<TItem>>? RowContentTemplate { get; set; }
 
     /// <summary>
     /// 获得/设置 TableHeader 实例
@@ -626,6 +675,48 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
     [Parameter]
     public string? ClientTableName { get; set; }
 
+    /// <summary>
+    /// 获得/设置 左对齐显示文本
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? AlignLeftText { get; set; }
+
+    /// <summary>
+    /// 获得/设置左对齐提示信息文本
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? AlignLeftTooltipText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 居中对齐显示文本
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? AlignCenterText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 居中对齐提示信息文本
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? AlignCenterTooltipText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 右对齐显示文本
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? AlignRightText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 右对齐提示信息文本
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? AlignRightTooltipText { get; set; }
+
     [CascadingParameter]
     private ContextMenuZone? ContextMenuZone { get; set; }
 
@@ -634,6 +725,8 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
     private IIconTheme? IconTheme { get; set; }
 
     private bool UpdateSortTooltip { get; set; }
+
+    private bool _isFilterTrigger;
 
     /// <summary>
     /// OnInitialized 方法
@@ -644,6 +737,7 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
 
         // 初始化节点缓存
         TreeNodeCache ??= new(Equals);
+        SearchModel = CreateTItem();
 
         OnInitLocalization();
 
@@ -665,6 +759,10 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
         {
             PageIndex = 1;
             TotalCount = 0;
+            if (ScrollMode == ScrollMode.Virtual)
+            {
+                _isFilterTrigger = true;
+            }
             return QueryAsync();
         };
     }
@@ -709,12 +807,18 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
             RenderMode = op.TableSettings.TableRenderMode.Value;
         }
 
-        PageItemsSource ??= new[] { 20, 50, 100, 200, 500, 1000 };
+        PageItemsSource ??= [20, 50, 100, 200, 500, 1000];
 
-        if (PageItems == 0)
+        if (_originPageItems != PageItems)
+        {
+            _originPageItems = PageItems;
+            _pageItems = 0;
+        }
+
+        if (_pageItems == 0)
         {
             // 如果未设置 PageItems 取默认值第一个
-            PageItems = PageItemsSource.First();
+            _pageItems = _originPageItems ?? PageItemsSource.First();
         }
 
         if (ExtendButtonColumnAlignment == Alignment.None)
@@ -732,6 +836,7 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
         SortIcon ??= IconTheme.GetIconByKey(ComponentIcons.TableSortIcon);
         FilterIcon ??= IconTheme.GetIconByKey(ComponentIcons.TableFilterIcon);
         ExportButtonIcon ??= IconTheme.GetIconByKey(ComponentIcons.TableExportButtonIcon);
+        ColumnToolboxIcon ??= IconTheme.GetIconByKey(ComponentIcons.TableColumnToolboxIcon);
 
         AddButtonIcon ??= IconTheme.GetIconByKey(ComponentIcons.TableAddButtonIcon);
         EditButtonIcon ??= IconTheme.GetIconByKey(ComponentIcons.TableEditButtonIcon);
@@ -787,6 +892,7 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
         {
             IsFixedHeader = true;
             RenderMode = TableRenderMode.Table;
+            IsPagination = false;
         }
 
         RowsCache = null;
@@ -845,6 +951,17 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
             await InvokeVoidAsync("sort", Id);
         }
 
+        if (AutoScrollLastSelectedRowToView)
+        {
+            await InvokeVoidAsync("scroll", Id, AutoScrollVerticalAlign.ToDescriptionString());
+        }
+
+        if (_isFilterTrigger)
+        {
+            _isFilterTrigger = false;
+            await InvokeVoidAsync("scrollTo", Id);
+        }
+
         // 增加去重保护 _loop 为 false 时执行
         if (!_loop && IsAutoRefresh && AutoRefreshInterval > 500)
         {
@@ -858,18 +975,45 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
     {
         if (firstRender)
         {
-            if (OnAfterRenderCallback != null)
-            {
-                await OnAfterRenderCallback(this);
-            }
-
             await InvokeVoidAsync("init", Id, Interop, new
             {
                 DragColumnCallback = nameof(DragColumnCallback),
+                AutoFitContentCallback = nameof(AutoFitContentCallback),
                 ResizeColumnCallback = OnResizeColumnAsync != null ? nameof(ResizeColumnCallback) : null,
                 ColumnMinWidth = ColumnMinWidth ?? Options.CurrentValue.TableSettings.ColumnMinWidth,
-                ScrollWidth = ActualScrollWidth
+                ScrollWidth = ActualScrollWidth,
+                ShowColumnWidthTooltip,
+                ColumnWidthTooltipPrefix,
+                ColumnToolboxContent = new List<object>()
+                {
+                    new
+                    {
+                        Key = "align-left",
+                        Icon = "fa-solid fa-align-left",
+                        Text = Localizer["AlignLeftText"].Value,
+                        Tooltip = Localizer["AlignLeftTooltipText"].Value
+                    },
+                    new
+                    {
+                        Key = "align-center",
+                        Icon = "fa-solid fa-align-center",
+                        Text = Localizer["AlignCenterText"].Value,
+                        Tooltip = Localizer["AlignCenterTooltipText"].Value
+                    },
+                    new
+                    {
+                        Key = "align-left",
+                        Icon = "fa-solid fa-align-right",
+                        Text = Localizer["AlignRightText"].Value,
+                        Tooltip = Localizer["AlignRightTooltipText"].Value
+                    }
+                }
             });
+        }
+
+        if (OnAfterRenderCallback != null)
+        {
+            await OnAfterRenderCallback(this, firstRender);
         }
     }
 
@@ -961,15 +1105,21 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
         {
             cols = ColumnOrderCallback(cols).ToList();
         }
+
         await ReloadColumnOrdersFromBrowserAsync(cols);
         Columns.Clear();
         Columns.AddRange(cols.OrderFunc());
 
-        InternalResetVisibleColumns();
-
         // 查看是否开启列宽序列化
         _clientColumnWidths = await ReloadColumnWidthFromBrowserAsync();
         ResetColumnWidth();
+
+        if (OnColumnCreating != null)
+        {
+            await OnColumnCreating(Columns);
+        }
+
+        InternalResetVisibleColumns();
 
         // set default sortName
         var col = Columns.Find(i => i is { Sortable: true, DefaultSort: true });
@@ -977,11 +1127,6 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
         {
             SortName = col.GetFieldName();
             SortOrder = col.DefaultSortOrder;
-        }
-
-        if (OnColumnCreating != null)
-        {
-            await OnColumnCreating(Columns);
         }
 
         // 获取是否自动查询参数值
@@ -1024,7 +1169,7 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
 
     private void InternalResetVisibleColumns(IEnumerable<ColumnVisibleItem>? items = null)
     {
-        var cols = Columns.Select(i => new ColumnVisibleItem(i.GetFieldName(), i.Visible) { DisplayName = i.GetDisplayName() }).ToList();
+        var cols = Columns.Select(i => new ColumnVisibleItem(i.GetFieldName(), i.GetVisible()) { DisplayName = i.GetDisplayName() }).ToList();
         if (items != null)
         {
             foreach (var column in cols)
@@ -1223,8 +1368,8 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
 
     private async ValueTask<ItemsProviderResult<TItem>> LoadItems(ItemsProviderRequest request)
     {
-        StartIndex = request.StartIndex;
-        PageItems = TotalCount > 0 ? Math.Min(request.Count, TotalCount - request.StartIndex) : request.Count;
+        StartIndex = _isFilterTrigger ? 0 : request.StartIndex;
+        _pageItems = TotalCount > 0 ? Math.Min(request.Count, TotalCount - request.StartIndex) : request.Count;
         await QueryData();
         return new ItemsProviderResult<TItem>(QueryItems, TotalCount);
     }
@@ -1246,7 +1391,7 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
 
     private int GetColumnCount()
     {
-        var colSpan = GetVisibleColumns().Count(col => col.Visible);
+        var colSpan = GetVisibleColumns().Count(col => ScreenSize >= col.ShownWithBreakPoint);
         if (IsMultipleSelect)
         {
             colSpan++;
@@ -1276,7 +1421,7 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
         return ret;
     }
 
-    private int GetLineNo(TItem item) => Rows.IndexOf(item) + 1 + ((ScrollMode == ScrollMode.Virtual && Items == null) ? StartIndex : (PageIndex - 1) * PageItems);
+    private int GetLineNo(TItem item) => Rows.IndexOf(item) + 1 + ((ScrollMode == ScrollMode.Virtual && Items == null) ? StartIndex : (PageIndex - 1) * _pageItems);
 
     /// <summary>
     /// Reset all Columns Filter
@@ -1293,6 +1438,17 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
         {
             await OnFilterAsync();
         }
+    }
+
+    /// <summary>
+    /// Reset all Columns Sort
+    /// </summary>
+    public async Task ResetSortAsync()
+    {
+        SortName = null;
+        SortOrder = SortOrder.Unset;
+
+        await QueryData();
     }
 
     /// <summary>
@@ -1344,6 +1500,12 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
     public Func<string, float, Task>? OnResizeColumnAsync { get; set; }
 
     /// <summary>
+    /// 获得/设置 自动调整列宽回调方法
+    /// </summary>
+    [Parameter]
+    public Func<string, Task<float>>? OnAutoFitContentAsync { get; set; }
+
+    /// <summary>
     /// 重置列方法 由 JavaScript 脚本调用
     /// </summary>
     /// <param name="originIndex"></param>
@@ -1382,11 +1544,27 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
     [JSInvokable]
     public async Task ResizeColumnCallback(int index, float width)
     {
-        var column = GetVisibleColumns().ElementAtOrDefault(index);
+        var column = GetVisibleColumns().Where(i => !i.Fixed).ElementAtOrDefault(index);
         if (column != null && OnResizeColumnAsync != null)
         {
             await OnResizeColumnAsync(column.GetFieldName(), width);
         }
+    }
+
+    /// <summary>
+    /// 列宽自适应回调方法 由 JavaScript 脚本调用
+    /// </summary>
+    /// <param name="fieldName">当前列名称</param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task<float> AutoFitContentCallback(string fieldName)
+    {
+        float ret = 0;
+        if (OnAutoFitContentAsync != null)
+        {
+            ret = await OnAutoFitContentAsync(fieldName);
+        }
+        return ret;
     }
 
     /// <summary>
@@ -1407,7 +1585,8 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
             TouchStart = true;
 
             // 延时保持 TouchStart 状态
-            await Task.Delay(200);
+            var delay = Options.CurrentValue.ContextMenuOptions.OnTouchDelay;
+            await Task.Delay(delay);
             if (TouchStart)
             {
                 var args = new MouseEventArgs()
@@ -1421,7 +1600,7 @@ public partial class Table<TItem> : ITable, IModelEqualityComparer<TItem> where 
                 await OnContextMenu(args, item);
 
                 //延时防止重复激活菜单功能
-                await Task.Delay(200);
+                await Task.Delay(delay);
             }
             IsBusy = false;
         }

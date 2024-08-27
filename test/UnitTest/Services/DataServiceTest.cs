@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace UnitTest.Services;
 
 public class DataServiceTest
@@ -33,7 +31,7 @@ public class DataServiceTest
         Assert.True(ret);
     }
 
-    private class MockDataService<TModel> : DataServiceBase<TModel> where TModel : class, new()
+    private class MockDataService<TModel> : DataServiceBase<TModel> where TModel : class
     {
         public override Task<QueryData<TModel>> QueryAsync(QueryPageOptions option)
         {

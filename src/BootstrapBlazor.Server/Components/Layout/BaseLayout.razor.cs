@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using Microsoft.Extensions.Options;
-
 namespace BootstrapBlazor.Server.Components.Layout;
 
 /// <summary>
@@ -18,10 +16,6 @@ public partial class BaseLayout : IDisposable
     [Inject]
     [NotNull]
     private ToastService? Toast { get; set; }
-
-    [Inject]
-    [NotNull]
-    private IOptionsMonitor<WebsiteOptions>? WebsiteOption { get; set; }
 
     [Inject]
     [NotNull]
@@ -44,12 +38,6 @@ public partial class BaseLayout : IDisposable
     private string? CancelText { get; set; }
 
     [NotNull]
-    private string? Title { get; set; }
-
-    [NotNull]
-    private string? ChatTooltip { get; set; }
-
-    [NotNull]
     private string? ThemeTooltip { get; set; }
 
     /// <summary>
@@ -63,8 +51,6 @@ public partial class BaseLayout : IDisposable
         InstallAppText ??= Localizer[nameof(InstallAppText)];
         InstallText ??= Localizer[nameof(InstallText)];
         CancelText ??= Localizer[nameof(CancelText)];
-        Title ??= Localizer[nameof(Title)];
-        ChatTooltip ??= Localizer[nameof(ChatTooltip)];
         ThemeTooltip ??= Localizer[nameof(ThemeTooltip)];
 
         CommitDispatchService.Subscribe(NotifyCommit);

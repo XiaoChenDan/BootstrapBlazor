@@ -56,6 +56,31 @@ const copy = (text = '') => {
     }
 }
 
+const getTextFromClipboard = () => {
+    return navigator.clipboard.readText();
+}
+
+async function getAllClipboardContents() {
+    try {
+        const clipboardItems = await navigator.clipboard.read();
+        let items = [];
+        for (const clipboardItem of clipboardItems) {
+            for (const mimeType of clipboardItem.types) {
+                const blob = await clipboardItem.getType(mimeType);
+                const arrayBuffer = await blob.arrayBuffer();
+                items.push({
+                    mimeType: mimeType,
+                    data: new Uint8Array(arrayBuffer)
+                });
+            }
+        }
+        return items;
+    } catch (error) {
+        console.error('Failed to read from clipboard:', error);
+    }
+    return [];
+}
+
 const getUID = (prefix = 'bb') => {
     let id = "";
     do {
@@ -353,7 +378,9 @@ const drag = (element, start, move, end) => {
         }
 
         if (!notDrag) {
-            e.preventDefault()
+            if (e.cancelable) {
+                e.preventDefault();
+            }
             e.stopPropagation()
 
             document.addEventListener('mousemove', handleDragMove)
@@ -748,6 +775,20 @@ export function switchTheme(theme, x = 0, y = 0, sync = true) {
     }
 }
 
+const deepMerge = (obj1, obj2) => {
+    for (let key in obj2) {
+        if (obj2.hasOwnProperty(key)) {
+            if (obj2[key] instanceof Object && obj1[key] instanceof Object) {
+                obj1[key] = deepMerge(obj1[key], obj2[key]);
+            }
+            else {
+                obj1[key] = obj2[key];
+            }
+        }
+    }
+    return obj1;
+}
+
 export {
     autoAdd,
     autoRemove,
@@ -758,8 +799,11 @@ export {
     addLink,
     addScript,
     copy,
+    deepMerge,
     debounce,
     drag,
+    getTextFromClipboard,
+    getAllClipboardContents,
     insertBefore,
     insertAfter,
     isDisabled,

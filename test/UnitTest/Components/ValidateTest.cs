@@ -91,6 +91,38 @@ public class ValidateTest : BootstrapBlazorTestBase
     }
 
     [Fact]
+    public void ValidateForm_Group_Ok()
+    {
+        var model = new Foo() { Name = "Name-Test" };
+        var cut = Context.RenderComponent<ValidateForm>(builder =>
+        {
+            builder.Add(a => a.Model, model);
+            builder.AddChildContent<BootstrapInputGroup>(pb =>
+            {
+                pb.AddChildContent<BootstrapInputGroupLabel>(p =>
+                {
+                    p.Add(a => a.DisplayText, "Name-Test");
+                });
+                pb.AddChildContent<BootstrapInput<string>>(p =>
+                {
+                    p.Add(a => a.Value, model.Name);
+                    p.Add(a => a.ValueExpression, model.GenerateValueExpression());
+                });
+            });
+        });
+
+        // ValidateForm 验证表单中 使用 InputGroup 组件
+        cut.Contains("Name-Test");
+
+        var input = cut.FindComponent<BootstrapInput<string>>();
+        input.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ShowLabel, true);
+        });
+        cut.Contains("姓名");
+    }
+
+    [Fact]
     public void ShowLabel_Ok()
     {
         var model = new Foo() { Name = "Name-Test" };
@@ -324,6 +356,23 @@ public class ValidateTest : BootstrapBlazorTestBase
         await cut.InvokeAsync(() =>
         {
             c.Change("argo");
+            form.Submit();
+        });
+        Assert.True(invalid);
+
+        // 自定义验证规则未设置 member name
+        rules =
+        [
+            new FormItemValidator(new MockValidationAttribute())
+        ];
+        input.SetParametersAndRender(pb =>
+        {
+            pb.Add(v => v.ValidateRules, rules);
+        });
+        invalid = false;
+        await cut.InvokeAsync(() =>
+        {
+            c.Change("argo@163.com");
             form.Submit();
         });
         Assert.True(invalid);
@@ -636,5 +685,13 @@ public class ValidateTest : BootstrapBlazorTestBase
     class Dog
     {
         public int? Count { get; set; }
+    }
+
+    class MockValidationAttribute : ValidationAttribute
+    {
+        protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
+        {
+            return new ValidationResult($"The {validationContext.DisplayName} field must be a future date.");
+        }
     }
 }

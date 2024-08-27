@@ -104,6 +104,7 @@ internal class DefaultIcon
         { ComponentIcons.RibbonTabArrowDownIcon, "bi bi-chevron-down" },
         { ComponentIcons.RibbonTabArrowPinIcon, "bi bi-pin bi-pin-angle" },
 
+        { ComponentIcons.MultiSelectDropdownIcon, "bi bi-chevron-up" },
         { ComponentIcons.MultiSelectClearIcon, "bi bi-x" },
 
         { ComponentIcons.SelectTreeDropdownIcon, "bi bi-chevron-up" },
@@ -130,6 +131,8 @@ internal class DefaultIcon
         { ComponentIcons.TabNextIcon, "bi bi-chevron-right" },
         { ComponentIcons.TabDropdownIcon, "bi bi-chevron-down" },
         { ComponentIcons.TabCloseIcon, "bi bi-x" },
+
+        { ComponentIcons.TableColumnToolboxIcon, "bi bi-gear" },
 
         { ComponentIcons.TableSortIconAsc, "bi bi-sort-up-alt" },
         { ComponentIcons.TableSortDesc, "bi bi-sort-down" },
@@ -169,7 +172,7 @@ internal class DefaultIcon
         { ComponentIcons.TreeViewExpandNodeIcon, "bi bi-caret-right-fill bi-rotate-90" },
         { ComponentIcons.TreeViewNodeIcon, "bi bi-caret-right-fill" },
         { ComponentIcons.TreeViewSearchIcon, "bi bi-search" },
-        { ComponentIcons.TreeViewResetSearchIcon, "bi bi-trash3" },
+        { ComponentIcons.TreeViewResetSearchIcon, "bi bi-backspace" },
 
         // Upload
         { ComponentIcons.AvatarUploadDeleteIcon, "bi bi-trash3" },

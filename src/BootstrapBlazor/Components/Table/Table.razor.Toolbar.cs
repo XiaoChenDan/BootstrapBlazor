@@ -338,8 +338,9 @@ public partial class Table<TItem>
     public RenderFragment? TableExtensionToolbarTemplate { get; set; }
 
     /// <summary>
-    /// 获得/设置 新建按钮回调方法
+    /// 获得/设置 新建按钮回调方法 用于补充模型字段值
     /// </summary>
+    /// <remarks>有些场景下新建模型有些属性字段默认值需要更改为默认业务值，或者该属性数据库中设置不可为空，新建模型默认值为空时，可通过此回调进行属性值补充更新</remarks>
     [Parameter]
     public Func<Task<TItem>>? OnAddAsync { get; set; }
 
@@ -374,10 +375,22 @@ public partial class Table<TItem>
     public string? EditDialogSaveButtonText { get; set; }
 
     /// <summary>
+    /// 获得/设置 保存弹窗中的保存按钮图标 默认 null 使用当前主题图标
+    /// </summary>
+    [Parameter]
+    public string? EditDialogSaveButtonIcon { get; set; }
+
+    /// <summary>
     /// 获得/设置 保存弹窗中的关闭按钮显示文本 默认为资源文件中的 关闭
     /// </summary>
     [Parameter]
     public string? EditDialogCloseButtonText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 保存弹窗中的关闭按钮图标 默认 null 使用当前主题图标
+    /// </summary>
+    [Parameter]
+    public string? EditDialogCloseButtonIcon { get; set; }
 
     /// <summary>
     /// 获得/设置 导出数据弹窗 Title 默认为资源文件 导出数据
@@ -414,6 +427,19 @@ public partial class Table<TItem>
     [NotNull]
     protected DialogService? DialogService { get; set; }
 
+    /// <summary>
+    /// DrawerService 服务实例
+    /// </summary>
+    [Inject]
+    [NotNull]
+    protected DrawerService? DrawerService { get; set; }
+
+    /// <summary>
+    /// 获得/设置 抽屉打开之前回调方法 用于设置 <see cref="DrawerOption"/> 抽屉配置信息
+    /// </summary>
+    [Parameter]
+    public Func<DrawerOption, Task>? OnBeforeShowDrawer { get; set; }
+
     [Inject]
     [NotNull]
     private ITableExport? TableExport { get; set; }
@@ -431,7 +457,7 @@ public partial class Table<TItem>
     {
         // 不可见列
         var items = VisibleColumns.Where(i => i.Visible);
-        return Columns.Where(i => !i.Ignore && items.Any(v => v.Name == i.GetFieldName()));
+        return Columns.Where(i => !i.GetIgnore() && items.Any(v => v.Name == i.GetFieldName()));
     }
 
     private bool GetColumnsListState(ColumnVisibleItem item) => VisibleColumns.Find(i => i.Name == item.Name) is { Visible: true } && VisibleColumns.Where(i => i.Visible).DistinctBy(i => i.Name).Count(i => i.Visible) == 1;
@@ -449,16 +475,21 @@ public partial class Table<TItem>
     /// </summary>
     public async Task AddAsync()
     {
-        if (IsExcel || DynamicContext != null)
+        if (DynamicContext != null)
         {
-            await AddDynamicObjectExcelModelAsync();
+            // 数据源为 DataTable 新建后重建行与列
+            await DynamicContext.AddAsync(SelectedRows.OfType<IDynamicObject>());
+            ResetDynamicContext();
+            SelectedRows.Clear();
+            await OnSelectedRowsChanged();
+        }
+        else if (IsExcel)
+        {
+            await InternalOnAddAsync();
+            await QueryAsync(false);
+            await OnSelectedRowsChanged();
         }
         else
-        {
-            await AddItemAsync();
-        }
-
-        async Task AddItemAsync()
         {
             await ToggleLoading(true);
             await InternalOnAddAsync();
@@ -478,26 +509,12 @@ public partial class Table<TItem>
                 EditInCell = false;
                 SelectedRows.Add(EditModel);
             }
+            else if (EditMode == EditMode.Drawer)
+            {
+                await ShowEditDrawer(ItemChangedType.Add);
+            }
             await OnSelectedRowsChanged();
             await ToggleLoading(false);
-        }
-
-        async Task AddDynamicObjectExcelModelAsync()
-        {
-            if (DynamicContext != null)
-            {
-                // 数据源为 DataTable 新建后重建行与列
-                await DynamicContext.AddAsync(SelectedRows.OfType<IDynamicObject>());
-                ResetDynamicContext();
-                SelectedRows.Clear();
-                await OnSelectedRowsChanged();
-            }
-            else
-            {
-                await InternalOnAddAsync();
-                await QueryAsync(false);
-                await OnSelectedRowsChanged();
-            }
         }
     }
 
@@ -514,12 +531,26 @@ public partial class Table<TItem>
             if (ShowExtendEditButtonCallback != null && !ShowExtendEditButtonCallback(SelectedRows[0]))
             {
                 // 提示不可编辑
-                await ShowToastAsync(EditButtonToastReadonlyContent);
+                await ShowToastAsync(EditButtonToastTitle, EditButtonToastReadonlyContent);
             }
             else
             {
                 await ToggleLoading(true);
-                await InternalOnEditAsync();
+
+                // 跟踪模式与动态类型时使用原始数据，否则使用克隆数据
+                EditModel = (IsTracking || DynamicContext != null) ? SelectedRows[0] : Utility.Clone(SelectedRows[0]);
+                if (OnEditAsync != null)
+                {
+                    await OnEditAsync(EditModel);
+                }
+                else
+                {
+                    var d = DataService ?? InjectDataService;
+                    if (d is IEntityFrameworkCoreDataService ef)
+                    {
+                        await ef.EditAsync(EditModel);
+                    }
+                }
                 EditModalTitleString = EditModalTitle;
 
                 // 显示编辑框
@@ -532,7 +563,6 @@ public partial class Table<TItem>
                     ShowEditForm = true;
                     ShowAddForm = false;
                     StateHasChanged();
-
                 }
                 else if (EditMode == EditMode.InCell)
                 {
@@ -540,42 +570,41 @@ public partial class Table<TItem>
                     EditInCell = true;
                     StateHasChanged();
                 }
+                else if (EditMode == EditMode.Drawer)
+                {
+                    await ShowEditDrawer(ItemChangedType.Update);
+                }
                 await ToggleLoading(false);
             }
         }
         else
         {
+            // 不选或者多选弹窗提示
             var content = SelectedRows.Count == 0 ? EditButtonToastNotSelectContent : EditButtonToastMoreSelectContent;
-            await ShowToastAsync(content);
+            await ShowToastAsync(EditButtonToastTitle, content);
         }
+    }
 
-        async Task InternalOnEditAsync()
+    private async Task ShowToastAsync(string title, string content, ToastCategory category = ToastCategory.Information)
+    {
+        var option = new ToastOption
         {
-            EditModel = (IsTracking || DynamicContext != null) ? SelectedRows[0] : Utility.Clone(SelectedRows[0]);
-            if (OnEditAsync != null)
-            {
-                await OnEditAsync(EditModel);
-            }
-            else
-            {
-                var d = DataService ?? InjectDataService;
-                if (d is IEntityFrameworkCoreDataService ef)
-                {
-                    await ef.EditAsync(EditModel);
-                }
-            }
-        }
+            Category = category,
+            Title = title,
+            Content = content
+        };
+        await Toast.Show(option);
+    }
 
-        async Task ShowToastAsync(string content)
+    private async Task ShowDeleteToastAsync(string title, string content, ToastCategory category = ToastCategory.Information)
+    {
+        var option = new ToastOption
         {
-            var option = new ToastOption
-            {
-                Category = ToastCategory.Information,
-                Title = EditButtonToastTitle,
-                Content = content
-            };
-            await Toast.Show(option);
-        }
+            Category = category,
+            Title = title
+        };
+        option.Content = string.Format(content, Math.Ceiling(option.Delay / 1000.0));
+        await Toast.Show(option);
     }
 
     /// <summary>
@@ -745,6 +774,65 @@ public partial class Table<TItem>
     public Func<TItem, bool, Task>? EditDialogCloseAsync { get; set; }
 
     /// <summary>
+    /// 获得/设置 编辑弹窗 Dialog, 可避免弹窗中 Table 再次弹窗时隐藏原表格问题
+    /// </summary>
+    [Parameter]
+    public Dialog? EditDialog { get; set; }
+
+    private async Task AddItem(EditContext context)
+    {
+        var index = InsertRowMode == InsertRowMode.First ? 0 : Rows.Count;
+        Rows.Insert(index, (TItem)context.Model);
+        await UpdateRow();
+    }
+
+    private async Task EditItem(EditContext context)
+    {
+        // 使用 Comparer 确保能找到集合中的编辑项
+        // 解决可能使用 Clone 副本导致编辑数据与 Items 中数据不一致
+        var entity = Rows.FirstOrDefault(i => this.Equals<TItem>(i, (TItem)context.Model));
+        if (entity != null)
+        {
+            var index = Rows.IndexOf(entity);
+            Rows.RemoveAt(index);
+            Rows.Insert(index, (TItem)context.Model);
+            await UpdateRow();
+        }
+    }
+
+    private async Task UpdateRow()
+    {
+        if (ItemsChanged.HasDelegate)
+        {
+            await InvokeItemsChanged();
+        }
+        else
+        {
+            Items = Rows;
+        }
+    }
+
+    private void AppendOptions(ITableEditDialogOption<TItem> option, ItemChangedType changedType)
+    {
+        option.ShowLoading = ShowLoading;
+        option.Model = EditModel;
+        option.Items = Columns.Where(i => !i.GetIgnore() && !string.IsNullOrEmpty(i.GetFieldName()));
+        option.SaveButtonIcon = EditDialogSaveButtonIcon;
+        option.SaveButtonText = EditDialogSaveButtonText;
+        option.CloseButtonIcon = EditDialogCloseButtonIcon;
+        option.CloseButtonText = EditDialogCloseButtonText;
+        option.DialogBodyTemplate = EditTemplate;
+        option.RowType = EditDialogRowType;
+        option.ItemsPerRow = EditDialogItemsPerRow;
+        option.LabelAlign = EditDialogLabelAlign;
+        option.ItemChangedType = changedType;
+        option.ShowUnsetGroupItemsOnTop = ShowUnsetGroupItemsOnTop;
+        option.DisableAutoSubmitFormByEnter = DisableAutoSubmitFormByEnter;
+        option.IsTracking = IsTracking;
+        option.DialogFooterTemplate = EditFooterTemplate;
+    }
+
+    /// <summary>
     /// 弹出编辑对话框方法
     /// </summary>
     protected async Task ShowEditDialog(ItemChangedType changedType)
@@ -755,117 +843,106 @@ public partial class Table<TItem>
             Class = "modal-dialog-table",
             IsScrolling = ScrollingDialogContent,
             IsKeyboard = IsKeyboard,
-            ShowLoading = ShowLoading,
             Title = EditModalTitleString,
-            Model = EditModel,
-            Items = Columns.Where(i => !i.Ignore),
-            SaveButtonText = EditDialogSaveButtonText,
-            CloseButtonText = EditDialogCloseButtonText,
-            DialogBodyTemplate = EditTemplate,
-            RowType = EditDialogRowType,
-            ItemsPerRow = EditDialogItemsPerRow,
-            LabelAlign = EditDialogLabelAlign,
-            ItemChangedType = changedType,
             Size = EditDialogSize,
             IsDraggable = EditDialogIsDraggable,
             ShowMaximizeButton = EditDialogShowMaximizeButton,
             FullScreenSize = EditDialogFullScreenSize,
-            ShowUnsetGroupItemsOnTop = ShowUnsetGroupItemsOnTop,
-            DisableAutoSubmitFormByEnter = DisableAutoSubmitFormByEnter,
-            IsTracking = IsTracking,
-            DialogFooterTemplate = EditFooterTemplate,
-            OnCloseAsync = async () =>
-            {
-                if (EditDialogCloseAsync != null)
-                {
-                    await EditDialogCloseAsync(EditModel, saved);
-                }
-                if (!saved)
-                {
-                    // EFCore 模式保存失败后调用 CancelAsync 回调
-                    var d = DataService ?? InjectDataService;
-                    if (d is IEntityFrameworkCoreDataService ef)
-                    {
-                        // EFCore
-                        await ToggleLoading(true);
-                        await ef.CancelAsync();
-                        await ToggleLoading(false);
-                    }
-                }
-            },
+            OnCloseAsync = () => OnCloseEditDialogCallbackAsync(saved),
             OnEditAsync = async context =>
             {
+                saved = await OnSaveEditCallbackAsync(context, changedType);
+                return saved;
+            }
+        };
+        AppendOptions(option, changedType);
+        await DialogService.ShowEditDialog(option, EditDialog);
+    }
+
+    /// <summary>
+    /// 弹出编辑抽屉方法
+    /// </summary>
+    protected async Task ShowEditDrawer(ItemChangedType changedType)
+    {
+        var saved = false;
+        var editOption = new TableEditDrawerOption<TItem>()
+        {
+            OnCloseAsync = () => OnCloseEditDialogCallbackAsync(saved),
+            OnEditAsync = async context =>
+            {
+                saved = await OnSaveEditCallbackAsync(context, changedType);
+                return saved;
+            }
+        };
+        AppendOptions(editOption, changedType);
+
+        var option = new DrawerOption() { Class = "drawer-table-edit", Placement = Placement.Right, AllowResize = true, IsBackdrop = true, Width = "600px" };
+        if (OnBeforeShowDrawer != null)
+        {
+            await OnBeforeShowDrawer(option);
+        }
+        await DrawerService.ShowEditDrawer(editOption, option);
+    }
+
+    private async Task OnCloseEditDialogCallbackAsync(bool saved)
+    {
+        if (EditDialogCloseAsync != null)
+        {
+            await EditDialogCloseAsync(EditModel, saved);
+        }
+
+        if (!saved)
+        {
+            // EFCore 模式保存失败后调用 CancelAsync 回调
+            var d = DataService ?? InjectDataService;
+            if (d is IEntityFrameworkCoreDataService ef)
+            {
+                // EFCore
                 await ToggleLoading(true);
-                if (IsTracking)
+                await ef.CancelAsync();
+                await ToggleLoading(false);
+            }
+        }
+    }
+
+    private async Task<bool> OnSaveEditCallbackAsync(EditContext context, ItemChangedType changedType)
+    {
+        bool saved;
+        await ToggleLoading(true);
+        if (IsTracking)
+        {
+            saved = true;
+            if (changedType == ItemChangedType.Add)
+            {
+                var index = InsertRowMode == InsertRowMode.First ? 0 : Rows.Count;
+                Rows.Insert(index, EditModel);
+            }
+            await InvokeItemsChanged();
+        }
+        else
+        {
+            saved = await SaveModelAsync(context, changedType);
+            if (saved)
+            {
+                if (Items != null)
                 {
-                    saved = true;
                     if (changedType == ItemChangedType.Add)
                     {
-                        var index = InsertRowMode == InsertRowMode.First ? 0 : Rows.Count;
-                        Rows.Insert(index, EditModel);
+                        await AddItem(context);
                     }
-                    await InvokeItemsChanged();
+                    else if (changedType == ItemChangedType.Update)
+                    {
+                        await EditItem(context);
+                    }
                 }
                 else
                 {
-                    saved = await SaveModelAsync(context, changedType);
-                    if (saved)
-                    {
-                        if (Items != null)
-                        {
-                            if (changedType == ItemChangedType.Add)
-                            {
-                                await AddItem();
-                            }
-                            else if (changedType == ItemChangedType.Update)
-                            {
-                                await EditItem();
-                            }
-                        }
-                        else
-                        {
-                            await QueryAsync();
-                        }
-                    }
-                }
-                await ToggleLoading(false);
-                return saved;
-
-                async Task AddItem()
-                {
-                    var index = InsertRowMode == InsertRowMode.First ? 0 : Rows.Count;
-                    Rows.Insert(index, (TItem)context.Model);
-                    await UpdateRow();
-                }
-
-                async Task EditItem()
-                {
-                    // 使用 Comparer 确保能找到集合中的编辑项
-                    // 解决可能使用 Clone 副本导致编辑数据与 Items 中数据不一致
-                    var entity = Rows.FirstOrDefault(i => this.Equals<TItem>(i, (TItem)context.Model));
-                    if (entity != null)
-                    {
-                        var index = Rows.IndexOf(entity);
-                        Rows.RemoveAt(index);
-                        Rows.Insert(index, (TItem)context.Model);
-                        await UpdateRow();
-                    }
-                }
-
-                async Task UpdateRow()
-                {
-                    if (ItemsChanged.HasDelegate)
-                    {
-                        await InvokeItemsChanged();
-                    }
-                    else
-                    {
-                        Items = Rows;
-                    }
+                    await QueryAsync();
                 }
             }
-        };
-        await DialogService.ShowEditDialog(option);
+        }
+        await ToggleLoading(false);
+        return saved;
     }
 
     /// <summary>
@@ -876,31 +953,17 @@ public partial class Table<TItem>
         var ret = false;
         if (SelectedRows.Count == 0)
         {
-            await ShowToastAsync(DeleteButtonToastContent);
+            await ShowDeleteToastAsync(DeleteButtonToastTitle, DeleteButtonToastContent);
+        }
+        else if (ShowExtendDeleteButtonCallback != null && SelectedRows.Any(i => !ShowExtendDeleteButtonCallback(i)))
+        {
+            await ShowDeleteToastAsync(DeleteButtonToastTitle, DeleteButtonToastCanNotDeleteContent);
         }
         else
         {
-            if (ShowExtendDeleteButtonCallback != null && SelectedRows.Any(i => !ShowExtendDeleteButtonCallback(i)))
-            {
-                await ShowToastAsync(DeleteButtonToastCanNotDeleteContent);
-            }
-            else
-            {
-                ret = true;
-            }
+            ret = true;
         }
         return ret;
-
-        async Task ShowToastAsync(string content)
-        {
-            var option = new ToastOption
-            {
-                Category = ToastCategory.Information,
-                Title = DeleteButtonToastTitle
-            };
-            option.Content = string.Format(content, Math.Ceiling(option.Delay / 1000.0));
-            await Toast.Show(option);
-        }
     }
 
     /// <summary>
@@ -908,9 +971,17 @@ public partial class Table<TItem>
     /// </summary>
     protected async Task DeleteAsync()
     {
-        if (IsExcel || DynamicContext != null)
+        if (DynamicContext != null)
         {
-            await DeleteDynamicObjectExcelModelAsync();
+            await DynamicContext.DeleteAsync(SelectedRows.OfType<IDynamicObject>());
+            ResetDynamicContext();
+            SelectedRows.Clear();
+            await OnSelectedRowsChanged();
+        }
+        else if (IsExcel)
+        {
+            await InternalOnDeleteAsync();
+            await QueryAsync();
         }
         else
         {
@@ -951,11 +1022,11 @@ public partial class Table<TItem>
                         // 由于数据删除导致页码会改变，尤其是最后一页
                         // 重新计算页码
                         // https://gitee.com/LongbowEnterprise/BootstrapBlazor/issues/I1UJSL
-                        PageIndex = Math.Max(1, Math.Min(PageIndex, int.Parse(Math.Ceiling((TotalCount - SelectedRows.Count) * 1d / PageItems).ToString())));
+                        PageIndex = Math.Max(1, Math.Min(PageIndex, int.Parse(Math.Ceiling((TotalCount - SelectedRows.Count) * 1d / _pageItems).ToString())));
                         var items = PageItemsSource.Where(item => item >= (TotalCount - SelectedRows.Count));
                         if (items.Any())
                         {
-                            PageItems = Math.Min(PageItems, items.Min());
+                            _pageItems = Math.Min(_pageItems, items.Min());
                         }
                     }
                 }
@@ -972,27 +1043,11 @@ public partial class Table<TItem>
             }
             return ret;
         }
-
-        async Task DeleteDynamicObjectExcelModelAsync()
-        {
-            if (DynamicContext != null)
-            {
-                await DynamicContext.DeleteAsync(SelectedRows.AsEnumerable().OfType<IDynamicObject>());
-                ResetDynamicContext();
-                SelectedRows.Clear();
-                await OnSelectedRowsChanged();
-            }
-            else
-            {
-                await InternalOnDeleteAsync();
-                await QueryAsync();
-            }
-        }
     }
 
     private void ResetDynamicContext()
     {
-        if (DynamicContext != null && typeof(TItem).IsAssignableTo(typeof(IDynamicObject)))
+        if (DynamicContext != null)
         {
             AutoGenerateColumns = false;
 
@@ -1030,9 +1085,9 @@ public partial class Table<TItem>
             if (IsPagination)
             {
                 TotalCount = items.Count();
-                PageCount = (int)Math.Ceiling(TotalCount * 1.0 / Math.Max(1, PageItems));
-                PageIndex = Math.Max(1, Math.Min(PageIndex, int.Parse(Math.Ceiling((TotalCount - SelectedRows.Count) * 1d / PageItems).ToString())));
-                items = items.Skip((PageIndex - 1) * PageItems).Take(PageItems);
+                PageCount = (int)Math.Ceiling(TotalCount * 1.0 / Math.Max(1, _pageItems));
+                PageIndex = Math.Max(1, Math.Min(PageIndex, int.Parse(Math.Ceiling((TotalCount - SelectedRows.Count) * 1d / _pageItems).ToString())));
+                items = items.Skip((PageIndex - 1) * _pageItems).Take(_pageItems);
             }
             QueryItems = items.Cast<TItem>();
 

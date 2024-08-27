@@ -205,10 +205,16 @@ public static class Utility
     /// 重置对象属性值到默认值方法
     /// </summary>
     /// <typeparam name="TModel"></typeparam>
-    public static void Reset<TModel>(TModel source) where TModel : class, new()
+    public static void Reset<TModel>(TModel source) where TModel : class, new() => Reset(source, new TModel());
+
+    /// <summary>
+    /// 重置对象属性值到默认值方法
+    /// </summary>
+    /// <typeparam name="TModel"></typeparam>
+    public static void Reset<TModel>(TModel source, TModel model) where TModel : class
     {
-        var v = new TModel();
-        foreach (var pi in source.GetType().GetRuntimeProperties().Where(p => p.CanWrite))
+        var v = model;
+        foreach (var pi in source.GetType().GetRuntimeProperties().Where(p => p.IsCanWrite()))
         {
             var pInfo = v.GetType().GetPropertyByName(pi.Name);
             if (pInfo != null)
@@ -268,7 +274,7 @@ public static class Utility
         }
         foreach (var p in type.GetRuntimeProperties())
         {
-            if (p.CanWrite)
+            if (p.IsCanWrite())
             {
                 var v = p.GetValue(source);
                 var property = valType.GetRuntimeProperties().First(i => i.Name == p.Name && i.PropertyType == p.PropertyType);
@@ -321,22 +327,20 @@ public static class Utility
 
                 if (classAttribute != null)
                 {
-                    // AutoGenerateClassAttribute 设置时继承类标签
+                    // AutoGenerateClassAttribute 设置时继承类标签值
                     tc.InheritValue(classAttribute);
                 }
             }
             else
             {
-                // 设置 AutoGenerateColumnAttribute 时
-                if (columnAttribute.Ignore) continue;
-
+                // 设置 AutoGenerateColumnAttribute 时合并 AutoGenerateClassAttribute 参数值
                 columnAttribute.Text = displayName;
                 columnAttribute.FieldName = prop.Name;
                 columnAttribute.PropertyType = prop.PropertyType;
 
                 if (classAttribute != null)
                 {
-                    // AutoGenerateClassAttribute 设置时继承类标签
+                    // AutoGenerateClassAttribute 设置时继承类标签值
                     columnAttribute.InheritValue(classAttribute);
                 }
                 tc = columnAttribute;
@@ -349,7 +353,11 @@ public static class Utility
                 tc.CopyValue(col);
                 columns.Remove(col);
             }
-            cols.Add(tc);
+
+            if (!tc.GetIgnore())
+            {
+                cols.Add(tc);
+            }
         }
 
         if (columns.Count > 0)

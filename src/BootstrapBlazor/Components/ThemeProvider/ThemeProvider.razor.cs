@@ -53,6 +53,24 @@ public partial class ThemeProvider
     [Parameter]
     public string? ActiveIcon { get; set; }
 
+    /// <summary>
+    /// 获得/设置 下拉框是否显示阴影效果 默认 true
+    /// </summary>
+    [Parameter]
+    public bool ShowShadow { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 下拉框对其方式 默认 Right
+    /// </summary>
+    [Parameter]
+    public Alignment Alignment { get; set; } = Alignment.Right;
+
+    /// <summary>
+    /// 获得/设置 主题切换回调方法
+    /// </summary>
+    [Parameter]
+    public Func<string, Task>? OnThemeChangedAsync { get; set; }
+
     [Inject, NotNull]
     private IIconTheme? IconTheme { get; set; }
 
@@ -61,6 +79,11 @@ public partial class ThemeProvider
 
     private string? ClassString => CssBuilder.Default("dropdown bb-theme-mode")
         .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
+
+    private string? DropdownClassString => CssBuilder.Default("dropdown-menu")
+        .AddClass($"dropdown-menu-{Alignment.ToDescriptionString()}", Alignment != Alignment.None)
+        .AddClass("shadow", ShowShadow)
         .Build();
 
     /// <summary>
@@ -78,5 +101,25 @@ public partial class ThemeProvider
         AutoModeText ??= Localizer[nameof(AutoModeText)];
         DarkModeText ??= Localizer[nameof(DarkModeText)];
         LightModeText ??= Localizer[nameof(LightModeText)];
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, OnThemeChangedAsync != null ? nameof(OnThemeChanged) : null);
+
+    /// <summary>
+    /// JavaScript 回调方法
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task OnThemeChanged(string name)
+    {
+        if (OnThemeChangedAsync != null)
+        {
+            await OnThemeChangedAsync(name);
+        }
     }
 }

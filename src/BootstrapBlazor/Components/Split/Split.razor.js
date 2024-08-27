@@ -21,7 +21,9 @@ export function init(id) {
     const isVertical = !splitWrapper.classList.contains('is-horizontal')
     const splitBar = splitWrapper.children[1]
     const splitLeft = splitWrapper.children[0]
-    const splitRight = splitWrapper.children[2]
+    const splitRight = splitWrapper.children[2];
+
+    split.splitBar = splitBar;
     Drag.drag(splitBar,
         e => {
             splitWidth = el.offsetWidth
@@ -34,7 +36,8 @@ export function init(id) {
                 originX = e.clientX || e.touches[0].clientX
                 curVal = splitLeft.offsetWidth * 100 / splitWidth
             }
-            el.classList.add('dragging')
+            el.classList.add('dragging');
+            showMask(splitLeft, splitRight);
         },
         e => {
             if (isVertical) {
@@ -53,8 +56,31 @@ export function init(id) {
             splitRight.style.flexBasis = `${100 - newVal}%`
         },
         () => {
-            el.classList.remove('dragging')
+            el.classList.remove('dragging');
+            removeMask(splitLeft, splitRight);
         })
+}
+
+const showMask = (left, right) => {
+    const div = document.createElement('div');
+    div.style = "position: absolute; inset: 0; opacity: 0; z-index: 5;";
+    div.className = "split-mask";
+
+    left.appendChild(div);
+    right.appendChild(div.cloneNode(true));
+}
+
+const removeMask = (left, right) => {
+    deleteMask(left);
+    deleteMask(right);
+}
+
+const deleteMask = el => {
+    let mask = el.querySelector('.split-mask');
+    if (mask) {
+        mask.remove();
+        mask = null;
+    }
 }
 
 export function dispose(id) {
@@ -62,6 +88,7 @@ export function dispose(id) {
     Data.remove(id)
 
     if (split) {
-        Drag.dispose(split.el)
+        const { el } = split;
+        Drag.dispose(el)
     }
 }

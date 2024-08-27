@@ -1,0 +1,16 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits BootstrapModuleComponentBase
+@attribute [BootstrapModuleAutoLoader(AutoInvokeInit = false, AutoInvokeDispose = false)]
+
+<template id="@Id">
+    <div class="bb-mask" data-bb-mask="@Id" style="@StyleString">
+        <div class="bb-mask-backdrop"></div>
+
+        @if (_options is { ChildContent: not null })
+        {
+            <div class="bb-mask-content">
+                @_options.ChildContent
+            </div>
+        }
+    </div>
+</template>

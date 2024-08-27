@@ -7,9 +7,6 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// TableColumn 上下文类
 /// </summary>
-/// <remarks>
-/// 构造方法
-/// </remarks>
 /// <param name="model"></param>
 /// <param name="value"></param>
 public class TableColumnContext<TItem, TValue>(TItem model, TValue value)
@@ -23,5 +20,5 @@ public class TableColumnContext<TItem, TValue>(TItem model, TValue value)
     /// <summary>
     /// 获得/设置 当前绑定字段数据实例
     /// </summary>
-    public TValue Value { get; } = value;
+    public TValue Value => value;
 }

@@ -104,6 +104,7 @@ internal class DefaultIcon
         { ComponentIcons.RibbonTabArrowDownIcon, "mdi mdi-chevron-down" },
         { ComponentIcons.RibbonTabArrowPinIcon, "mdi mdi-pin mdi-pin-off" },
 
+        { ComponentIcons.MultiSelectDropdownIcon, "mdi mdi-chevron-up" },
         { ComponentIcons.MultiSelectClearIcon, "mdi mdi-close" },
 
         { ComponentIcons.SelectTreeDropdownIcon, "mdi mdi-chevron-up" },
@@ -130,6 +131,8 @@ internal class DefaultIcon
         { ComponentIcons.TabNextIcon, "mdi mdi-chevron-right" },
         { ComponentIcons.TabDropdownIcon, "mdi mdi-chevron-down" },
         { ComponentIcons.TabCloseIcon, "mdi mdi-close" },
+
+        { ComponentIcons.TableColumnToolboxIcon, "mdi mdi-cog" },
 
         { ComponentIcons.TableSortIconAsc, "mdi mdi-sort-ascending" },
         { ComponentIcons.TableSortDesc, "mdi mdi-sort-descending" },
@@ -169,7 +172,7 @@ internal class DefaultIcon
         { ComponentIcons.TreeViewExpandNodeIcon, "mdi mdi-menu-right mdi-rotate-90" },
         { ComponentIcons.TreeViewNodeIcon, "mdi mdi-menu-right" },
         { ComponentIcons.TreeViewSearchIcon, "mdi mdi-magnify" },
-        { ComponentIcons.TreeViewResetSearchIcon, "mdi mdi-trash-can-outline" },
+        { ComponentIcons.TreeViewResetSearchIcon, "mdi mdi-backspace" },
 
         // Upload
         { ComponentIcons.AvatarUploadDeleteIcon, "mdi mdi-trash-can-outline" },

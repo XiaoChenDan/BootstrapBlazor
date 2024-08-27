@@ -30,6 +30,7 @@ public partial class Tables
     protected override void OnInitialized()
     {
         base.OnInitialized();
+
         //获取随机数据
         //Get random data
         Items = Foo.GenerateFoo(FooLocalizer);
@@ -1318,6 +1319,14 @@ public partial class Tables
             ValueList = "true|false",
             DefaultValue = "false"
         },
+        new()
+        {
+            Name = nameof(Table<Foo>.AutoScrollLastSelectedRowToView),
+            Description = Localizer["AutoScrollLastSelectedRowToViewAttr"],
+            Type = "boolean",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        }
     ];
 
     private MethodItem[] GetMethods() =>

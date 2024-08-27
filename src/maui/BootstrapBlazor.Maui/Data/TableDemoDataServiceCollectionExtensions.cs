@@ -3,10 +3,8 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using BootstrapBlazor.Components;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BootstrapBlazor.Maui.Data;
 
@@ -30,7 +28,7 @@ public static class TableDemoDataServiceCollectionExtensions
 /// <summary>
 /// 演示网站示例数据注入服务实现类
 /// </summary>
-internal class TableDemoDataService<TModel> : DataServiceBase<TModel> where TModel : class, new()
+internal class TableDemoDataService<TModel> : DataServiceBase<TModel> where TModel : class
 {
     private static readonly ConcurrentDictionary<Type, Func<IEnumerable<TModel>, string, SortOrder, IEnumerable<TModel>>> SortLambdaCache = new();
 

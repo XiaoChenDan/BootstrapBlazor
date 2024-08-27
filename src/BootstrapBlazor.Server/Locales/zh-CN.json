@@ -20,7 +20,8 @@
     "LoginSummary": "登陆注册 Login&Register",
     "WaterfallSummary": "瀑布流图片 Waterfall",
     "TranslateSummary": "翻译工具 Translate",
-    "DrawingSummary": "画图 Drawing"
+    "DrawingSummary": "画图 Drawing",
+    "AdminSummary": "中台 Admin"
   },
   "BootstrapBlazor.Server.Components.App": {
     "Title": "Bootstrap Blazor - 组件库",
@@ -35,43 +36,10 @@
     "CopiedText": "复制代码成功"
   },
   "BootstrapBlazor.Server.Components.Pages.Index": {
-    "BodyClassString": "welcome-body",
-    "HeaderTitle": "Bootstrap 风格的 Blazor UI 组件库",
-    "HeaderDesc": "基于 <code>Bootstrap</code> 样式库精心打造，并且额外增加了 {0} 多种常用的组件，为您快速开发项目带来非一般的感觉",
-    "HeaderBody": "致力于打造全网",
-    "HeaderBody1": "好玩的组件库",
-    "DynamicText": "好用的",
-    "DynamicText1": "好看的",
-    "DynamicText2": "简单实用的",
-    "TagTitle": "组件",
-    "Span1": "树形组件",
-    "Span2": "菜单组件",
-    "Span3": "标签组件",
-    "Span4": "表格组件",
-    "Span5": "布局组件",
-    "Span6": "通知组件",
-    "Span7": "上传组件",
-    "Span8": "开关组件",
-    "CarouselH1": "Chart 图表组件",
-    "CarouselP1": "提供常用的多种图表组件",
-    "CarouselH2": "Chart 图标组件",
-    "CarouselP2": "多维度数据对比",
-    "CarouselH3": "全功能表格组件",
-    "CarouselP3": "具备增删改查搜、分页、排序所有功能",
-    "CarouselH4": "超强时间线功能",
-    "CarouselP4": "自定义节点显示任意组件",
-    "ContainerH1": "丰富组件",
-    "ContainerD1": "本套组件库包含超过 {0} 多个组件，从简单的按钮到复杂的整页面级别的组件",
-    "ContainerH2": "性能",
-    "ContainerD2": "每个控件都经过微调，优化父子组件之间刷新逻辑，避免多次循环更新",
-    "ContainerH3": "简单易用",
-    "ContainerD3": "轻松掌握组件使用方法，快速将 BootstrapBlazor 控件融入到项目中",
-    "ContainerH4": "免费开源",
-    "ContainerD4": "简单、直接、免费使用、无依赖组件，依赖 Bootstrap 均已内置",
-    "ContainerH5": "演示与示例",
-    "ContainerD5": "详细文档与在线演示，功能设置简单，直接拷贝代码开箱即用",
-    "ContainerH6": "持续更新",
-    "ContainerD6": "码云平台托管开源，永不闭源，持续更新，及时响应问题与反馈",
+    "Support": "支持 NET6.0 & NET7.0 & NET8.0 & NET9.0",
+    "Title": "Bootstrap Blazor UI",
+    "SubTitle": "BootstrapBlazor 是一套基于 Bootstrap 和 Blazor 的企业级组件库，无缝整合了 Bootstrap 框架与 Blazor 技术。它提供了一整套强大的工具，使开发者能够轻松创建响应式和交互式的 Web 应用程序。",
+    "Docs": "阅读文档",
     "DonateH1": "捐助",
     "DonateH2": "扫码捐助请作者喝一杯咖啡"
   },
@@ -348,7 +316,15 @@
     "PopoverConfirmsCustomClassCustomButtonContent": "确定删除数据吗？",
     "PopoverConfirmsBodyTemplateTitle": "自定义 PopConfirmButton 内容",
     "PopoverConfirmsBodyTemplateIntro": "通过设置 <code>BodyTemplate</code> 属性，自定义内容",
-    "PopoverConfirmsBodyTemplateButtonText": "自定义内容"
+    "PopoverConfirmsBodyTemplateButtonText": "自定义内容",
+    "PopoverConfirmsShowButtonsTitle": "自定义组件",
+    "PopoverConfirmsShowButtonsIntro": "通过设置 <code>ShowCloseButton=\"false\"</code> <code>ShowConfirmButton=\"false\"</code> 不显示内置功能按钮，在自定义组件中自定义一个 <b>审批</b> 按钮",
+    "PopoverConfirmsShowButtonsButtonText": "自定义组件",
+    "PopoverConfirmsShowButtonsDesc": "自定义组件内可通过级联参数调用组件内部的 <code>Close</code> 或者 <code>Confirm</code> 方法"
+  },
+  "BootstrapBlazor.Server.Components.Components.CustomPopConfirmContent": {
+    "CustomPopConfirmContentText": "自定义弹窗内容",
+    "CustomPopConfirmContentButtonText": "审批"
   },
   "BootstrapBlazor.Server.Components.Samples.Popovers": {
     "PopoversTitle": "Popover 弹出窗组件",
@@ -358,6 +334,10 @@
     "PopoversButtonTitle": "按钮激活弹出框",
     "PopoversButtonIntro": "点击按钮后弹出 <code>Popover</code> 弹出框",
     "PopoversButtonButtonText": "Click 激活/关闭",
+    "PopoversTemplateTitle": "自定义模板",
+    "PopoversTemplateIntro": "通过设置 <code>Template</code> 模板，自定义弹窗内容",
+    "PopoversTemplateButtonText": "自定义模板",
+    "PopoversTemplateTitleText": "自定义模板",
     "PopoversCssClassTitle": "自定义样式",
     "PopoversCssClassIntro": "通过设置 <code>Popover</code> 参数 <code>CssClass</code> 对弹窗进行自定义样式",
     "PopoversCssClassDescription": "设置 <code>Popover</code> 参数 <code>CssClass=\"custom-popover\"</code> 进行自定义样式",
@@ -455,6 +435,18 @@
     "ModalsAttributeTitle": "弹出窗口标题",
     "ModalsAttributeShowMaximizeButton": "是否显示弹出的最大化按钮",
     "ModalsAttributeShownCallbackAsync": "弹出菜单显示回调方法"
+  },
+  "BootstrapBlazor.Server.Components.Samples.Masks": {
+    "MaskTitle": "遮罩组件",
+    "MaskDescription": "通过调用服务显示，隐藏方法，显示一个遮罩层对数据进行遮罩操作",
+    "MaskNormalTitle": "基本用法",
+    "MaskNormalIntro": "调用 <code>MaskService</code> 遮罩服务示例方法 <code>Show</code> 方法显示一个遮罩，3 秒后调用实例方法 <code>Close</code> 关闭遮罩",
+    "ShowMaskButtonText": "打开",
+    "MaskContainerTitle": "指定容器",
+    "MaskContainerIntro": "通过设置 <code>MaskOption</code> 参数 <code>ContainerId</code> 指定遮罩出现位置",
+    "MultipleMaskContainerTitle": "多遮罩",
+    "MultipleMaskContainerIntro": "通过自定义设置 <code>Mask</code> 组件可实现网页内多个局部进行遮罩操作",
+    "MultipleMaskContainerDesc": "组件内自己设置 <code>Mask</code> 组件，调用 <code>MaskService</code> 实例方法 <code>Show</code> 时，通过第二个参数指定 <code>Mask</code> 实例即可"
   },
   "BootstrapBlazor.Server.Components.Samples.Messages": {
     "MessagesTitle": "Message 消息提示",
@@ -569,7 +561,14 @@
     "LineBarAspectRatioTitle": "图表比例",
     "LineBarAspectRatioIntro": "设置了高度和宽度,会自动禁用约束图表比例, 图表充满容器",
     "LineChartJSTitle": "通过JS生成Chart",
-    "LineChartJSIntro": "由于 <code>BootstrapBlazor.Chart</code> 底层引用了 <code>Chart.JS</code> 所以我们可以通过JS方式来调用并生成图表。"
+    "LineChartJSIntro": "由于 <code>BootstrapBlazor.Chart</code> 底层引用了 <code>Chart.JS</code> 所以我们可以通过JS方式来调用并生成图表。",
+    "AppendDataTitle": "数据参数扩展",
+    "AppendDataIntro": "由于 <code>ChartDataSource</code> 没有完全封装 <code>Chart.JS</code> 中所有参数，当我们需要设置一些未提供的参数时，可以通过 <code>AppendData</code> 来完成",
+    "CustomTooltipTitle": "自定义 Tooltip",
+    "CustomTooltipIntro": "自定义 <code>Tooltip</code> 需要使用客户端脚本设置",
+    "CustomTooltipLi1": "<code>Chart</code> 组件设置 <b>Id</b> 参数",
+    "CustomTooltipLi2": "创建客户端 <code>JavaScript</code> 脚本，本例使用隔离脚本方式导出方法名为 <code>customTooltip</code>，参数依次为 <b>组件 Id</b> <b>回调引用实例</b> <b>回调方法名称(TooltipLog)</b>",
+    "CustomTooltipLi3": "本例中重载基类方法 <code>InvokeInitAsync</code> 通过 <code>await InvokeVoidAsync(\"customTooltip\", CustomTooltipId, Interop, nameof(TooltipLog))</code> 语句调用客户端脚本"
   },
   "BootstrapBlazor.Server.Components.Samples.Charts.Bar": {
     "BarTypeTitle": "Bar 图",
@@ -639,15 +638,15 @@
     "TreeViewsTitle": "Tree 树形控件",
     "TreeViewsDescription": "用清晰的层级结构展示信息，可展开或折叠",
     "TreeViewsTips1": "组件为泛型组件需要使用 <code>TItem</code> 指定绑定的数据模型，本例中模型为 <code>TreeFoo</code> 需要设置",
-    "TreeViewsTips2": "设置 <code>TreeItem</code> 其 <code>IsExpand</code> 参数控制当前子节点是否展开",
+    "TreeViewsTips2": "设置 <code>TreeViewItem</code> 其 <code>IsExpand</code> 参数控制当前子节点是否展开",
     "TreeViewsTips3": "点击子项展开小箭头时，通过 <code>OnExpandNodeAsync</code> 回调委托方法获取子项数据集合",
     "TreeViewsTips4": "保持节点状态回落机制，<code>ModelEqualityComparer</code> <code>CustomKeyAttribute</code> <code>IEqualityComparer&lt;TItem&gt;</code> <code>Equals</code> 重载方法",
     "TreeViewsTips5": "组件将会保持 <code>展开</code> <code>收缩</code> <code>选中</code> 状态",
-    "TreeViewsTips6": "通过 <code>TreeItem&lt;TItem&gt;.IsExpand</code> 设置节点是否 <b>展开</b> 状态",
-    "TreeViewsTips7": "通过 <code>TreeItem&lt;TItem&gt;.IsActive</code> 设置节点是否 <b>选中</b> 状态",
-    "TreeViewsTips8": "通过 <code>TreeItem&lt;TItem&gt;.Checked</code> 设置节点是否 <b>复选/单选</b> 状态",
+    "TreeViewsTips6": "通过 <code>TreeViewItem&lt;TItem&gt;.IsExpand</code> 设置节点是否 <b>展开</b> 状态",
+    "TreeViewsTips7": "通过 <code>TreeViewItem&lt;TItem&gt;.IsActive</code> 设置节点是否 <b>选中</b> 状态",
+    "TreeViewsTips8": "通过 <code>TreeViewItem&lt;TItem&gt;.Checked</code> 设置节点是否 <b>复选/单选</b> 状态",
     "TreeViewsTips9": "第一步：设置 <code>TItem</code> 泛型模型",
-    "TreeViewsTips10": "第二步：设置 <code>Items</code> 获得组件数据源 <b>注意</b> 数据源类型为 <code>IEnumerable&lt;TreeItem&lt;TItem&gt;&gt;</code>",
+    "TreeViewsTips10": "第二步：设置 <code>Items</code> 获得组件数据源 <b>注意</b> 数据源类型为 <code>IEnumerable&lt;TreeViewItem&lt;TItem&gt;&gt;</code>",
     "TreeViewsTips11": "第三步：设置 <code>OnExpandNodeAsync</code> 回调委托响应节点展开获取子项数据源集合",
     "TreeViewsTips12": "第四步：设置 <code>ModelEqualityComparer</code> 提供组件识别模型比较委托方法，<b>注意</b> 本设置为可选项 通过上面讲解的回落机制进行降级搜索",
     "TreeViewNormalTitle": "基础用法",
@@ -663,19 +662,19 @@
     "TreeViewCheckboxButtonText": "刷新",
     "TreeViewTreeDisableTitle": "禁用状态",
     "TreeViewTreeDisableIntro": "可将 Tree 的某些节点设置为禁用状态",
-    "TreeViewTreeDisableDescription": "通过设置数据源 <code>TreeItem</code> 对象的 <code>Disabled</code> 属性，来控制此节点是否可以进行勾选动作，设置为 <code>false</code> 时不影响节点展开/收缩功能",
+    "TreeViewTreeDisableDescription": "通过设置数据源 <code>TreeViewItem</code> 对象的 <code>Disabled</code> 属性，来控制此节点是否可以进行勾选动作，设置为 <code>false</code> 时不影响节点展开/收缩功能",
     "TreeViewAccordionModelTitle": "手风琴模式",
     "TreeViewAccordionModelIntro": "对于同一级的节点，每次只能展开一个",
     "TreeViewAccordionModelDescription": "通过设置 <code>Tree</code> 组件的 <code>IsAccordion</code> 属性开启手风琴效果",
     "TreeViewDefaultExpandTitle": "默认展开和默认选中",
     "TreeViewDefaultExpandIntro": "可将 <code>Tree</code> 的某些节点设置为默认展开或默认选中",
-    "TreeViewDefaultExpandDescription": "通过设置 <code>TreeItem</code> 对象的 <code>IsExpand</code> 属性，来控制此节点是否默认为展开状态，本例中 <b>导航二</b> 默认为展开状态，其余节点默认为收缩状态",
+    "TreeViewDefaultExpandDescription": "通过设置 <code>TreeViewItem</code> 对象的 <code>IsExpand</code> 属性，来控制此节点是否默认为展开状态，本例中 <b>导航二</b> 默认为展开状态，其余节点默认为收缩状态",
     "TreeViewTreeDisplayIconTitle": "显示图标",
     "TreeViewTreeDisplayIconIntro": "通过设置 <code>ShowIcon</code> 来控制组件是否显示图标",
-    "TreeViewTreeDisplayIconDescription": "通过设置 <code>TreeItem</code> 对象的 <code>ShowIcon</code> 属性，来控制此节点是否显示图标",
+    "TreeViewTreeDisplayIconDescription": "通过设置 <code>TreeViewItem</code> 对象的 <code>ShowIcon</code> 属性，来控制此节点是否显示图标",
     "TreeViewTreeClickExpandTitle": "点击节点展开收缩功能",
     "TreeViewTreeClickExpandIntro": "通过设置 <code>ClickToggleNode</code> 来控制点击节点时是否进行展开收缩操作",
-    "TreeViewTreeClickExpandDescription": "通过设置 <code>TreeItem</code> 对象的 <code>ClickToggleNode</code> 属性，来控制此节点是否通过点击来实现展开收缩操作",
+    "TreeViewTreeClickExpandDescription": "通过设置 <code>TreeViewItem</code> 对象的 <code>ClickToggleNode</code> 属性，来控制此节点是否通过点击来实现展开收缩操作",
     "TreeViewTreeValidationFormTitle": "Tree 组件内置到验证表单中",
     "TreeViewTreeValidationFormIntro": "<code>Tree</code> 组件内部可开启 <code>Checkbox</code> 内置到验证表单时会显示 <code>DisplayName</code> 此功能在树状组件内需要禁止",
     "TreeViewTreeValidationFormDescription": "通过设置 <code>ShowCheckbox</code> 属性显示 <code>Checkbox</code> 内置到验证组件 <code>ValidateForm</code> 中不显示 <code>DisplayName</code>",
@@ -683,9 +682,9 @@
     "TreeViewTreeLazyLoadingIntro": "展开节点时动态添加子节点",
     "TreeViewTreeLazyLoadingDescription": "通过设置节点 <code>HasChildNode</code> 控制是否显示节点小箭头图片 。通过Tree的 <code>OnExpandNodeAsync</code> 委托添加节点",
     "TreeViewTreeCustomNodeTitle": "自定义节点",
-    "TreeViewTreeCustomNodeIntro": "通过设置 <code>TreeItem</code> <code>Template</code> 来实现自己的节点模板",
+    "TreeViewTreeCustomNodeIntro": "通过设置 <code>TreeViewItem</code> <code>Template</code> 来实现自己的节点模板",
     "TreeViewTreeNodeColorTitle": "节点颜色",
-    "TreeViewTreeNodeColorIntro": "通过设置 <code>TreeItem</code> <code>CssClass</code> 来实现自己的节点样式",
+    "TreeViewTreeNodeColorIntro": "通过设置 <code>TreeViewItem</code> <code>CssClass</code> 来实现自己的节点样式",
     "TreeViewCheckedItemsTitle": "获取所有选中节点",
     "TreeViewCheckedItemsIntro": "通过设置 <code>OnTreeItemChecked</code> 回调委托获取所有节点",
     "TreeViewCustomCheckedItemsTitle": "自定义选中节点",
@@ -696,12 +695,19 @@
     "TreeViewShowSkeletonButtonText": "异步加载",
     "TreeViewShowSearchTitle": "显示搜索栏",
     "TreeViewShowSearchIntro": "通过设置 <code>ShowSearch</code> 显示搜索栏，通过 <code>OnSearchAsync</code> 回调方法设置数据源刷新页面即可",
+    "TreeViewFixedSearchTitle": "固定搜索栏",
+    "TreeViewFixedSearchIntro": "通过设置 <code>IsFixedSearch=\"true\"</code> 固定搜索栏，可通过样式变量 <code>--bb-tree-search-height</code> 设定搜索栏高度",
     "TreeViewSetActiveTitle": "设置激活节点",
     "TreeViewSetActiveIntro": "通过调用 <code>SetActiveItem</code> 方法设置当前激活节点",
     "TreeViewSetActiveDisplayText": "当前激活节点",
-    "TreeViewsAttribute": "TreeItem 属性",
-    "TreeViewsDisableWholeTreeView": "是否禁用整个TreeView",
-    "TreeViewsWhetherToExpandWhenDisable": "禁用时候是否可以展开或折叠子节点"
+    "TreeViewsAttribute": "TreeViewItem 属性",
+    "TreeViewsDisableWholeTreeView": "是否禁用整个 TreeView",
+    "TreeViewsWhetherToExpandWhenDisable": "禁用时候是否可以展开或折叠子节点",
+    "OnMaxSelectedCountExceedTitle": "可选最大数量提示",
+    "OnMaxSelectedCountExceedContent": "最多只能选择 {0} 项",
+    "TreeViewMaxSelectedCountTitle": "最大选择数量",
+    "TreeViewMaxSelectedCountIntro": "通过设置 <code>MaxSelectedCount</code> 属性控制最大可选数量，通过 <code>OnMaxSelectedCountExceed</code> 回调处理逻辑",
+    "TreeViewMaxSelectedCountDesc": "选中节点超过 2 个时，弹出 <code>Toast</code> 提示栏"
   },
   "BootstrapBlazor.Server.Components.Samples.Trees": {
     "TreeIntro": "<p>本组件已弃用，请使用新组件 <a href=\"treeviews\" alt=\"treeview\">TreeView</a> 提供更多功能",
@@ -917,6 +923,7 @@
   "BootstrapBlazor.Server.Components.Samples.Drawers": {
     "Title": "Drawer 抽屉",
     "Description": "有些时候, Dialog 组件并不满足我们的需求, 比如你的表单很长, 亦或是你需要临时展示一些文档, Drawer 拥有和 Dialog 几乎相同的 API, 在 UI 上带来不一样的体验",
+    "DrawerTips": "有时候我们的弹窗希望在某个容器内展开，可通过在特定容器内置 <code>&lt;Drawer/&gt;</code> 抽屉组件，然后设置参数 <code>Position=\"absolute\"</code> 相对定位来实现此需求；注意：父容器样式需要设置 <code>position: relative;</code>",
     "NormalTitle": "基本用法",
     "NormalIntro": "呼出一个临时的侧边栏, 可以从多个方向呼出",
     "PlacementTitle": "点击遮罩关闭",
@@ -1191,7 +1198,7 @@
     "P17": "安装项目模板",
     "P18": "创建项目"
   },
-  "BootstrapBlazor.Server.Components.Pages.Golbalization": {
+  "BootstrapBlazor.Server.Components.Pages.Globalization": {
     "Title": "全球化",
     "SubTitle": "ASP.NET Core Blazor 全球化",
     "P1": "阅读以下知识点前请先查看 <a href='https://learn.microsoft.com/zh-cn/aspnet/core/blazor/globalization-localization?WT.mc_id=DT-MVP-5004174' target='_blank'>微软官方文档</a>"
@@ -1222,7 +1229,7 @@
     "P22": "添加样式表文件",
     "P23": "在宿主文件中增加主题样式表",
     "P24": "需引用 BootstrapBlazor.FontAwesome 包",
-    "P25": "添加 Javascript 文件",
+    "P25": "添加 JavaScript 文件",
     "P26": "增加代码",
     "P27": "注册 BootstrapBlazor 服务",
     "P28": "增加命名空间引用",
@@ -1286,7 +1293,7 @@
     "P17": "3. 添加样式表文件",
     "P18": "在宿主文件中增加主题样式表",
     "P19": "需引用 BootstrapBlazor.FontAwesome 包",
-    "P20": "4. 添加 Javascript 文件",
+    "P20": "4. 添加 JavaScript 文件",
     "P21": "增加代码",
     "P22": "5. 注册 BootstrapBlazor 服务",
     "P23": "6. 增加命名空间引用",
@@ -1444,7 +1451,7 @@
     "LayoutsAppIntro": "实际项目中的例子",
     "LayoutsPageTitle": "整页面级别的组件",
     "LayoutsPageIntro": "通过 <code>IsPage</code> 对整页面布局",
-    "LayoutsPageTips1": "通过设置 <code>IsPage</code> 属性设置 <code>Layout</code> 组件是否掌控正页面级别的布局方式，设置为 <code>true</code> 后，本组件采用整屏布局",
+    "LayoutsPageTips1": "通过设置 <code>IsPage</code> 属性设置 <code>Layout</code> 组件是否掌控整页面级别的布局方式，设置为 <code>true</code> 后，本组件采用整屏布局",
     "LayoutsPageHrefTitle": "整页面组件生成器",
     "Layouts_Header_Description": "页头组件模板",
     "Layouts_Side_Description": "侧边栏组件模板",
@@ -1733,6 +1740,10 @@
     "Block2Title": "自定义错误处理",
     "Block2Intro": "通过设置 <code>OnErrorHandleAsync</code> 回调方法，设置自定义异常处理逻辑"
   },
+  "BootstrapBlazor.Server.Components.Pages.GlobalOption": {
+    "Title": "全局配置",
+    "SubTitle": "组件库提供一种对当前应用程序中所有组件进行配置的方法，通过 <code>BootstrapBlazorOptions</code> 全局配置类实现此功能"
+  },
   "BootstrapBlazor.Server.Components.Samples.Splits": {
     "SplitsTitle": "Split 面板分割",
     "SplitsNormalTitle": "基础用法",
@@ -2000,6 +2011,7 @@
     "TabsTips3": "本组件默认行为为数据分割，点击 <code>TabItem</code> 标题时并不会进行导航行为，如果需要进行地址栏导航时请设置 <code>ClickTabToNavigation</code> 属性为 <code>true</code>，此时点击 <code>TabItem</code> 标题时地址栏将会重定向导航，多用于后台管理系统与 <code>Menu</code> 组件进行联动使用，实战可参考 <a href='layout-page' target='_blank'>后台模板模拟器</a> 中的 <code>多标签</code> 模式，如果有 <code>Razor 组件</code> 在额外的程序集中时，请正确设置 <code>AdditionalAssemblies</code> 属性值，以便标签组件内路由正确解析，相关文档 <a href='https://docs.microsoft.com/zh-cn/aspnet/core/blazor/fundamentals/routing?WT.mc_id=DT-MVP-5004174&view=aspnetcore-3.1#route-to-components-from-multiple-assemblies' target='_blank'>[传送门]</a>",
     "TabsTips4": "本组件会根据宽度高度等进行自适应适配，适当的时候可以出现左右或者上下的滚动箭头",
     "TabsInfoTitle": "标签页导航时设置附加信息",
+    "TabsItemMenuTitle": "配置 Tab 与 Menu 联动字典，该方法无需再单独设置 TabItemOption 即可自动获取标签页属性。",
     "TabsInfoItem2": "使用内置扩展方法 <code>Navigator.NavigateTo(\"provider\", \"url\", \"text\", \"icon\", \"closable\")</code> 导航时即可设置标签页属性",
     "TabsInfoItem4": "通过设置 <code>razor</code> 页面标签 <code>@attribute [TabItemOption(Text = \"LayoutPage\", Icon = \"fa-solid fa-font-awesome\")]</code>",
     "TabsQATitle": "常见问题",
@@ -2367,13 +2379,19 @@
     "ValidateFormTitle": "表单中使用",
     "ValidateFormIntro": "在表单中使用 <code>Checkbox</code> 时，显示标签文字会放置到组件前面",
     "ValidateFormDescription": "前置标签显式规则与 <code>BootstrapInput</code> 组件一致 <a href='input'>[传送门]</a>",
+    "OnBeforeStateChangedTitle": "选中前回调方法",
+    "OnBeforeStateChangedIntro": "通过设置 <code>OnBeforeStateChanged</code> 回调方法，可取消选中逻辑",
+    "OnBeforeStateChangedText": "弹窗确认",
+    "OnBeforeStateChangedSwalTitle": "弹窗确认",
+    "OnBeforeStateChangedSwalContent": "是否更改选中状态",
     "Att1": "是否显示前置标签",
     "Att2": "是否显示后置标签",
     "Att3": "前置标签显示文本",
     "Att4": "是否禁用",
     "Att5": "控件类型",
-    "Event1": "选择框状态改变时回调此方法",
-    "Event2": "State 状态改变回调方法",
+    "OnBeforeStateChanged": "选择框状态改变前回调此方法",
+    "OnStateChanged": "选择框状态改变时回调此方法",
+    "StateChanged": "State 状态改变回调方法",
     "StatusText1": "选中",
     "StatusText2": "未选",
     "StatusText3": "不确定",
@@ -2388,6 +2406,7 @@
     "NormalTips1": "通过 <code>bind-Value</code> 设置双向绑定数据值",
     "NormalTips2": "通过 <code>Items</code> 设置候选数据源",
     "NormalTips3": "通过 <code>OnSelectedChanged</code> 回调方法获取改变项实例",
+    "NormalTips4": "通过 <code>ShowLabelTooltip=\"true\"</code> 开启标签提示功能",
     "ValidateFormTitle": "客户端验证",
     "ValidateFormIntro": "内置于 ValidateForm 中使用",
     "ValidateFormTips1": "可以通过改变窗口大小，体验自适应布局",
@@ -2400,12 +2419,12 @@
     "EnumIntro": "绑定值为枚举",
     "EnumTip": "当 <code>CheckboxList</code> 绑定一个枚举集合时，<code>Items</code> 不需要指定，<code>Items</code> 会被自动设置成枚举里面所有的值，如果需要绑定部分值时，请自行提供枚举集合 <code>Items</code>",
     "NoBorderTitle": "无边框",
-    "NoBorderIntro": "通过设置 <code>ShowBorder=false</code> 不显示边框",
+    "NoBorderIntro": "通过设置 <code>ShowBorder=\"false\"</code> 不显示边框",
     "NoBorderTip": "当验证失败时显示红色边框",
     "VerticalTitle": "竖向排列",
-    "VerticalIntro": "通过设置 <code>IsVertical=true</code> 使checkbox竖向排列",
+    "VerticalIntro": "通过设置 <code>IsVertical=\"true\"</code> 使checkbox竖向排列",
     "DisabledTitle": "禁用",
-    "DisabledIntro": "通过设置 <code>IsDisabled=true</code> 禁用",
+    "DisabledIntro": "通过设置 <code>IsDisabled=\"true\"</code> 禁用",
     "IsButtonTitle": "按钮复选框",
     "IsButtonIntro": "设置 <code> IsButton=\"true\"</code>，将复选框样式改为按钮样式",
     "Att1": "数据源",
@@ -2420,7 +2439,14 @@
     "item3": "王五",
     "item4": "赵六",
     "Foo": "张三,李四",
-    "Description": "TValue 设置为 <code>IEnumerable&lt;string&gt;</code> 泛型集合"
+    "Description": "TValue 设置为 <code>IEnumerable&lt;string&gt;</code> 泛型集合",
+    "AttributeMaxSelectedCount": "选项最大数",
+    "AttributeOnMaxSelectedCountExceed": "选项到达最大值后回调方法",
+    "MaxSelectedCountTitle": "最大选择数量",
+    "MaxSelectedCountIntro": "通过设置 <code>MaxSelectedCount</code> 属性控制最大可选数量，通过 <code>OnMaxSelectedCountExceed</code> 回调处理逻辑",
+    "MaxSelectedCountDesc": "选中节点超过 2 个时，弹出 <code>Toast</code> 提示栏",
+    "OnMaxSelectedCountExceedTitle": "可选最大数量提示",
+    "OnMaxSelectedCountExceedContent": "最多只能选择 {0} 项"
   },
   "BootstrapBlazor.Server.Components.Samples.ColorPickers": {
     "Title": "ColorPicker 颜色拾取器",
@@ -2429,6 +2455,8 @@
     "NormalIntro": "通过设置 <code>Value</code> 属性设定颜色值",
     "ValueTitle": "设置初始值",
     "ValueIntro": "通过设置 <code>Value</code> 属性设定颜色值",
+    "TemplateTitle": "显示模板",
+    "TemplateIntro": "通过设置 <code>Template</code> 自定义显示模板",
     "ValueDescription": "设置 <code>Value='@Value'</code> 初始化默认值",
     "BindValueTitle": "双向绑定",
     "BindValueIntro": "通过设置 <code>Value</code> 属性设定颜色值",
@@ -2477,7 +2505,6 @@
     "Att2": "是否显示快捷侧边栏",
     "Att3": "前置标签显示文本",
     "Att4": "日期格式字符串 默认为 yyyy-MM-dd",
-    "Att5": "是否显示本组件",
     "Att6": "是否禁用 默认为 fasle",
     "Att8": "组件值与 ValueChanged 作为双向绑定的值",
     "Att9": "获得/设置 组件显示模式 默认为显示年月日模式",
@@ -2540,7 +2567,7 @@
   "BootstrapBlazor.Server.Components.Samples.Editors": {
     "EditorsTitle": "Editor 富文本框",
     "EditorsDescription": "将输入的文字转化为 <code>html</code> 代码片段",
-    "EditorsTips": "<code>Editor</code> 组件是对 <a href='https://summernote.org/' target='_blank'><code>Summernote 组件</code></a> 的二次封装，如需使用本地化功能请自行官网下载相对应语言包，自行引用即可，<code>zh-CN</code> <code>en-US</code> 已内置；组件所需 <code>css</code> <code>javascript</code> 均按需动态加载，使用者无需设置。由于 <code>summernote</code> 组件依赖 <b>jQuery</b>，所以需要自行引用 <code>jQuery</code> 脚本包。如果编辑内容过多，可能会触发 <code>signalR</code> 通讯中断问题，请自行调整 <code>HubOptions</code> 配置即可。",
+    "EditorsTips": "<code>Editor</code> 组件是对 <a href='https://summernote.org/' target='_blank'><code>Summernote 组件</code></a> 的二次封装，如需使用本地化功能请自行官网下载相对应语言包，自行引用即可，<code>zh-CN</code> <code>en-US</code> 已内置；组件所需 <code>css</code> <code>JavaScript</code> 均按需动态加载，使用者无需设置。由于 <code>summernote</code> 组件依赖 <b>jQuery</b>，所以需要自行引用 <code>jQuery</code> 脚本包。如果编辑内容过多，可能会触发 <code>signalR</code> 通讯中断问题，请自行调整 <code>HubOptions</code> 配置即可。",
     "EditorNormalTitle": "基础用法",
     "EditorNormalIntro": "默认呈现为 <code>div</code> 点击后变为富文本编辑框",
     "EditorNormalDescription": "通过设置 <code>IsEditor</code> 属性值来控制组件默认是 <code>div</code> 还是 <code>editor</code>",
@@ -2715,8 +2742,8 @@
     "InputsTrimIntro": "使用 <code>IsTrim=\"true\"</code> 可在输入内容的时候自动修剪空白",
     "TrimDescription": "设置参数 <code>IsTrim</code> 值为 <code>true</code> 后，组件内的前后空格将会被裁减",
     "InputsOnInputTitle": "文本框的值更改时触发",
-    "InputsOnInputIntro": "使用 <code>OnInput=\"true\"</code> 文本框的值更改时触发,用于逐键响应场合",
-    "OnInputDescription": "设置参数 <code>OnInput</code> 值为 <code>true</code> 后，每次按下键盘都会触发 <code>ValueChange</code> 事件",
+    "InputsOnInputIntro": "使用 <code>UseInputEvent=\"true\"</code> 文本框的值更改时触发,用于逐键响应场合",
+    "OnInputDescription": "设置参数 <code>UseInputEvent</code> 值为 <code>true</code> 后，每次按下键盘都会触发 <code>ValueChange</code> 事件",
     "InputsAtt1": "验证控件",
     "InputsAtt2": "是否显示前置标签",
     "InputsAtt3": "前置标签显示文本",
@@ -3843,7 +3870,9 @@
     "AutoCloseTitle": "自动关闭",
     "AutoCloseIntro": "点击侧边栏快捷方式自动关闭弹窗",
     "Submit": "提交",
-    "Limit": "时间范围"
+    "Limit": "时间范围",
+    "ViewModeTitle": "显示模式",
+    "ViewModeIntro": "通过设置 <code>ViewMode=\"DatePickerViewMode.Year\"</code> 使组件视图为年视图，设置 <code>ViewMode=\"DatePickerViewMode.Month\"</code> 使组件视图为年视图"
   },
   "BootstrapBlazor.Server.Components.Samples.Ips": {
     "IpNormalTitle": "基础用法",
@@ -4004,7 +4033,9 @@
     "OnListViewItemClick": "ListView元素点击时回调委托",
     "QueryAsync": "手工查询数据方法",
     "CollapsedGroupCallback": "组件分组项是否收缩回调委托方法",
-    "GroupOrderCallback": "组件分组项排序回调委托方法"
+    "GroupOrderCallback": "组件分组项排序回调委托方法",
+    "GroupItemOrderCallback": "组件分组项内项目集合排序回调方法",
+    "GroupHeaderTextCallback": "分组标题显示文本回调方法"
   },
   "BootstrapBlazor.Server.Components.Samples.Locators": {
     "LocatorsTitle": "获取 IP 地理位置",
@@ -4161,7 +4192,6 @@
   },
   "BootstrapBlazor.Server.Components.Components.DemoBlock": {
     "Title": "未设置",
-    "SubTitle": "示例",
     "TooltipText": "已拷贝到剪贴板"
   },
   "BootstrapBlazor.Server.Components.Components.Tips": {
@@ -4367,6 +4397,7 @@
     "Complete": "是/否",
     "Education": "学历",
     "Hobby": "爱好",
+    "ReadonlyColumn": "只读列",
     "Name.Required": "{0}是必填项",
     "Address.Required": "{0}是必填项",
     "Education.Required": "{0}是必选项",
@@ -4389,10 +4420,10 @@
     "Name": "姓名",
     "Name.Required": "Dummy2 {0} 值是必填项"
   },
-  "BootstrapBlazor.Server.Components.EnumEducation": {
+  "BootstrapBlazor.Server.Data.EnumEducation": {
     "PlaceHolder": "请选择 ...",
     "Primary": "小学",
-    "Middel": "中学"
+    "Middle": "中学"
   },
   "BootstrapBlazor.Server.Components.Components.ThemeChooser": {
     "Title": "点击切换主题",
@@ -4445,8 +4476,9 @@
     "Theme": "组件主题",
     "Labels": "表单标签",
     "GlobalException": "全局异常",
+    "GlobalOption": "全局配置",
     "LayoutPage": "后台模拟器",
-    "FAIcon": "FontAwesome 图标集合",
+    "FAIcon": "FontAwesome Icons",
     "Components": "组件总览",
     "LayoutComponents": "布局组件",
     "Client": "客户信息服务 Client",
@@ -4547,6 +4579,7 @@
     "ListView": "列表组件 ListView",
     "ListGroup": "列表框 ListGroup",
     "Locator": "位置定位 IpLocatorFactory",
+    "Icon": "图标 Icon",
     "ImageViewer": "图片 ImageViewer",
     "FileIcon": "文件图标 FileIcon",
     "Popover": "弹出窗 Popover",
@@ -4598,6 +4631,7 @@
     "TableLoading": "数据加载",
     "TableLookup": "外键数据源",
     "TableVirtualization": "虚拟滚动",
+    "TableAttribute": "特性标签",
     "Topology": "人机交互图 HMI",
     "MenuAccordion": "手风琴效果",
     "MenuExpandAll": "全部展开",
@@ -4619,6 +4653,7 @@
     "Recognizer": "语音识别 Recognizer",
     "Synthesizer": "语音合成 Synthesizer",
     "SpeechWave": "语音波形图 SpeechWave",
+    "WebSpeech": "Web Speech Api",
     "OnScreenKeyboard": "屏幕键盘 OnScreenKeyboard",
     "RibbonTab": "选项卡菜单 RibbonTab",
     "PulseButton": "心跳按钮 PulseButton",
@@ -4627,23 +4662,37 @@
     "VideoPlayer": "视频播放器 VideoPlayer",
     "FileViewer": "文件预览器 FileViewer",
     "FlipClock": "卡片翻转时钟 FlipClock",
+    "DriverJs": "高亮向导组件 DriverJs",
     "BaiduOcr": "文字识别服务 IBaiduOcr",
     "AzureOpenAI": "AI 聊天服务 AzureOpenAI",
     "HtmlRenderer": "Html 转换器  HtmlRenderer",
     "Html2Pdf": "Html 转 Pdf IHtml2Pdf",
+    "Mask": "遮罩服务 MaskService",
     "ContextMenu": "右键菜单 ContextMenu",
     "ClockPicker": "时间选择器 ClockPicker",
     "TimePicker": "时间选择器 TimePicker",
-    "DockViewComponents": "可停靠布局",
-    "DockViewIndex": "简介",
-    "DockViewColumn": "列布局",
-    "DockViewRow": "行布局",
-    "DockViewStack": "堆栈布局",
-    "DockViewNest": "嵌套布局",
-    "DockViewComplex": "组合布局",
-    "DockViewVisible": "可见性切换",
-    "DockViewLock": "布局锁定",
-    "DockViewLayout": "布局自定义",
+    "DockViewComponents": "可停靠布局 DockView",
+    "DockViewComponents2": "可停靠布局 DockViewV2",
+    "DockViewIndex": "DockView 简介",
+    "DockViewColumn": "DockView 列布局",
+    "DockViewRow": "DockView 行布局",
+    "DockViewStack": "DockView 堆栈布局",
+    "DockViewNest": "DockView 嵌套布局",
+    "DockViewComplex": "DockView 组合布局",
+    "DockViewVisible": "DockView 可见性切换",
+    "DockViewLock": "DockView 布局锁定",
+    "DockViewLayout": "DockView 布局自定义",
+    "DockViewTitle": "DockView 设置标题",
+    "DockViewV2Index": "DockViewV2 简介",
+    "DockViewV2Column": "DockViewV2 列布局",
+    "DockViewV2Row": "DockViewV2 行布局",
+    "DockViewV2Group": "DockViewV2 组布局",
+    "DockViewV2Nest": "DockViewV2 嵌套布局",
+    "DockViewV2Complex": "DockViewV2 组合布局",
+    "DockViewV2Visible": "DockViewV2 可见性切换",
+    "DockViewV2Lock": "DockViewV2 布局锁定",
+    "DockViewV2Layout": "DockViewV2 布局自定义",
+    "DockViewV2Title": "DockViewV2 设置标题",
     "OtherComponents": "其他组件",
     "MouseFollowerIntro": "鼠标跟随",
     "Live2DDisplayIntro": "Live2D 插件",
@@ -4654,7 +4703,6 @@
     "QueryBuilder": "条件生成器 QueryBuilder",
     "WebSerial": "串口读写 WebSerial",
     "MindMap": "思维导图 MindMap",
-    "WebSpeech": "语音识别/合成 WebSpeech",
     "Marquee": "文字滚动 Marquee",
     "Stack": "堆叠布局 Stack",
     "Segmented": "分段控制器 Segmented",
@@ -4679,7 +4727,17 @@
     "PrintService": "打印服务 PrintService",
     "ConnectionService": "在线连接服务 ConnectionService",
     "ExportPdfButton": "导出 Pdf 按钮 ExportPdfButton",
-    "ThemeProvider": "主题服务 IThemeProvider"
+    "ThemeProvider": "主题服务 IThemeProvider",
+    "IconPark": "字节跳动图标 IconPark",
+    "IntersectionObserver": "交叉观察者 IntersectionObserver",
+    "AntDesignIcon": "蚂蚁图标 AntDesignIcon",
+    "Icons": "内置图标",
+    "BootstrapIcon": "Bootstrap Icons",
+    "MaterialIcon": "Material Icons",
+    "ElementIcon": "饿了么图标 ElementIcon",
+    "DrawerService": "抽屉服务 DrawerService",
+    "SortableList": "拖拽组件 SortableList",
+    "WinBox": "窗口 WinBox"
   },
   "BootstrapBlazor.Server.Components.Samples.Table.TablesHeader": {
     "TablesHeaderTitle": "表头分组功能",
@@ -4925,6 +4983,7 @@
     "PageInfoTemplateAttr": "分页详细信息自定义组件",
     "PageInfoTextAttr": "分页信息显示文字",
     "AllowDragOrderAttr": "是否允许拖动列标题调整表格列顺序",
+    "AutoScrollLastSelectedRowToViewAttr": "选中行最后一个是否自动滚动到可视视窗内",
     "TableBaseNormalRefreshText": "刷新",
     "TableBaseHeaderStyleMode": "表头模式",
     "IsPopoverToolbarDropdownButtonAttr": "工具栏下拉框按钮是否浮动"
@@ -4952,6 +5011,8 @@
     "ShowCopyColumnTitle": "允许拷贝列数据",
     "ShowCopyColumnIntro": "通过设置 <code>ShowCopyColumn</code> 设置表格列允许拷贝整列数据",
     "ShowCopyColumnDesc": "可以通过设置 <code>ShowCopyColumnTooltip</code> <code>CopyColumnTooltipText</code> <code>CopyColumnCopiedTooltipText</code> 等设置微调拷贝列数据图标的 <code>Tooltip</code> 相关参数",
+    "ShowColumnToolboxTitle": "列工具栏",
+    "ShowColumnToolboxIntro": "通过设置列 <code>ToolboxTemplate</code> 参数，开启列工具栏按钮",
     "OnColumnCreatingTitle": "设置当前列属性",
     "OnColumnCreatingIntro": "通过指定 <code>OnColumnCreating</code>回调，对列集合进行数据二次更改",
     "OnColumnCreatingP1": "通过 <code>OnColumnCreating</code> 回调方法中的参数既可以对现有列进行扩展：",
@@ -4986,7 +5047,7 @@
     "WidthP3": "通过设置按钮 <code>IsShow</code> 参数来控制是否显示按钮",
     "AllowResizingTitle": "允许列调整",
     "AllowResizingIntro": "通过指定 <code>AllowResizing</code> 设置表格列允许调整宽度",
-    "AllowResizingDesc": "<b>注意：</b> <code>Table</code> 父容器有有效宽度值时 <code>Table</code> 才会出现滚动条，可通过设置 <code>ClientTableName</code> 参数开启本地化存储列宽功能，即通过拖拽后列宽下次打开时会保持",
+    "AllowResizingDesc": "<b>注意：</b> <code>Table</code> 父容器有有效宽度值时 <code>Table</code> 才会出现滚动条，可通过设置 <code>ClientTableName</code> 参数开启本地化存储列宽功能，即通过拖拽后列宽下次打开时会保持，通过设置 <code>ShowColumnWidthTooltip</code> 参数控制是否显示列宽提示栏，默认 <code>false</code>",
     "WidthButtonText1": "明细",
     "WidthButtonText2": "编辑",
     "WidthButtonText3": "权限",
@@ -5083,6 +5144,7 @@
     "TablesEditModeAddModalTitle": "增加测试数据窗口",
     "TablesEditModeEditModalTitle": "编辑测试数据窗口",
     "TablesEditModeInCell": "<code>InCell</code> 模式示例",
+    "TablesEditModeDrawer": "<code>Drawer</code> 模式示例",
     "TablesEditInjectDataServiceDescription": "通过注册数据服务进行增、删、改、查的数据库操作，而无需对以下回调委托进行赋值，优先级别为有回调方法优先调用回调方法，如无则调用注入服务进行数据操作",
     "TablesEditInjectDataServiceTips1": "Startup 文件注入数据服务",
     "TablesEditInjectDataServiceTips2": "实现原理与用法介绍",
@@ -5090,7 +5152,16 @@
     "TablesEditInjectDataServiceTips4": "开启使用注入数据服务后，可通过设置 <code>DataServices</code> 参数对组件进行单独设置，如未设置内部使用注入服务提供的实例",
     "TablesEditShowSearchPlaceHolderString": "不可为空，50字以内",
     "TablesVisibleTitle": "Table 编辑时显示/隐藏",
-    "TablesVisibleIntro": "<div><code>Visible</code> 默认值为 <code>true</code> 如果有列设置了 <code>IsVisibleWhenAdd</code> 或者 <code>IsVisibleWhenEdit</code> 属性为 <code>false</code> 时, 新建或者更新时隐藏此列。本例中 <b>新建</b> 弹窗不显示 <b>数量</b> <b>编辑</b> 弹窗不显示 <b>是否</b> 编辑项。</div><div>可以通过在数据模型中使用 <code>[AutoGenerateClass(Visible = false)]</code> 全部禁止显示，再通过 <code>IsVisibleWhenAdd</code> 或者 <code>IsVisibleWhenEdit</code> 单独设置编辑状态下的可见性，本例中，<b>地址</b> 列默认不可见，<b>新建、编辑</b> 弹窗内均可以编辑</div>"
+    "TablesVisibleIntro": "<div><code>Visible</code> 默认值为 <code>true</code> 如果有列设置了 <code>IsVisibleWhenAdd</code> 或者 <code>IsVisibleWhenEdit</code> 属性为 <code>false</code> 时, 新建或者更新时隐藏此列。本例中 <b>新建</b> 弹窗不显示 <b>数量</b> <b>编辑</b> 弹窗不显示 <b>是否</b> 编辑项。</div><div>可以通过在数据模型中使用 <code>[AutoGenerateClass(Visible = false)]</code> 全部禁止显示，再通过 <code>IsVisibleWhenAdd</code> 或者 <code>IsVisibleWhenEdit</code> 单独设置编辑状态下的可见性，本例中，<b>地址</b> 列默认不可见，<b>新建、编辑</b> 弹窗内均可以编辑</div>",
+    "TablesReadonlyColumnTitle": "只读列",
+    "TablesReadonlyColumnIntro": "通过设置 <code>Field</code> 与 <code>FieldName</code> 即可",
+    "TablesReadonlyColumnDescription": "对应数据库计算列，或者模型只读属性",
+    "TablesReadonlyColumnTips1": "不要写 <code>@bind-Field</code> 只读列在 <b>新建</b> 或者 <b>编辑</b> 时均无法录入",
+    "TablesReadonlyColumnTips2": "老版本需要写完整代码如下",
+    "TablesTemplateColumnTitle": "模板列",
+    "TablesTemplateColumnIntro": "通过使用 <code>TableTemplateColumn</code> 代替 <code>TableColumn</code> 组件，即可不绑定模型属性",
+    "TablesTemplateColumnDescription": "通过设置 <code>Text</code> 属性设置标题显示文字，通过 <code>Template</code> 设置单元格显示内容，模板上下文为 <code>TableColumnContext</code> 实例，可通过 <code>@v.Row</code> 获得当前行模型实例，模板列不参与数据编辑功能如 <b>新建</b> <b>编辑</b>",
+    "TableTemplateColumnText": "模板列"
   },
   "BootstrapBlazor.Server.Components.Samples.Table.TablesVirtualization": {
     "TablesVirtualizationTitle": "Table 虚拟滚动行",
@@ -5230,7 +5301,11 @@
     "TablesSelectionKeepInfo": "保持选中行状态：",
     "TablesSelectionKeepOnText": "保持",
     "TablesSelectionKeepOffText": "不保持",
-    "TablesSelectionCountText": "选中的行数：{0}"
+    "TablesSelectionCountText": "选中的行数：{0}",
+    "TablesSelectionScrollTitle": "渲染结束后回调方法",
+    "TablesSelectionScrollIntro": "通过设置 <code>OnAfterRenderCallback</code> 回调方法，执行一些特殊操作",
+    "TablesSelectionScrollDescription": "点击按钮后选中最后一行，并且将选中行自动滚动到视窗可见区域内，本代码为示例，本功能可通过设置 <code>AutoScrollLastSelectedRowToView=\"true\"</code> 开启，通过 <code>AutoScrollVerticalAlign</code> 参数设置对齐方式",
+    "TablesSelectionScrollButtonText": "选中最后一行"
   },
   "BootstrapBlazor.Server.Components.Samples.Table.TablesExcel": {
     "TablesExcelTitle": "Table 表格",
@@ -5296,7 +5371,7 @@
   },
   "BootstrapBlazor.Server.Components.Samples.Table.TablesExport": {
     "TablesExportTitle": "Table 表格",
-    "TablesExportDescription1": "通过设置 <code>ShowExportButton</code> 参数显示导出按钮，组件内置导出 Excel 功能",
+    "TablesExportDescription1": "通过设置 <code>ShowExportButton</code> 参数显示导出按钮，组件内置导出 Excel/Csv/Pdf 功能",
     "TablesExportDescription2": "导出功能提供了导出回调方法 <code>OnExportAsync</code> 使用时可以通过提供自定义的导出方法进行数据导出，如果未提供数据导出方法，组件会根据注入的导出服务进行数据导出",
     "TablesExportTips": "注入服务",
     "TablesExportNote1": "增加 BootstrapBlazor 组件",
@@ -5315,7 +5390,10 @@
     "TablesExportButtonCliBoardAllText": "导出全部页到剪切板",
     "TablesExportToastTitle": "数据导出",
     "TablesExportToastSuccessContent": "导出数据成功，4 秒后自动关闭",
-    "TablesExportToastFailedContent": "导出数据失败，4 秒后自动关闭"
+    "TablesExportToastFailedContent": "导出数据失败，4 秒后自动关闭",
+    "TablesExportPdfDesc": "导出 Pdf 功能依赖额外组件包",
+    "TablesExportPdfNote1": "注入 <code>Html2Pdf</code> 服务",
+    "TablesExportPdfNote2": "增加 Html2Pdf 导出服务"
   },
   "BootstrapBlazor.Server.Components.Samples.Table.TablesToolbar": {
     "TablesToolbarTitle": "Table 表格",
@@ -5339,7 +5417,10 @@
     "TableToolbarPopConfirmButton1": "确认下载",
     "TablesToolbarCustomComponentTitle": "自定义组件",
     "TablesToolbarCustomComponentIntro": "使用 <code>TableToolbarComponent</code> 组件实现将自己需要的组件放到工具栏上",
-    "TablesToolbarCustomComponentDescription": "自定义组件在收缩成一个小图标时目前不渲染，稍后有更好的方案时再解决，如果想将组件放到内置按钮后面时，请使用 <code>TableToolbarTemplate</code> 模板"
+    "TablesToolbarCustomComponentDescription": "自定义组件在收缩成一个小图标时目前不渲染，稍后有更好的方案时再解决，如果想将组件放到内置按钮后面时，请使用 <code>TableToolbarTemplate</code> 模板",
+    "TablesToolbarShowRefreshTitle": "不显示刷新按钮",
+    "TablesToolbarShowRefreshIntro": "设置 <code>ShowToolbar=\"true\"</code> <code>ShowRefresh=\"false\"</code> 组合条件显示工具栏并且不显示刷新按钮",
+    "TablesToolbarShowRefreshDesc": "点击 <code>刷新</code> 按钮组件内部调用组件实例方法 <code>QueryAsync</code> 如果是 <b>虚拟滚动</b> 模式根据数据源不同触发不同请求数据模式；如果是使用 <code>OnQueryAsync</code> 回调方法作为数据源时，会自动调用"
   },
   "BootstrapBlazor.Server.Components.Samples.Table.TablesCell": {
     "TablesCellTitle": "Table 表格",
@@ -5391,7 +5472,10 @@
     "RowNumberText": "序号",
     "ClickToSelectP3": "当前选中行：",
     "ClickToSelectNoneText": "无",
-    "PlaceHolder": "不可为空，50字以内"
+    "PlaceHolder": "不可为空，50字以内",
+    "RowTemplateTitle": "行模板",
+    "RowTemplateIntro": "通过设置 <code>RowTemplate</code> 模板，可通过分装组件的方式实现自定义行内单元格联动逻辑，达到性能最优化，避免单元格数据刷新导致联动后需要刷新整个表格组件的问题，可用于销售类软件，调整单价时总价列变化需求",
+    "RowTemplateDesc": "本例中通过自定义组件，实现选择日期后，联动数量列，随机生成一个随机数字，并且保存到原始数据中，从而不需要刷新整个 <code>Table</code> 组件"
   },
   "BootstrapBlazor.Server.Components.Samples.Table.TablesDynamic": {
     "TablesDynamicTitle": "Table 表格",
@@ -5453,6 +5537,11 @@
     "AutoHeightIntro": "<p><b>高度自适应</b></p><p>本例中设置父容器高度为 <code>600px</code> 展开/收起搜索栏时，表格自动充满父容器</p>"
   },
   "BootstrapBlazor.Server.Components.Samples.Table.TablesFilter": {
+    "MultiFilterTitle": "多选列表筛选",
+    "MultiFilterIntro": "通过 <code>FilterTemplate</code> 使用内置 <code>MultiFilter</code> 组件提供多选筛选功能",
+    "MultiFilterTips": "组件提供 <code>Items</code> <code>OnGetItemsAsync</code> 两种设置数据源方式",
+    "MultiFilterTipsLi1": "<code>Items</code> 适合数据量小且静态事先准备好的数据集合",
+    "MultiFilterTipsLi2": "<code>OnGetItemsAsync</code> 适合数据量大且动态的数据集合，出于性能考虑组件内部采用局域懒记载方式填装数据，即点开过滤窗口时才回调获得数据",
     "TablesFilterTitle": "筛选和排序功能",
     "TablesFilterDesc": "筛选可快速查找到自己想看的数据；排序可快速查找或对比数据。",
     "TablesFilterDescLi1": "对某一列数据进行筛选，通过指定列的 <code>Filterable</code> 属性来指定需要筛选的列",
@@ -5511,6 +5600,27 @@
     "DialogTitle": "弹窗内使用",
     "DialogButtonText": "弹窗"
   },
+  "BootstrapBlazor.Server.Components.Samples.Table.TablesAttribute": {
+    "TableAttributeTitle": "特性标签 AutoGenerateClassAttribute/AutoGenerateColumnAttribute",
+    "TableAttributeDescription": "通过使用特性标签可以大大节约代码",
+    "AutoGenerateClassAttribute": "类标签 AutoGenerateClassAttribute",
+    "AutoGenerateColumnAttribute": "列标签 AutoGenerateColumnAttribute",
+    "AutoGenerateClassP1": "1. 使用用法",
+    "AutoGenerateClassP1Content": "本例中通过设置 <code>Filterable=true</code> 使表格所有列均开启可搜索功能",
+    "AutoGenerateCode": "等效代码如下：",
+    "AutoGenerateClassP2": "1. 使用用法",
+    "AutoGenerateClassP2Content": "本例中通过设置 <code>Filterable=true</code> 使表格 <code>Name</code> 列开启可搜索功能",
+    "TableAttributeIntro": "权重说明",
+    "TableAttributeIntroLI1": "只写了 <code>AutoGenerateClassAttribute</code> 以其参数值为准",
+    "TableAttributeIntroLI2": "只写了 <code>AutoGenerateColumnAttribute</code> 以其参数值为准",
+    "TableAttributeIntroLI3": "写了 <code>AutoGenerateClassAttribute</code> 并且写了 <code>AutoGenerateColumnAttribute</code> 合并两者参数值取其默认值的相反值",
+    "TableAttributeIntroLI4": "写了 <code>TableColumn</code> <code>参数值时以 TableColumn</code> 参数值为最终值",
+    "TableAttributeQA1": "写了 <code>AutoGenerateClassAttribute</code> 并且写了 <code>AutoGenerateColumnAttribute</code> 合并两者参数值取其默认值的相反值举例说明",
+    "TableAttributeQAP1": "由于 <code>AutoGenerateClassAttribute</code> 设置 <code>Filterable</code> 值为 <code>true</code>，而 <code>AutoGenerateColumn</code> 保持 <code>Filterable</code> 默认值 <code>false</code> 最终 <code>UI</code> 使用 <code>true</code>",
+    "TableAttributeQAP2": "由于 <code>AutoGenerateClassAttribute</code> 未设置 <code>Sortable</code> 保持默认值 <code>false</code>，而 <code>AutoGenerateColumn</code> 设置 <code>Sortable</code> 值为 <code>true</code> 最终 <code>UI</code> 使用 <code>true</code>",
+    "TableAttributeQAP3": "最新版本 <code>TableColumn</code> 的 <code>Filterable</code> 等一些参数值均更改为 <b>可为空数据类型</b>，其默认值由原来的 <code>false</code> 更改为 <code>null</code>，可由此判断，只要 <code>TableColumn</code> 的参数 <code>Filterable</code> 值不为空，即以 <code>TableColumn</code> 值为最终 <code>UI</code> 值",
+    "TableAttributeColumn": "TableColumn 显示设置值"
+  },
   "BootstrapBlazor.Server.Components.Pages.Introduction": {
     "Title": "简介",
     "P1": "BootstrapBlazor 是一套基于 Bootstrap 和 Blazor 的企业级组件库，可以认为是 Bootstrap 项目的 Blazor 版实现。",
@@ -5531,13 +5641,14 @@
     "Summarize": "总结",
     "ProjectsShow": "作品展示",
     "P5": "国内最大代码托管协作开发平台 <b><a href='{0}' target='_blank'>码云</a></b> C# 板块最高星 <a href='{1}' target='_blank'><img src='{2}' alt='star'></a> 作品 <b><a href='{3}' target='_blank'>通用后台管理系统 BootstrapAdmin</a></b> 准备使用本组件实现全部功能",
-    "ShowWebSiteTitle": "演示网站",
+    "ShowWebSiteTitle1": "实战网站（混合版本）",
+    "ShowWebSiteTitle2": "实战网站（纯 Blazor 版本）",
     "GetStarted": "快速上手",
     "QuickStart": "快速入门",
     "Features": "组件特色",
     "P6": "Bootstrap Blazor UI 组件库提供了从基本的 <code>Button</code> 组件到高级的网页级 <code>SmartPage</code> 组件",
     "Advantage": "优势",
-    "AdvantageLi1": "使用组件无需编写 <code>Javascript</code>",
+    "AdvantageLi1": "使用组件无需编写 <code>JavaScript</code>",
     "AdvantageLi2": "组件支持所有 <code>html</code> 特性",
     "AdvantageLi3": "组件支持数据双向绑定",
     "AdvantageLi4": "组件支持自动客户端验证",
@@ -5590,6 +5701,7 @@
     "ImageViewersAttrPreviewList": "预览大图链接集合",
     "ImageViewersAttrOnLoadAsync": "图片加载成功时回调方法",
     "ImageViewersAttrOnErrorAsync": "图片加载失败时回调方法",
+    "ImageViewersAttrIsIntersectionObserver": "图片懒加载",
     "ImageViewerNormalTips1": "<code>object-fit: fill</code> 填充 默认值 使图片拉伸填满整个容器, 不保证保持原有的比例",
     "ImageViewerNormalTips2": "<code>object-fit: contain</code> 包含 保持原有尺寸比例缩放 保证整个图片都可以出现在容器中，因此此参数可能会在容器内留下空白",
     "ImageViewerNormalTips3": "<code>object-fit: cover</code> 覆盖 保持原有尺寸比例缩放，宽度和高度至少有一个和容器一致（尺寸小的一致）因此此参数可能会让图片部分区域不可见",
@@ -5606,9 +5718,11 @@
     "ImageViewerErrorTemplateUrlError": "Url 路径错误",
     "ImageViewerErrorTemplateCustom": "自定义",
     "ImageViewerErrorTemplateLoadFailed": "加载失败",
-    "ImagePreviewerTitle": "单独使用ImagePreviewer",
-    "ImagePreviewerIntro": "配合Button等其他组件，直接弹出Previewer",
-    "ImagePreviewerButton": "显示Previewer"
+    "ImagePreviewerTitle": "单独使用 ImagePreviewer",
+    "ImagePreviewerIntro": "配合 <code>Button</code> 等其他组件，直接弹出 <code>ImagePreviewer</code>",
+    "ImagePreviewerButton": "显示 Previewer",
+    "IntersectionObserverTitle": "懒加载",
+    "IntersectionObserverIntro": "通过设置 <code>IsIntersectionObserver=\"true\"</code> 开启懒加载特性，当图片在不可见区域时不加载图片，当图片即将可见时才开始加载图片"
   },
   "BootstrapBlazor.Server.Components.Samples.Geolocations": {
     "GeolocationsTitle": "地理定位/移动距离追踪",
@@ -5659,17 +5773,6 @@
     "NotificationsNormalOnClickText": "通知点击后的回调方法名称",
     "NotificationsNormalTitleSampleText": "你有新的物流通知",
     "NotificationsNormalMessageSampleText": "您的包裹已到达亮马河南路,距离分发只剩3站."
-  },
-  "BootstrapBlazor.Server.Components.Samples.FAIcons": {
-    "Title": "FA 图标选择器",
-    "BaseUsageText": "目前 <code>BootstrapBlazor</code> 使用 <code>Font Awesome</code> 最新版本作为内置图标库，所有图标如下",
-    "SwitchButtonTextOff": "点击拷贝",
-    "SwitchButtonTextOn": "显示高级拷贝",
-    "P1": "通过引用扩展组件包",
-    "P2": "后添加样式表文件链接开启图标",
-    "P3": "已知问题",
-    "P4": "首次加载有概率图标为乱码，原因是字库还未下载导致",
-    "CopiedTooltipText": "拷贝成功"
   },
   "BootstrapBlazor.Server.Components.Samples.SignaturePads": {
     "BaseUsageText": "基础用法",
@@ -5931,6 +6034,8 @@
     "IntroText": "有些应用场景需要我们获得 <code>Component</code> 最终输出的 <code>Html</code> 代码片段，调用 <code>IComponentHtmlRenderer</code> 服务的 <code>RenderAsync</code> 实例方法即可"
   },
   "BootstrapBlazor.Server.Components.Samples.ContextMenus": {
+    "ContextMenuItemCopy": "拷贝",
+    "ContextMenuItemPast": "粘贴",
     "ContextMenuTitle": "ContextMenu 右键菜单",
     "ContextMenuDescription": "用户点击鼠标右键时弹出的上下文关联菜单",
     "ContextMenuNormalTitle": "基础用法",
@@ -5940,12 +6045,89 @@
     "ContextMenuTableTitle": "Table 组件",
     "ContextMenuTableIntro": "点击 <code>Table</code> 组件行数据右键，弹出上下文关联菜单",
     "ContextMenuTreeTitle": "Tree 组件",
-    "ContextMenuTreeIntro": "点击 <code>Tree</code> 组件行数据右键，弹出上下文关联菜单"
+    "ContextMenuTreeIntro": "点击 <code>Tree</code> 组件行数据右键，弹出上下文关联菜单",
+    "ContextMenuCallbackTitle": "ContextMenu 回调",
+    "ContextMenuCallbackIntro": "通过设置 <code>ContextMenu</code> 组件参数 <code>OnBeforeShowCallback</code> 获得右键菜单弹出前回调事件，可用于数据准备工作",
+    "ContextMenuDisabledTitle": "禁止回调方法",
+    "ContextMenuDisabledIntro": "通过设置 <code>ContextMenuItem</code> 组件参数 <code>OnDisabledCallback</code> 回调方法可用于设置当前右键选项是否禁用逻辑"
   },
   "BootstrapBlazor.Server.Components.Samples.DockViews.Index": {
     "DockViewTitle": "DockView 可停靠视图",
     "DockViewDescription": "多标签停靠布局管理器",
-    "DockViewIntro": "<p><code>DockView</code> 组件是封装的 <a href=\"https://github.com/golden-layout/golden-layout\" target=\"_blank\">Golden Layout</a> 库，它是一个 <code>Javascript</code> 布局管理器，它使您能够在网页中布局组件并通过拖放重新排列它们。其特点包括：</p><ul class=\"ul-demo\"><li>原生弹出窗口</li><li>触摸支持</li><li>支持 <code>Angular</code>、<code>Vue</code> 等应用框架</li><li>虚拟组件</li><li>全面的API</li><li>加载和保存布局</li><li>焦点组件</li><li>完全主题化</li><li>适用于现代浏览器（<code>Firefox</code>、<code>Chrome</code>）</li><li>响应式设计</li></ul>"
+    "DockViewIntro": "<p><code>DockView</code> 组件是封装的 <a href=\"https://github.com/golden-layout/golden-layout?wt.mc_id=DT-MVP-5004174\" target=\"_blank\">Golden Layout</a> 库，它是一个 <code>JavaScript</code> 布局管理器，它使您能够在网页中布局组件并通过拖放重新排列它们。其特点包括：</p><ul class=\"ul-demo\"><li>原生弹出窗口</li><li>触摸支持</li><li>支持 <code>Angular</code>、<code>Vue</code> 等应用框架</li><li>虚拟组件</li><li>全面的API</li><li>加载和保存布局</li><li>焦点组件</li><li>完全主题化</li><li>适用于现代浏览器（<code>Firefox</code>、<code>Chrome</code>）</li><li>响应式设计</li></ul>"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews.DockViewCol": {
+    "DockViewColTitle": "DockView 列布局",
+    "DockViewColIntro": "通过设置 <code>Type=\"DockContentType.Column\"</code> 使 <code>DockView</code> 垂直布局"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews.DockViewRow": {
+    "DockViewRowTitle": "DockView 行布局",
+    "DockViewRowIntro": "通过设置 <code>Type=\"DockContentType.Row\"</code> 使 <code>DockView</code> 水平布局"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews.DockViewStack": {
+    "DockViewStackTitle": "DockView 堆栈布局",
+    "DockViewStackIntro": "通过设置 <code>Type=\"DockContentType.Stack\"</code> 使 <code>DockView</code> 堆栈布局"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews.DockViewComplex": {
+    "DockViewComplexTitle": "DockView 复杂布局",
+    "DockViewComplexIntro": "通过组合、嵌套设置 <code>DockContentType</code> 值可以得到复杂布局"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews.DockViewLayout": {
+    "DockViewLayoutTitle": "DockView 自定义布局",
+    "DockViewLayoutIntro": "通过设置 <code>DockView</code> 的属性 <code>LayoutConfig</code> 初始化控制面板的显示布局, 方法 <code>GetLayoutConfig</code> 获取面板的显示布局"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews.DockViewLock": {
+    "DockViewLockTitle": "DockView 锁定面板",
+    "DockViewLockIntro": "通过设置 <code>Dock</code> 的属性 <code>IsLock</code>，控制所有面板是否能拖动"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews.DockViewVisible": {
+    "DockViewVisibleTitle": "DockView 可见性设置",
+    "DockViewVisibleIntro": "通过设置 <code>Visible</code> 控制是否显示组件，使用 <code>OnVisibleStateChangedAsync</code> 设置面板关闭回调委托方法"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews.DockViewNest": {
+    "DockViewNestTitle": "DockView 嵌套布局",
+    "DockViewNestIntro": "组件 <code>DockComponent</code> 内可嵌套放置 <code>DockView</code> 通过设置 <code>ShowHeader=\"false\"</code> 可使其标签不可见"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.Index": {
+    "DockView2Title": "DockViewV2 可停靠视图",
+    "DockView2Description": "多标签停靠布局管理器",
+    "DockView2Intro": "<p><code>DockView</code> 组件是封装的 <a href=\"https://github.com/mathuo/dockview?wt.mc_id=DT-MVP-5004174\" target=\"_blank\">DockView</a> 库，它是一个 <code>JavaScript</code> 布局管理器，它使您能够在网页中布局组件并通过拖放重新排列它们。其特点包括：</p><ul class=\"ul-demo\"><li>原生弹出窗口</li><li>触摸支持</li><li>支持 <code>Angular</code>、<code>Vue</code> 等应用框架</li><li>虚拟组件</li><li>全面的API</li><li>加载和保存布局</li><li>焦点组件</li><li>完全主题化</li><li>适用于现代浏览器（<code>Firefox</code>、<code>Chrome</code>）</li><li>响应式设计</li></ul>"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewCol": {
+    "DockViewColTitle": "DockViewV2 列布局",
+    "DockViewColIntro": "通过设置 <code>Type=\"DockViewContentType.Column\"</code> 使 <code>DockViewV2</code> 垂直布局，通过设置 <code>Height=\"240\"</code> 初始化其面板高度"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewRow": {
+    "DockViewRowTitle": "DockViewV2 行布局",
+    "DockViewRowIntro": "通过设置 <code>Type=\"DockViewContentType.Row\"</code> 使 <code>DockViewV2</code> 水平布局，通过设置 <code>Width=\"240\"</code> 初始化其面板宽度"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewGroup": {
+    "DockViewGroupTitle": "DockViewV2 组布局",
+    "DockViewGroupIntro": "通过设置 <code>Type=\"DockViewContentType.Group\"</code> 使 <code>DockViewV2</code> 组布局"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewComplex": {
+    "DockViewComplexTitle": "DockViewV2 复杂布局",
+    "DockViewComplexIntro": "通过组合、嵌套设置 <code>DockViewContentType</code> 值可以得到复杂布局"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewLayout": {
+    "DockViewLayoutTitle": "DockViewV2 自定义布局",
+    "DockViewLayoutIntro": "通过设置 <code>DockViewV2</code> 的属性 <code>LayoutConfig</code> 初始化控制面板的显示布局, 方法 <code>GetLayoutConfig</code> 获取面板的显示布局"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewLock": {
+    "DockViewLockTitle": "DockViewV2 锁定面板",
+    "DockViewLockIntro": "通过设置 <code>DockViewV2</code> 的属性 <code>IsLock</code>，控制所有面板是否能拖动，通过设置 <code>ShowLock</code> 控制是否显示锁定按钮"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewTitle": {
+    "DockViewTitleTitle": "DockViewV2 设置标题",
+    "DockViewTitleIntro": "通过设置 <code>ShowTitleBar</code> 控制是否显示标题前功能按钮，使用 <code>OnClickTitleBarCallback</code> 设置回调委托方法，复杂功能使用 <code>TitleTemplate</code> 自定义"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewVisible": {
+    "DockViewVisibleTitle": "DockViewV2 可见性设置",
+    "DockViewVisibleIntro": "通过设置 <code>Visible</code> 控制是否显示组件，使用 <code>OnVisibleStateChangedAsync</code> 设置面板关闭回调委托方法"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DockViews2.DockViewNest": {
+    "DockViewNestTitle": "DockViewV2 嵌套布局",
+    "DockViewNestIntro": "组件 <code>DockViewComponent</code> 内可嵌套放置 <code>DockViewV2</code> 通过设置 <code>ShowHeader=\"false\"</code> 可使其标签不可见"
   },
   "BootstrapBlazor.Server.Components.Samples.MouseFollowers": {
     "MouseFollowersTitle": "鼠标跟随器",
@@ -6117,13 +6299,29 @@
     "Layout": "布局",
     "Theme": "主题"
   },
-  "BootstrapBlazor.Server.Components.Samples.WebSpeeches": {
-    "WebSpeechTitle": "Web Speech 语音识别/合成",
-    "WebSpeechDescription": "使用浏览器接口功能提供语音识别/合成服务",
-    "WebSpeechNormalTitle": "语音识别",
-    "WebSpeechGameTitle": "语音颜色选择游戏",
-    "WebSpeechSynthesisTitle": "语音合成",
-    "WebSpeechSynthesisCustomTitle": "语音合成自定义"
+  "BootstrapBlazor.Server.Components.Samples.Speeches.WebSpeeches": {
+    "WebSpeechTitle": "Web Speech Api 网页原生语音处理 API",
+    "WebSpeechSubTitle": "使用浏览器接口功能提供语音识别/合成服务",
+    "WebSpeechNormalTitle": "语音合成",
+    "WebSpeechNormalIntro": "输入文字后选择相对应的语种进行朗读",
+    "WebSpeechSpeakButtonText": "朗读",
+    "WebSpeechStopButtonText": "停止",
+    "WebSpeechText": "开始朗读一段文字",
+    "WebSpeechRecognitionTitle": "语音识别",
+    "WebSpeechRecognitionIntro": "通过麦克风输入语音，进行语音识别",
+    "WebSpeechRecognitionButtonText": "语音识别",
+    "WebSpeechRecognitionContinuousTitle": "实时语音识别",
+    "WebSpeechRecognitionContinuousIntro": "通过设置 <code>WebSpeechRecognitionOption</code> 参数 <code>Continuous=\"true\" InterimResults=\"true\"</code> 进行实时语音识别",
+    "WebSpeechRecognitionContinuousButtonText": "持续识别",
+    "RecognitionErrorNotAllowed": "用户已拒绝访问硬件设备",
+    "RecognitionErrorNoSpeech": "未检测到语音",
+    "RecognitionErrorAborted": "用户已取消",
+    "RecognitionErrorAudioCapture": "硬件设备无法捕获音频",
+    "RecognitionErrorNetwork": "网络错误",
+    "RecognitionErrorNotSupported": "浏览器不支持语音识别",
+    "RecognitionErrorServiceNotAllowed": "服务不允许",
+    "RecognitionErrorBadGrammar": "语法错误",
+    "RecognitionErrorLanguageNotSupported": "语言不支持"
   },
   "BootstrapBlazor.Server.Components.Samples.ListGroups": {
     "ListGroupsTitle": "ListGroup 列表框",
@@ -6145,9 +6343,10 @@
     "GetItemDisplayText": "获得显示项显示内容回调方法"
   },
   "BootstrapBlazor.Server.Components.Samples.Marquees": {
-    "MarqueeTitle": "基本用法",
-    "MarqueeIntro": "通过参数调节文字滚动效果",
-    "MarqueeDescription": "文字滚动组件"
+    "MarqueeTitle": "循环滚动组件",
+    "MarqueeDescription": "组件多用于创建滚动文本，通常用于新闻滚动、广告滚动等效果",
+    "MarqueeBase": "基本用法",
+    "MarqueeBaseIntro": "通过参数调节文字滚动效果"
   },
   "BootstrapBlazor.Server.Components.Samples.Stacks": {
     "Title": "Stack 布局",
@@ -6205,7 +6404,7 @@
     "BasicIntro": "基础用法",
     "Value": "获得或设置 Value",
     "Theme": "编辑器的主题",
-    "Language": "编辑器使用的语言：csharp，javascript，...",
+    "Language": "编辑器使用的语言：csharp，JavaScript，...",
     "ValueChanged": "获取或设置更新绑定值的回调"
   },
   "BootstrapBlazor.Server.Components.Samples.JSRuntimeExtensions": {
@@ -6227,7 +6426,11 @@
   "BootstrapBlazor.Server.Components.Samples.Clipboards": {
     "ClipboardTitle": "ClipboardService",
     "ClipboardIntro": "剪切板服务！请注意，只能在 <code>HTTPS</code> 安全连接下运行，或者在本地 <code>localhost</code> 开发环境中使用",
-    "ClipboardMessage": "文本内容：{0}, 已复制到剪切板"
+    "ClipboardMessage": "文本内容：{0}, 已复制到剪切板",
+    "ClipboardGetTextMessage": "读取剪切板文本内容: {0}",
+    "ClipboardCopyMethod": "拷贝文本到剪切板方法",
+    "ClipboardGetMethod": "读取剪切板内容方法",
+    "ClipboardGetTextMethod": "读取剪切板文本内容方法"
   },
   "BootstrapBlazor.Server.Components.Samples.Gantts": {
     "Title": "一个简单、交互式、现代的 Web 甘特图库，具有拖动、调整大小、依赖关系和时间刻度",
@@ -6380,6 +6583,8 @@
     "BaseUsageIntro": "同步显示当前时间",
     "ShowMinuteText": "不显示时、分",
     "ShowMinuteIntro": "通过设置 <code>ShowHour=\"false\"</code> <code>ShowMinute=\"false\"</code> 不显示小时、分钟信息",
+    "ShowSecondText": "不显示秒",
+    "ShowSecondIntro": "通过设置 <code>ShowSecond=\"false\"</code> 不显示秒信息",
     "CountText": "计时器",
     "CountIntro": "通过设置 <code>ViewMode=\"FlipClockViewMode.Count\"</code> 开启计时功能，开始时间使用 <code>StartValue</code> 设置",
     "IsCountDownText": "倒计时",
@@ -6393,5 +6598,149 @@
     "CardWidth": "卡片宽度",
     "CardMargin": "卡片边距",
     "CardGroupMargin": "卡片组边距"
+  },
+  "BootstrapBlazor.Server.Components.Samples.Icons.BootstrapIcons": {
+    "Title": "Bootstrap Icons",
+    "BaseUsageText": "Bootstrap 免费开源图标库",
+    "Icons": "图标信息请通过 <a href=\"https://icons.getbootstrap.com/\" target=\"_blank\">[传送门]</a> 查看"
+  },
+  "BootstrapBlazor.Server.Components.Samples.Icons.ElementIcons": {
+    "ElementIconTitle": "饿了么图标库",
+    "ElementIconDescription": "饿了么免费开源图标库",
+    "CopiedTooltipText": "拷贝成功"
+  },
+  "BootstrapBlazor.Server.Components.Samples.Icons.FAIcons": {
+    "Title": "Font Awesome Icons",
+    "BaseUsageText": "目前 <code>BootstrapBlazor</code> 使用 <code>Font Awesome</code> 最新版本作为内置图标库，所有图标如下",
+    "SwitchButtonTextOff": "点击拷贝",
+    "SwitchButtonTextOn": "显示高级拷贝",
+    "P1": "通过引用扩展组件包",
+    "P2": "后添加样式表文件链接开启图标",
+    "CopiedTooltipText": "拷贝成功"
+  },
+  "BootstrapBlazor.Server.Components.Samples.Icons.MaterialDesignIcons": {
+    "Title": "MaterialDesign Icons",
+    "BaseUsageText": "Material Design 图标简单、现代、友好",
+    "Icons": "图标信息请通过 <a href=\"https://pictogrammers.com/library/mdi/\" target=\"_blank\">[传送门]</a> 查看"
+  },
+  "BootstrapBlazor.Server.Components.Samples.Icons.IconParks": {
+    "IconParkTitle": "字节跳动图标库",
+    "IconParkDescription": "已覆盖字节跳动商业化产品系所有平台，并被12个平台作为底层代码引入使用，保证了图标样式与认知的统一性",
+    "CopiedTooltipText": "拷贝成功"
+  },
+  "BootstrapBlazor.Server.Components.Samples.Icons.AntDesignIcons": {
+    "AntDesignIconTitle": "蚂蚁图标库",
+    "AntDesignIconDescription": "语义化的矢量图形",
+    "CopiedTooltipText": "拷贝成功"
+  },
+  "BootstrapBlazor.Server.Components.Samples.BootstrapBlazorIcons": {
+    "IconsTitle": "Icon 图标",
+    "IconsDescription": "同时支持字体图标、矢量 Svg 图标、以及 Image 图片",
+    "FATitle": "字体图标",
+    "FAIntro": "通过设置 <code>Name</code> 指定图标样式即可",
+    "SvgTitle": "矢量图标",
+    "SvgIntro": "通过设置 <code>IsSvgSprites=\"true\"</code> <code>Url</code> 加载 <code>Svg</code> 雪碧图，通过 <code>Name</code> 指定其 <code>Id</code> 值",
+    "ImageTitle": "图片",
+    "ImageIntro": "通过 <code>ChildContent</code> 模板自定义显示内容"
+  },
+  "BootstrapBlazor.Server.Components.Samples.DriverDotnetJs": {
+    "DriverJsPopoverTitleText": "高亮向导组件演示",
+    "DriverJsPopoverContentText1": "这里是菜单，点击后右侧面板出现详细示例",
+    "DriverJsPopoverContentText2": "这里是组件介绍，通过点击下方单选框可切换图标主题",
+    "DriverJsPopoverContentText3": "这里是示例区域，此区域内展示具体例子",
+    "DriverJsPopoverContentText4": "这里是示例区域",
+    "DriverJsPopoverContentText5": "点击这里开始",
+    "DriverJsTitle": "DriverJs 高亮向导组件",
+    "DriverJsSubtitle": "引导用户的注意力穿过整个页面",
+    "DriverJsNormalTitle": "基础用法",
+    "DriverJsNormalIntro": "通过简单配置点击按钮开始用户步骤指导",
+    "DriverJsNormalDesc": "通过设置 <code>DriverJsConfig</code> 参数 <code>Animate=\"false\"</code> 关闭动画效果",
+    "DriverJsPopoverTitle": "弹窗配置",
+    "DriverJsPopoverIntro": "通过设置 <code>DriverJsPopover</code> 组件配置 <code>Popover</code> 相关配置信息",
+    "DriverJsPopoverDesc": "详细参数信息请查看 <a href=\"https://driverjs.com/docs/configuration\" target=\"_blank\">[传送门]</a>",
+    "DriverJsPopoverStyleTitle": "弹窗样式",
+    "DriverJsPopoverStyleIntro": "通过设置 <code>PopoverClass=\"driverjs-theme\"</code> 通过自定义样式 <code>driverjs-theme</code> 设置弹窗 UI",
+    "DriverJsDestroyTitle": "销毁回调方法",
+    "DriverJsDestroyIntro": "销毁前回调方法 <code>OnBeforeDestroyAsync</code> 或者销毁回调方法 <code>OnDestroyedAsync</code>",
+    "DriverJsDestroyDesc": "当用户尝试退出游览时，可以使用 <code>OnBeforeDestroyAsync</code> 回调添加销毁前逻辑，返回 <b>非空字符串</b> 时客户端弹窗二次确认是否阻止销毁；可通过设置 <code>AllowClose</code> 阻止用户退出向导",
+    "DriverJsHighlightTitle": "高亮显示",
+    "DriverJsHighlightIntro": "通过调用 <code>DriverJs</code> 组件实例方法 <code>Highlight</code> 使指定元素高亮聚焦显示"
+  },
+  "BootstrapBlazor.Server.Components.Samples.IntersectionObservers": {
+    "IntersectionObserverTitle": "IntersectionObserver 交叉观察器",
+    "IntersectionObserverDescription": "通过滚动使元素可见使触发组件回调，多用于数据懒加载功能",
+    "IntersectionObserverBaseUsage": "基础用法",
+    "IntersectionObserverNormalIntro": "通过设置 <code>Root</code> <code>RootMargin</code> <code>Threshold</code> 参数值，监听元素与根元素交叉变化",
+    "IntersectionObserverNormalDescription": "本例加载 100 张图片，不可见图片加载默认图片（缓存图片性能高），当滚动到可见区域时，加载真实图片",
+    "IntersectionObserverLoadTitle": "触底加载",
+    "IntersectionObserverLoadIntro": "滚动到底后，出现加载更多指示，通知后台加载数据",
+    "IntersectionObserverLoadDesc1": "通过设置 <code>Threshold=\"1.0\"</code> 约束正在加载指示符完全可见时，执行加载更多操作",
+    "IntersectionObserverLoadDesc2": "通过设置 <code>AutoUnobserve=\"false\"</code> 保证始终检测正在加载指示符可见性，防止可见后自动移除检测",
+    "IntersectionObserverLoadDesc3": "通过设置 <code>OnLoadMoreAsync</code> 方法模拟网络延时 1s",
+    "IntersectionObserverVisibleTitle": "触发阈值",
+    "IntersectionObserverVisibleIntro": "通过设置 <code>Threshold</code> 调整触发条件",
+    "IntersectionObserverVisibleDesc": "本例中设置 <code>Threshold=\"1\"</code> 即触发条件为视频完全可见时播放，否则自动暂停",
+    "IntersectionObserverVisiblePauseLabel": "视频已暂停",
+    "IntersectionObserverVisiblePlayLabel": "视频已开始播放",
+    "IntersectionObserverThresholdTitle": "阈值变化观察",
+    "IntersectionObserverThresholdIntro": "通过设置 <code>Threshold</code> 后通过回调参数 <code>IntersectionObserveEntry</code> 属性 <code>IntersectionRatio</code> 获得观察元素与根元素交叉率",
+    "IntersectionObserverThresholdDesc": "拖动下方 <code>div</code> 滚动条，可观察数据变化",
+    "AttributeUseElementViewport": "是否使用当前元素作为视窗",
+    "AttributeRootMargin": "根元素边距",
+    "AttributeThreshold": "可见性阈值",
+    "AttributeAutoUnobserveWhenIntersection": "元素可见时是否自动取消观察",
+    "AttributeAutoUnobserveWhenNotIntersection": "元素不可见时是否自动取消观察",
+    "AttributeOnIntersectingAsync": "可见回调方法",
+    "AttributeChildContent": "子组件"
+  },
+  "BootstrapBlazor.Server.Components.Samples.SortableLists": {
+    "SortableListTitle": "SortableList 拖拽组件",
+    "SortableListDescription": "可排序的拖拽组件",
+    "SortableListNormalTitle": "简单例子",
+    "SortableListNormalIntro": "通过设置 <code>SortableListOption</code> 参数 <code>RootSelector</code> 指定样式选择器获得根元素，通过设置 <code>OnUpdate</code> 回调方法重新设置数据源",
+    "SortableListGroupTitle": "分组共享拖拽",
+    "SortableListGroupIntro": "通过设置 <code>SortableListOption</code> 参数 <code>Group</code> 指定组名，使不同组之间元素可以拖拽",
+    "SortableListCloneTitle": "拖拽时克隆元素",
+    "SortableListCloneIntro": "通过设置 <code>SortableListOption</code> 参数 <code>Clone</code> 设置拖拽时是否克隆当前元素",
+    "SortableListDisableSortTitle": "禁止排序",
+    "SortableListDisableSortIntro": "通过设置 <code>SortableListOption</code> 参数 <code>Sort</code> 设置拖拽时是否排序当前元素，本例中通过设置 <code>Putback=\"false\"</code> 禁止元素拖拽回左侧集合中",
+    "SortableListHandlerTitle": "拖拽控制元素",
+    "SortableListHandlerIntro": "通过设置 <code>SortableListOption</code> 参数 <code>Handle</code> 设置指定可拖拽元素，鼠标拖动图标时拖动整个元素",
+    "SortableListFilterTitle": "条件过滤拖拽组件",
+    "SortableListFilterIntro": "通过设置 <code>SortableListOption</code> 参数 <code>Filter</code> 设置有条件性的拖拽元素，示例中红色元素无法拖动",
+    "SortableListNestTitle": "嵌套使用",
+    "SortableListNestIntro": "通过嵌套使用 <code>SortableList</code> 组件即可",
+    "SortableListMultiTitle": "多项拖拽",
+    "SortableListMultiIntro": "通过设置 <code>SortableListOption</code> 参数 <code>MultiDrag</code> 可先选择多个项目后拖拽",
+    "SortableListTableTitle": "表格行拖拽",
+    "SortableListTableIntro": "通过设置 <code>SortableListOption</code> 参数 <code>RootSelector</code> 指定拖拽根元素为 <code>tbody</code> 即可对行进行拖拽操作",
+    "SortableListClassTitle": "由于 <code>SortableList</code>为容器组件，内容均为自定义组件，无法内置样式，需要根据实际情况自行设置样式",
+    "SortableListClassLi1": "拖动元素样式 <code>sortable-chosen</code>",
+    "SortableListClassLi2": "拖动元素克隆项默认样式 <code>sortable-ghost</code> 可通过 <code>GhostClass</code> 自定义",
+    "SortableListClassLi3": "拖动元素交换想项默认样式 <code>sortable-swap-highlight</code> 可通过 <code>SwapClass</code> 自定义",
+    "SortableListSwapTitle": "交换",
+    "SortableListSwapIntro": "通过设置 <code>SortableListOption</code> 参数 <code>Swap</code> 设置拖拽项与目标项目交换"
+  },
+  "BootstrapBlazor.Server.Components.Samples.WinBoxes": {
+    "WinBoxTitle": "WinBox 窗口组件",
+    "WinBoxDescription": "模拟 Windows 窗口风格的组件",
+    "WinBoxNormalTitle": "基础用法",
+    "WinBoxNormalIntro": "通过设置 <code>WinBoxOption</code> 参数值，创建并且弹出窗口",
+    "AttributeRoot": "弹窗容器根节点",
+    "AttributeTitle": "弹窗标题",
+    "AttributeClass": "弹窗样式",
+    "AttributeBackground": "弹窗背景色",
+    "AttributeBorder": "弹窗边框",
+    "AttributeIcon": "弹窗标题图标",
+    "OnCreateAsync": "创建弹窗回调方法",
+    "OnShownAsync": "弹窗可见回调方法",
+    "OnHideAsync": "隐藏弹窗回调方法",
+    "OnFocusAsync": "弹窗获得焦点回调方法",
+    "OnBlurAsync": "弹窗失去焦点回调方法",
+    "OnFullscreenAsync": "弹窗全屏回调方法",
+    "OnRestoreAsync": "恢复弹窗回调方法",
+    "OnMaximizeAsync": "最大化弹窗回调方法",
+    "OnMinimizeAsync": "最小化弹窗回调方法",
+    "OnCloseAsync": "关闭弹窗回调方法"
   }
 }

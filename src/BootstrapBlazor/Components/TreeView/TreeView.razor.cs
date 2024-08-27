@@ -19,6 +19,7 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
     /// 获得 按钮样式集合
     /// </summary>
     private string? ClassString => CssBuilder.Default("tree-view")
+        .AddClass("is-fixed-search", ShowSearch && IsFixedSearch)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
@@ -128,6 +129,12 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
     public bool ShowSearch { get; set; }
 
     /// <summary>
+    /// 获得/设置 是否固定搜索栏 默认 false 不固定
+    /// </summary>
+    [Parameter]
+    public bool IsFixedSearch { get; set; }
+
+    /// <summary>
     /// 获得/设置 是否显示重置搜索栏按钮 默认 true 显示
     /// </summary>
     [Parameter]
@@ -176,6 +183,18 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
     /// </summary>
     [Parameter]
     public bool ShowCheckbox { get; set; }
+
+    /// <summary>
+    /// 获得/设置 最多选中数量
+    /// </summary>
+    [Parameter]
+    public int MaxSelectedCount { get; set; }
+
+    /// <summary>
+    /// 获得/设置 超过最大选中数量时回调委托
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnMaxSelectedCountExceed { get; set; }
 
     /// <summary>
     /// 获得/设置 是否显示 Icon 图标 默认 false 不显示
@@ -239,6 +258,10 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
     [Inject]
     [NotNull]
     private IIconTheme? IconTheme { get; set; }
+
+    [Inject]
+    [NotNull]
+    private IOptionsMonitor<BootstrapBlazorOptions>? Options { get; set; }
 
     /// <summary>
     /// 节点状态缓存类实例
@@ -321,6 +344,27 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
             ActiveItem ??= Items.FirstOrDefaultActiveItem();
             ActiveItem?.SetParentExpand<TreeViewItem<TItem>, TItem>(true);
         }
+    }
+
+    private async Task<bool> OnBeforeStateChangedCallback(TreeViewItem<TItem> item, CheckboxState state)
+    {
+        var ret = true;
+        if (MaxSelectedCount > 0)
+        {
+            if (state == CheckboxState.Checked)
+            {
+                // 展开节点
+                var items = GetCheckedItems().Where(i => i.HasChildren == false).ToList();
+                var count = items.Count + item.GetAllTreeSubItems().Count();
+                ret = count < MaxSelectedCount;
+            }
+
+            if (!ret && OnMaxSelectedCountExceed != null)
+            {
+                await OnMaxSelectedCountExceed();
+            }
+        }
+        return ret;
     }
 
     async Task CheckExpand(IEnumerable<TreeViewItem<TItem>> nodes)
@@ -485,8 +529,6 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
     /// <returns></returns>
     private async Task OnCheckStateChanged(TreeViewItem<TItem> item, bool shouldRender = false)
     {
-        //item.CheckedState = ToggleCheckState(item.CheckedState);
-
         if (AutoCheckChildren)
         {
             // 向下级联操作
@@ -530,8 +572,8 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
                 s.CheckedState = CheckboxState.UnChecked;
                 TreeNodeStateCache.ToggleCheck(s);
             });
-            StateHasChanged();
         });
+        StateHasChanged();
     }
 
     /// <summary>
@@ -581,7 +623,8 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
             TouchStart = true;
 
             // 延时保持 TouchStart 状态
-            await Task.Delay(200);
+            var delay = Options.CurrentValue.ContextMenuOptions.OnTouchDelay;
+            await Task.Delay(delay);
             if (TouchStart)
             {
                 var args = new MouseEventArgs()
@@ -595,7 +638,7 @@ public partial class TreeView<TItem> : IModelEqualityComparer<TItem>
                 await OnContextMenu(args, item);
 
                 //延时防止重复激活菜单功能
-                await Task.Delay(200);
+                await Task.Delay(delay);
             }
             IsBusy = false;
         }

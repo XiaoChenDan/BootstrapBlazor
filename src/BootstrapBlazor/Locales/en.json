@@ -173,6 +173,10 @@
     "CloseAllTabsText": "Close All",
     "NotFoundTabText": "NotFound"
   },
+  "BootstrapBlazor.Components.MultiFilter": {
+    "MultiFilterSearchPlaceHolderText": "Please enter ...",
+    "MultiFilterSelectAllText": "Select All"
+  },
   "BootstrapBlazor.Components.Table": {
     "AddButtonText": "Add",
     "EditButtonText": "Edit",
@@ -233,7 +237,15 @@
     "PageInfoText": "{0} - {1} Total {2}",
     "PageItemsText": "{0}/page",
     "CopyColumnTooltipText": "Copy entire column data to clipboard",
-    "CopyColumnCopiedTooltipText": "Copied!"
+    "CopyColumnCopiedTooltipText": "Copied!",
+    "ColumnWidthTooltipPrefix": "width: ",
+    "ColumnToolboxTitle": "Tools",
+    "AlignLeftText": "Left",
+    "AlignLeftTooltipText": "Click to align text in this column to the left",
+    "AlignCenterText": "Center",
+    "AlignCenterTooltipText": "Click to align text in this column to the center",
+    "AlignRightText": "Right",
+    "AlignRightTooltipText": "Click to align text in this column to the right"
   },
   "BootstrapBlazor.Components.EditDialog": {
     "CloseButtonText": "Close",

@@ -1,0 +1,43 @@
+﻿.sl-list {
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    padding: .5rem;
+}
+
+.sl-item {
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    padding: 1rem;
+}
+
+    .sl-item:not(:last-child) {
+        margin-bottom: 0.5rem;
+        user-select: none;
+    }
+
+    .sl-item.filter {
+        background-color: var(--bs-danger);
+        color: var(--bs-body-bg);
+    }
+
+        .sl-item.filter i {
+            cursor: not-allowed;
+        }
+
+    .sl-item i {
+        cursor: pointer;
+    }
+
+    .sl-item span {
+        margin-left: 2rem;
+    }
+
+    .sl-item.sortable-chosen {
+        background-color: var(--bs-primary);
+        color: var(--bs-body-bg);
+    }
+
+    .sl-item.sortable-ghost {
+        background-color: var(--bs-info);
+        color: var(--bs-body-bg);
+    }

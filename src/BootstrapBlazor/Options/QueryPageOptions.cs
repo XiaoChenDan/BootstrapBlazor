@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using System.Text.Json.Serialization;
+
 namespace BootstrapBlazor.Components;
 
 /// <summary>
@@ -51,7 +53,7 @@ public class QueryPageOptions
     public int StartIndex { get; set; }
 
     /// <summary>
-    /// 获得 每页条目数量 由 <see cref="Table{TItem}.PageItems"/> 与 <see cref="Table{TItem}.PageItemsSource"/> 设置
+    /// 获得 每页条目数量 由 <see cref="Table{TItem}._pageItems"/> 与 <see cref="Table{TItem}.PageItemsSource"/> 设置
     /// </summary>
     public int PageItems { get; set; } = 20;
 
@@ -82,6 +84,7 @@ public class QueryPageOptions
     /// </summary>
     [Obsolete("This property is obsolete. Use CustomerSearches instead. 已过期，请使用 CustomerSearches 参数")]
     [ExcludeFromCodeCoverage]
+    [JsonIgnore]
     public List<IFilterAction> CustomerSearchs => CustomerSearches;
 
     /// <summary>
@@ -112,6 +115,7 @@ public class QueryPageOptions
     /// <remarks><see cref="Table{TItem}"/> 组件首次查询数据时为 true</remarks>
     [Obsolete("This property is obsolete. Use IsFirstQuery. 已弃用单词拼写错误，请使用 IsFirstQuery")]
     [ExcludeFromCodeCoverage]
+    [JsonIgnore]
     public bool IsFristQuery { get => IsFirstQuery; set => IsFirstQuery = value; }
 
     /// <summary>

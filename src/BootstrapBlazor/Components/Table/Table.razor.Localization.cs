@@ -422,5 +422,14 @@ public partial class Table<TItem>
 
         AdvancedSortButtonText ??= Localizer[nameof(AdvancedSortButtonText)];
         AdvancedSortModalTitle ??= Localizer[nameof(AdvancedSortModalTitle)];
+
+        ColumnWidthTooltipPrefix ??= Localizer[nameof(ColumnWidthTooltipPrefix)];
+
+        AlignLeftText ??= Localizer[nameof(AlignLeftText)];
+        AlignLeftTooltipText ??= Localizer[nameof(AlignLeftTooltipText)];
+        AlignCenterText ??= Localizer[nameof(AlignCenterText)];
+        AlignCenterTooltipText ??= Localizer[nameof(AlignCenterTooltipText)];
+        AlignRightText ??= Localizer[nameof(AlignRightText)];
+        AlignRightTooltipText ??= Localizer[nameof(AlignRightTooltipText)];
     }
 }

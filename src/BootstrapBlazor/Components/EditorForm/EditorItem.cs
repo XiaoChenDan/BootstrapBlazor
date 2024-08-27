@@ -45,7 +45,7 @@ public class EditorItem<TValue> : ComponentBase, IEditorItem
     /// <inheritdoc/>
     /// </summary>
     [Parameter]
-    [Obsolete("已弃用，是否显示使用 Visible 参数，新建时使用 IsVisibleWhenAdd 编辑时使用 IsVisibleWhenEdit 只读使用 Readonly 参数，新建时使用 IsReadonlyWhenAdd 编辑时使用 IsReadonlyWhenEdit 参数; Discarded, use Visible parameter. IsVisibleWhenAdd should be used when creating a new one, and IsVisibleWhenEdit should be used when editing")]
+    [Obsolete("已弃用，是否可编辑改用 Readonly 参数，是否可见改用 Ignore 参数; Deprecated If it is editable, use the Readonly parameter. If it is visible, use the Ignore parameter.")]
     [ExcludeFromCodeCoverage]
     public bool Editable { get; set; } = true;
 
@@ -53,13 +53,13 @@ public class EditorItem<TValue> : ComponentBase, IEditorItem
     /// <inheritdoc/>>
     /// </summary>
     [Parameter]
-    public bool Ignore { get; set; }
+    public bool? Ignore { get; set; }
 
     /// <summary>
     /// <inheritdoc/>>
     /// </summary>
     [Parameter]
-    public bool Readonly { get; set; }
+    public bool? Readonly { get; set; }
 
     /// <summary>
     /// 获得/设置 是否不进行验证 默认为 false
