@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -47,6 +48,13 @@ public partial class Card
     protected string? FooterClassName => CssBuilder.Default("card-footer")
         .AddClass("text-muted", IsCenter)
         .Build();
+
+    /// <summary>
+    /// 获得/设置 Card Header 高度 padding Y轴值 默认 null
+    /// <para>单位需自行给定 如 0.25rem</para>
+    /// </summary>
+    [Parameter]
+    public string? HeaderPaddingY { get; set; }
 
     /// <summary>
     /// 获得/设置 收缩展开箭头图标 默认 fa-solid fa-circle-chevron-right
@@ -117,6 +125,10 @@ public partial class Card
     [Inject]
     [NotNull]
     private IIconTheme? IconTheme { get; set; }
+
+    private string? HeaderStyleString => CssBuilder.Default()
+        .AddStyle("--bs-card-cap-padding-y", HeaderPaddingY)
+        .Build();
 
     /// <summary>
     /// <inheritdoc/>

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using BootstrapBlazor.Server.Components.Pages;
 using Microsoft.AspNetCore.Components.Web;
@@ -15,7 +16,7 @@ public partial class TutorialsNavMenu
 {
     [Inject]
     [NotNull]
-    private IStringLocalizer<App>? AppLocalizer { get; set; }
+    private IStringLocalizer<BaseLayout>? AppLocalizer { get; set; }
 
     [Inject]
     [NotNull]
@@ -79,6 +80,12 @@ public partial class TutorialsNavMenu
                         Template = CreateDownloadButtonComponent("template4", _template4),
                         Text = "Template 4",
                         Url = "tutorials/template4"
+                    },
+                    new()
+                    {
+                        Template = CreateDownloadButtonComponent("template5", _template5),
+                        Text = "Template 5",
+                        Url = "/tutorials/template5"
                     }
                 ]
             },
@@ -104,6 +111,21 @@ public partial class TutorialsNavMenu
             {
                 Text = Localizer["AdminSummary"],
                 Url = "tutorials/admin",
+            },
+            new()
+            {
+                Text = Localizer["OnlineSheet"],
+                Url = "tutorials/online-sheet",
+            },
+            new()
+            {
+                Text = Localizer["MemorialMode"],
+                Url = "tutorials/memorial",
+            },
+            new()
+            {
+                Text = Localizer["MFA"],
+                Url = "tutorials/mfa",
             }
         ]);
     }
@@ -117,7 +139,7 @@ public partial class TutorialsNavMenu
     {
         if (!item.Items.Any() && !string.IsNullOrEmpty(item.Text))
         {
-            await TitleService.SetTitle($"{item.Text} - {AppLocalizer["Title"]}");
+            await TitleService.SetTitle($"{item.Text} - {AppLocalizer["SiteTitle"]}");
         }
     }
 
@@ -197,6 +219,14 @@ public partial class TutorialsNavMenu
         "Tutorials/LoginAndRegister/Template4.razor",
         "Tutorials/LoginAndRegister/Template4.razor.css",
         .. _layoutFileList
+    ];
+
+    private readonly string[] _template5 =
+[
+        "Tutorials/LoginAndRegister/Template5.razor",
+        "Tutorials/LoginAndRegister/Template5.razor.css",
+        "../Layout/TutorialsLayout.razor",
+        "../Layout/TutorialsLayout.razor.css"
     ];
 
     private readonly string[] _waterfallFileList =

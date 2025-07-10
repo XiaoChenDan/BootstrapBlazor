@@ -1,12 +1,13 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Services;
 
 class PackageVersionService
 {
-    private IHttpClientFactory Factory { get; set; }
+    private IHttpClientFactory Factory { get; }
 
     public string? Version { get; }
 
@@ -16,14 +17,9 @@ class PackageVersionService
     public PackageVersionService(IHttpClientFactory factory)
     {
         Factory = factory;
-        if (OperatingSystem.IsBrowser())
-        {
-            Version = typeof(BootstrapComponentBase).Assembly.GetName().Version?.ToString();
-        }
-        else
-        {
-            Version = System.Diagnostics.FileVersionInfo.GetVersionInfo(typeof(BootstrapComponentBase).Assembly.Location).ProductVersion;
-        }
+        Version = OperatingSystem.IsBrowser()
+            ? typeof(BootstrapComponentBase).Assembly.GetName().Version?.ToString()
+            : System.Diagnostics.FileVersionInfo.GetVersionInfo(typeof(BootstrapComponentBase).Assembly.Location).ProductVersion;
 
         if (!string.IsNullOrEmpty(Version))
         {
@@ -43,7 +39,7 @@ class PackageVersionService
 
     private async Task<string> FetchVersionAsync(string packageName = "bootstrapblazor")
     {
-        var version = "lastest";
+        var version = "latest";
         try
         {
             var url = $"https://azuresearch-usnc.nuget.org/query?q={packageName}&prerelease=true&semVerLevel=2.0.0";
@@ -55,7 +51,11 @@ class PackageVersionService
                 version = package.GetVersion();
             }
         }
-        catch { }
+        catch
+        {
+            // ignored
+        }
+
         return version;
     }
 
@@ -67,7 +67,7 @@ class PackageVersionService
         public IEnumerable<NugetPackageData> Data { get; set; } = Array.Empty<NugetPackageData>();
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public string GetVersion() => Data.FirstOrDefault()?.Version ?? "";

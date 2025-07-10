@@ -1,0 +1,14 @@
+.bb-svg-icon {
+    --bb-svg-icon-width: #{$bb-svg-icon-width};
+    --bb-svg-icon-color: var(--bs-body-color);
+    display: inline-flex;
+
+    > svg {
+        width: var(--bb-svg-icon-width);
+        height: var(--bb-svg-icon-width);
+
+        > * {
+            stroke: var(--bb-svg-icon-color);
+        }
+    }
+}

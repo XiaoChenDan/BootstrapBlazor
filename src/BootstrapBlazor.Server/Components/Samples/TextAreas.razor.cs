@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -13,6 +14,8 @@ public partial class TextAreas
     private Textarea? TextareaElement { get; set; }
 
     private string? Text { get; set; }
+
+    private string? KeyText { get; set; }
 
     private string? ChatText { get; set; }
 
@@ -85,6 +88,21 @@ public partial class TextAreas
                 }
             });
         }
+    }
+
+    [NotNull]
+    private ConsoleLogger? ConsoleLogger { get; set; }
+
+    private Task OnEnterAsync(string val)
+    {
+        ConsoleLogger.Log($"Trigger Enter Key Event");
+        return Task.CompletedTask;
+    }
+
+    private Task OnEscAsync(string val)
+    {
+        ConsoleLogger.Log($"Trigger Esc Key Event");
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -162,8 +180,16 @@ public partial class TextAreas
         },
         new()
         {
-            Name = nameof(BootstrapBlazor.Components.Textarea.IsAutoScroll),
+            Name = nameof(Textarea.IsAutoScroll),
             Description = Localizer["TextAreaAutoScroll"],
+            Type = "bool",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        },
+        new()
+        {
+            Name = nameof(Textarea.UseShiftEnter),
+            Description = Localizer["TextAreaUseShiftEnter"],
             Type = "bool",
             ValueList = "true|false",
             DefaultValue = "false"

@@ -1,20 +1,15 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
-
-using Microsoft.Extensions.Localization;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 枚举类型过滤组件
+/// Enum filter component
 /// </summary>
 public partial class EnumFilter
 {
-    private string? Value { get; set; }
-
-    private string? Value2 { get; set; }
-
     /// <summary>
     /// 内部使用
     /// </summary>
@@ -24,28 +19,18 @@ public partial class EnumFilter
     /// <summary>
     /// 获得/设置 相关枚举类型
     /// </summary>
-#if NET6_0_OR_GREATER
-    [EditorRequired]
-#endif
     [Parameter]
     [NotNull]
     public Type? Type { get; set; }
 
-    [Inject]
-    [NotNull]
-    private IStringLocalizer<TableFilter>? Localizer { get; set; }
-
     /// <summary>
-    /// <inheritdoc/>
+    /// Gets or sets the filter candidate items. It is recommended to use static data to avoid performance loss.
     /// </summary>
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
+    [Parameter]
+    public IEnumerable<SelectedItem>? Items { get; set; }
 
-        if (Type == null) throw new InvalidOperationException("the Parameter Type must be set.");
-
-        EnumType = Nullable.GetUnderlyingType(Type) ?? Type;
-    }
+    private string? _value1 = "";
+    private string? _value2 = "";
 
     /// <summary>
     /// <inheritdoc/>
@@ -54,6 +39,10 @@ public partial class EnumFilter
     {
         base.OnParametersSet();
 
+        Type ??= TableColumnFilter?.Column.PropertyType;
+        if (Type == null) throw new InvalidOperationException("the Parameter Type must be set.");
+
+        EnumType = Nullable.GetUnderlyingType(Type) ?? Type;
         Items ??= EnumType.ToSelectList(new SelectedItem("", Localizer["EnumFilter.AllText"].Value));
     }
 
@@ -62,7 +51,9 @@ public partial class EnumFilter
     /// </summary>
     public override void Reset()
     {
-        Value = "";
+        _value1 = "";
+        _value2 = "";
+        Count = 0;
         StateHasChanged();
     }
 
@@ -72,8 +63,8 @@ public partial class EnumFilter
     /// <returns></returns>
     public override FilterKeyValueAction GetFilterConditions()
     {
-        var filter = new FilterKeyValueAction() { Filters = [] };
-        if (!string.IsNullOrEmpty(Value) && Enum.TryParse(EnumType, Value, out var val))
+        var filter = new FilterKeyValueAction();
+        if (!string.IsNullOrEmpty(_value1) && Enum.TryParse(EnumType, _value1, out var val))
         {
             filter.Filters.Add(new FilterKeyValueAction()
             {
@@ -83,7 +74,7 @@ public partial class EnumFilter
             });
         }
 
-        if (Count > 0 && Enum.TryParse(EnumType, Value2, out var val2))
+        if (Count > 0 && Enum.TryParse(EnumType, _value2, out var val2))
         {
             filter.Filters.Add(new FilterKeyValueAction()
             {
@@ -101,28 +92,28 @@ public partial class EnumFilter
     /// </summary>
     public override async Task SetFilterConditionsAsync(FilterKeyValueAction filter)
     {
-        var first = filter.Filters?.FirstOrDefault() ?? filter;
+        var first = filter.Filters.FirstOrDefault() ?? filter;
         var type = Nullable.GetUnderlyingType(Type) ?? Type;
         if (first.FieldValue != null && first.FieldValue.GetType() == type)
         {
-            Value = first.FieldValue.ToString();
+            _value1 = first.FieldValue.ToString();
         }
         else
         {
-            Value = "";
+            _value1 = "";
         }
 
-        if (filter.Filters != null && filter.Filters.Count == 2)
+        if (filter.Filters.Count > 1)
         {
             Count = 1;
             FilterKeyValueAction second = filter.Filters[1];
             if (second.FieldValue != null && second.FieldValue.GetType() == type)
             {
-                Value2 = second.FieldValue.ToString();
+                _value2 = second.FieldValue.ToString();
             }
             else
             {
-                Value2 = "";
+                _value2 = "";
             }
             Logic = filter.FilterLogic;
         }

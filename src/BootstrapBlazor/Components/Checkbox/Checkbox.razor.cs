@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Globalization;
 
@@ -17,8 +18,6 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     /// </summary>
     private string? ClassString => CssBuilder.Default("form-check")
         .AddClass("is-label", IsShowAfterLabel)
-        .AddClass("is-checked", State == CheckboxState.Checked && !IsBoolean)
-        .AddClass("is-indeterminate", State == CheckboxState.Indeterminate)
         .AddClass($"form-check-{Color.ToDescriptionString()}", Color != Color.None)
         .AddClass($"form-check-{Size.ToDescriptionString()}", Size != Size.None)
         .AddClass("disabled", IsDisabled)
@@ -100,6 +99,12 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     public bool StopPropagation { get; set; }
 
     /// <summary>
+    /// 获得/设置 子组件 RenderFragment 实例
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     protected override void OnInitialized()
@@ -118,6 +123,7 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
 
         if (ShowAfterLabel)
         {
+            DisplayText ??= FieldIdentifier?.GetDisplayName();
             ShowLabel = false;
         }
 
@@ -146,54 +152,53 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        await InvokeVoidAsync("setIndeterminate", Id, State == CheckboxState.Indeterminate);
+        await InvokeVoidAsync("update", Id, State == CheckboxState.Indeterminate, State == CheckboxState.Checked);
     }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override async Task InvokeInitAsync()
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, nameof(OnStateChangedAsync));
+
+    /// <summary>
+    /// 点击组件触发方法 内部调用 <see cref="OnBeforeStateChanged"/> 回调方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task OnToggleClick()
     {
+        var valid = true;
+        CheckboxState state;
+        if (State == CheckboxState.Indeterminate)
+        {
+            state = CheckboxState.Checked;
+        }
+        else
+        {
+            state = State == CheckboxState.Checked ? CheckboxState.UnChecked : CheckboxState.Checked;
+        }
         if (OnBeforeStateChanged != null)
         {
-            await InvokeVoidAsync("init", Id, Interop, new { Callback = nameof(TriggerOnBeforeStateChanged) });
+            valid = await OnBeforeStateChanged(state);
+        }
+
+        if (valid)
+        {
+            await InternalStateChanged(state);
+            StateHasChanged();
         }
     }
 
     /// <summary>
-    /// 触发 OnBeforeStateChanged 回调方法 由 JavaScript 调用
+    /// 触发 Click 方法 由 JavaScript 调用
     /// </summary>
+    /// <returns></returns>
     [JSInvokable]
-    public async Task TriggerOnBeforeStateChanged()
+    public ValueTask OnStateChangedAsync(CheckboxState state)
     {
-        if (OnBeforeStateChanged != null)
-        {
-            var state = State == CheckboxState.Checked ? CheckboxState.UnChecked : CheckboxState.Checked;
-            var ret = await OnBeforeStateChanged(state);
-            if (ret)
-            {
-                var render = await InternalStateChanged(state);
-                if (render)
-                {
-                    StateHasChanged();
-                }
-            }
-        }
+        State = state;
+        return ValueTask.CompletedTask;
     }
-
-    /// <summary>
-    /// 点击选择框方法
-    /// </summary>
-    private async Task OnToggleClick()
-    {
-        if (!IsDisabled)
-        {
-            await InternalStateChanged(State == CheckboxState.Checked ? CheckboxState.UnChecked : CheckboxState.Checked);
-        }
-    }
-
-    private bool TriggerClick => !IsDisabled && OnBeforeStateChanged == null;
 
     /// <summary>
     /// 此变量为了提高性能，避免循环更新
@@ -203,29 +208,29 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     private async Task<bool> InternalStateChanged(CheckboxState state)
     {
         var ret = true;
-
         _paddingStateChanged = true;
 
         if (IsBoolean)
         {
             CurrentValue = (TValue)(object)(state == CheckboxState.Checked);
-        }
 
-        if (State != state)
-        {
-            State = state;
-            if (StateChanged.HasDelegate)
+            if (ValueChanged.HasDelegate)
             {
-                await StateChanged.InvokeAsync(State);
                 ret = false;
             }
-
-            if (OnStateChanged != null)
-            {
-                await OnStateChanged(State, Value);
-            }
         }
 
+        State = state;
+        if (StateChanged.HasDelegate)
+        {
+            await StateChanged.InvokeAsync(State);
+            ret = false;
+        }
+
+        if (OnStateChanged != null)
+        {
+            await OnStateChanged(State, Value);
+        }
         return ret;
     }
 
@@ -233,7 +238,7 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
     /// 设置 复选框状态方法
     /// </summary>
     /// <param name="state"></param>
-    public virtual async Task SetState(CheckboxState state)
+    public async Task SetState(CheckboxState state)
     {
         if (!_paddingStateChanged)
         {
@@ -243,20 +248,5 @@ public partial class Checkbox<TValue> : ValidateBase<TValue>
                 StateHasChanged();
             }
         }
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <param name="disposing"></param>
-    /// <returns></returns>
-    protected override async ValueTask DisposeAsync(bool disposing)
-    {
-        if (disposing && Module != null)
-        {
-            await Module.DisposeAsync();
-            Module = null;
-        }
-        await base.DisposeAsync(disposing);
     }
 }

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -9,7 +10,9 @@ namespace BootstrapBlazor.Server.Components.Samples;
 /// </summary>
 public sealed partial class Layouts
 {
-    private IEnumerable<MenuItem>? IconSideMenuItems { get; set; }
+    private List<MenuItem>? IconSideMenuItems1 { get; set; }
+
+    private List<MenuItem>? IconSideMenuItems2 { get; set; }
 
     /// <summary>
     /// OnInitializedAsync 方法
@@ -19,7 +22,8 @@ public sealed partial class Layouts
     {
         await base.OnInitializedAsync();
 
-        IconSideMenuItems = await MenusDataGenerator.GetIconSideMenuItemsAsync(LocalizerMenu);
+        IconSideMenuItems1 = await MenusDataGenerator.GetIconSideMenuItemsAsync(LocalizerMenu);
+        IconSideMenuItems2 = await MenusDataGenerator.GetIconSideMenuItemsAsync(LocalizerMenu);
     }
 
     private AttributeItem[] GetAttributes() =>
@@ -72,17 +76,17 @@ public sealed partial class Layouts
             ValueList = " — ",
             DefaultValue = " — "
         },
-        new() {
-            Name = "IsFullSide",
-            Description = Localizer["Layouts_IsFullSide_Description"],
-            Type = "bool",
-            ValueList = "true|false",
-            DefaultValue = "false"
-        },
         new()
         {
             Name = "IsPage",
             Description = Localizer["Layouts_IsPage_Description"],
+            Type = "bool",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        },
+        new() {
+            Name = "IsFullSide",
+            Description = Localizer["Layouts_IsFullSide_Description"],
             Type = "bool",
             ValueList = "true|false",
             DefaultValue = "false"
@@ -121,6 +125,30 @@ public sealed partial class Layouts
         },
         new()
         {
+            Name = "SidebarMinWidth",
+            Description =  Localizer["Layouts_SidebarMinWidth_Description"],
+            Type = "int?",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = "SidebarMaxWidth",
+            Description =  Localizer["Layouts_SidebarMaxWidth_Description"],
+            Type = "int?",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = "ShowSplitBar",
+            Description =  Localizer["Layouts_ShowSplitBar_Description"],
+            Type = "bool",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        },
+        new()
+        {
             Name = "ShowFooter",
             Description =  Localizer["Layouts_ShowFooter_Description"],
             Type = "bool",
@@ -138,6 +166,14 @@ public sealed partial class Layouts
         {
             Name = "UseTabSet",
             Description =  Localizer["Layouts_UseTabSet_Description"],
+            Type = "bool",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.IsFixedTabHeader),
+            Description = Localizer["Layouts_IsFixedTabHeader_Description"],
             Type = "bool",
             ValueList = "true|false",
             DefaultValue = "false"
@@ -171,6 +207,70 @@ public sealed partial class Layouts
             Name = "TabDefaultUrl",
             Description =  Localizer["Layouts_TabDefaultUrl_Description"],
             Type = "string?",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.ShowTabContextMenu),
+            Description =  Localizer["Layouts_ShowTabContextMenu"],
+            Type = "bool",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.BeforeTabContextMenuTemplate),
+            Description =  Localizer["Layouts_BeforeTabContextMenuTemplate"],
+            Type = "RenderFragment",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.TabContextMenuTemplate),
+            Description =  Localizer["Layouts_TabContextMenuTemplate"],
+            Type = "RenderFragment",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.TabContextMenuRefreshIcon),
+            Description =  Localizer["Layouts_TabContextMenuRefreshIcon"],
+            Type = "string?",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.TabContextMenuCloseIcon),
+            Description =  Localizer["Layouts_TabContextMenuCloseIcon"],
+            Type = "string?",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.TabContextMenuCloseOtherIcon),
+            Description =  Localizer["Layouts_TabContextMenuCloseOtherIcon"],
+            Type = "string?",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.TabContextMenuCloseAllIcon),
+            Description =  Localizer["Layouts_TabContextMenuCloseAllIcon"],
+            Type = "string?",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = nameof(BootstrapBlazor.Components.Layout.OnBeforeShowContextMenu),
+            Description =  Localizer["Layouts_OnBeforeShowContextMenu"],
+            Type = "Func<TabItem, Task<bool>>",
             ValueList = " — ",
             DefaultValue = " — "
         }

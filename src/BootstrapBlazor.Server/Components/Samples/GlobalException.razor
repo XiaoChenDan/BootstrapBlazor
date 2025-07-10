@@ -39,7 +39,7 @@
       OS: Microsoft Windows 10.0.17763
       OSArchitecture: X64
       ProcessArchitecture: X64
-      Framework: .NET 5.0.9
+      Framework: .NET 9.0.0
       UserName: Argo
       EnvironmentName: Development
       IISRootPath: D:\Argo\src\BB\BootstrapBlazor\src\BootstrapBlazor.Server\
@@ -47,7 +47,7 @@
       Exception:: Attempted to divide by zero.
       *********************************************
       System.DivideByZeroException: Attempted to divide by zero.
-         at BootstrapBlazor.Server.Components.Samples.GlobalException.OnClick() in D:\Argo\src\BB\BootstrapBlazor\src\BootstrapBlazor.Server\Components\Samples\GlobalException.razor.cs:line 30</Pre>
+         at BootstrapBlazor.Server.Components.Samples.GlobalException.OnClick() in D:\Argo\src\BB\BootstrapBlazor\src\BootstrapBlazor.Server\Components\Samples\GlobalException.razor.cs:line 24</Pre>
 
 <p>@((MarkupString)Localizer["Step5"].Value)</p>
 
@@ -58,7 +58,7 @@
 }</Pre>
 
 <DemoBlock Title="@Localizer["Block1Title"]" Introduction="@Localizer["Block1Intro"]" Name="Normal">
-    <p>@((MarkupString)Localizer["ExceptionTestIntroduce"].Value)</p>
+    <section ignore>@((MarkupString)Localizer["ExceptionTestIntroduce"].Value)</section>
     <Button Icon="fa-solid fa-font-awesome" Text="@Localizer["ButtonText"]" OnClick="OnClick" />
 </DemoBlock>
 
@@ -66,6 +66,14 @@
     <ErrorLogger OnErrorHandleAsync="OnErrorHandleAsync">
         <Button Icon="fa-solid fa-font-awesome" Text="@Localizer["ButtonText"]" OnClick="OnClick" />
     </ErrorLogger>
+</DemoBlock>
+
+<DemoBlock Title="@Localizer["DialogTitle"]" Introduction="@Localizer["DialogIntro"]" Name="Dialog">
+    <Button Icon="fa-solid fa-font-awesome" Text="@Localizer["DialogText"]" OnClick="OnShowDialog" />
+</DemoBlock>
+
+<DemoBlock Title="@Localizer["PageErrorTitle"]" Introduction="@Localizer["PageErrorIntro"]" Name="Page">
+    <Button Icon="fa-solid fa-font-awesome" Text="@Localizer["ButtonText"]" OnClick="OnGotoPage" />
 </DemoBlock>
 
 <AttributeTable Items="@GetAttributes()" />

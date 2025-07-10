@@ -1,35 +1,72 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
 /// <summary>
-/// ImageCroppers
+/// ImageCropper 组件示例
 /// </summary>
 public partial class ImageCroppers
 {
+    private ImageCropper _cropper = default!;
 
-    [NotNull]
-    ImageCropper? Cropper { get; set; }
+    private ImageCropper _roundCropper = default!;
 
-    private string[] images = ["./images/picture.jpg", "./images/ImageList2.jpeg"];
+    private readonly List<string> _images = [];
 
     private int index = 0;
 
-    private string? Base64 { get; set; }
+    private string? _base64String;
+
+    private string? _base64String2;
+
+    private readonly ImageCropperOption _roundOptions1 = new() { AspectRatio = 16 / 9f, Preview = ".bb-cropper-preview1" };
+
+    private readonly ImageCropperOption _roundOptions2 = new() { IsRound = true, Preview = ".bb-cropper-preview-round" };
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _images.AddRange(
+        [
+            $"{WebsiteOption.CurrentValue.AssetRootPath}images/picture.jpg",
+            $"{WebsiteOption.CurrentValue.AssetRootPath}images/ImageList2.jpeg"
+        ]);
+    }
 
     private async Task OnClickReplace()
     {
         index = index == 0 ? 1 : 0;
-        await Cropper.Replace(images[index]);
+        await _cropper.Replace(_images[index]);
     }
 
-    /// <summary>
-    /// GetAttributes
-    /// </summary>
-    /// <returns></returns>
-    protected AttributeItem[] GetAttributes() =>
+    private async Task Crop()
+    {
+        _base64String = await _cropper.Crop();
+    }
+
+    private async Task RoundCrop()
+    {
+        _base64String2 = await _roundCropper.Crop();
+    }
+
+    private Task Rotate() => _cropper.Rotate(90);
+
+    private ImageCropperData _data = new();
+    private Task OnCropChangedAsync(ImageCropperData data)
+    {
+        _data = data;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private AttributeItem[] GetAttributes() =>
     [
         new()
         {
@@ -41,51 +78,35 @@ public partial class ImageCroppers
         },
         new()
         {
-            Name = "DefaultButton",
-            Description = Localizer["AttributesImageCropperDefaultButton"],
+            Name = "IsDisabled",
+            Description = Localizer["AttributesImageCropperIsDisabled"],
             Type = "bool",
-            ValueList = "-",
-            DefaultValue = "true"
+            ValueList = "true|false",
+            DefaultValue = "false"
         },
         new()
         {
-            Name = "Preview",
-            Description = Localizer["AttributesImageCropperPreview"],
-            Type = "bool",
-            ValueList = "-",
-            DefaultValue = "true"
-        },
-        new()
-        {
-            Name = "OnResult()",
-            Description = Localizer["AttributesImageCropperOnResult"],
-            Type = "Func",
+            Name = "OnCropAsync",
+            Description = Localizer["AttributesImageCropperOnCropAsync"],
+            Type = "Func<ImageCropperResult, Task>",
             ValueList = "-",
             DefaultValue = "-"
         },
         new()
         {
-            Name = "OnBase64Result()",
-            Description = Localizer["AttributesImageCropperOnBase64Result"],
-            Type = "Func",
+            Name = "Options",
+            Description = Localizer["AttributesImageCropperOptions"],
+            Type = "ImageCropperOption",
             ValueList = "-",
             DefaultValue = "-"
         },
         new()
         {
-            Name = "Crop()",
-            Description = Localizer["AttributesImageCropperCrop"],
-            Type = "Task",
+            Name = "CropperShape",
+            Description = Localizer["AttributesImageCropperShape"],
+            Type = "ImageCropperShape",
             ValueList = "-",
             DefaultValue = "-"
-        },
-        new()
-        {
-            Name = "CropToStream()",
-            Description = Localizer["AttributesImageCropperCropToStream"],
-            Type = "Task",
-            ValueList = "-",
-            DefaultValue = "-"
-        },
+        }
     ];
 }

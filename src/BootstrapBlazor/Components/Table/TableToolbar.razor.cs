@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Collections.Concurrent;
 
@@ -19,7 +20,7 @@ public partial class TableToolbar<TItem> : ComponentBase
     /// </summary>
     private readonly List<IToolbarComponent> _buttons = [];
 
-    private readonly ConcurrentDictionary<ButtonBase, bool> _asyncButtonStateCache = new();
+    private readonly ConcurrentDictionary<ButtonBase, bool> _asyncButtonStateCache = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
     /// Specifies the content to be rendered inside this
@@ -41,6 +42,12 @@ public partial class TableToolbar<TItem> : ComponentBase
     public bool IsAutoCollapsedToolbarButton { get; set; } = true;
 
     /// <summary>
+    /// 获得/设置 工具栏按钮收缩后是否继承原先按钮的颜色样式 默认 false
+    /// </summary>
+    [Parameter]
+    public bool ShowColorWhenToolbarButtonsCollapsed { get; set; }
+
+    /// <summary>
     /// 获得/设置 移动端按钮图标
     /// </summary>
     [Parameter]
@@ -48,6 +55,15 @@ public partial class TableToolbar<TItem> : ComponentBase
 
     private string? ToolbarClassString => CssBuilder.Default("btn-toolbar btn-group")
         .AddClass("d-none d-sm-inline-flex", IsAutoCollapsedToolbarButton)
+        .Build();
+
+    private string? GetItemClass(ButtonBase button) => CssBuilder.Default("dropdown-item")
+        .AddClass("disabled", GetDisabled(button))
+        .AddClass($"dropdown-item-btn-{button.Color.ToDescriptionString()}",
+            ShowColorWhenToolbarButtonsCollapsed &&
+            !button.IsOutline &&
+            button.Color != Color.None &&
+            button.Color != Color.Link)
         .Build();
 
     private async Task OnToolbarButtonClick(TableToolbarButton<TItem> button)
@@ -86,7 +102,10 @@ public partial class TableToolbar<TItem> : ComponentBase
                 await button.OnClick.InvokeAsync();
             }
 
-            await button.OnConfirm();
+            if (button.OnConfirm != null)
+            {
+                await button.OnConfirm();
+            }
 
             // 传递当前选中行给回调委托方法
             if (button.OnConfirmCallback != null)

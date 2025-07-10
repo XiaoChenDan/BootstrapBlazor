@@ -1,7 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
-using Microsoft.Extensions.Options;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -48,15 +48,11 @@ public partial class CherryMarkdowns
         }
     };
 
-    [Inject]
-    [NotNull]
-    private IOptionsMonitor<WebsiteOptions>? SiteOptions { get; set; }
-
     private async Task<string> OnFileUpload(CherryMarkdownUploadFile arg)
     {
         var url = Path.Combine("images", "uploader",
             $"{Path.GetFileNameWithoutExtension(arg.FileName)}-{DateTimeOffset.Now:yyyyMMddHHmmss}{Path.GetExtension(arg.FileName)}");
-        var fileName = Path.Combine(SiteOptions.CurrentValue.WebRootPath, url);
+        var fileName = Path.Combine(WebsiteOption.CurrentValue.WebRootPath, url);
         var ret = await arg.SaveToFile(fileName);
         return ret ? url : "";
     }
@@ -65,7 +61,7 @@ public partial class CherryMarkdowns
     [NotNull]
     private IStringLocalizer<CherryMarkdowns>? Localizer { get; set; }
 
-    private AttributeItem[] GetAttributes() =>
+    private static AttributeItem[] GetAttributes() =>
     [
         new()
         {

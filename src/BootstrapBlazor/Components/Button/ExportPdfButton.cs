@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -58,10 +59,10 @@ public class ExportPdfButton : Button
     public Func<string, Task>? OnAfterDownload { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否自动下载 Pdf 默认为 false
+    /// 获得/设置 是否自动下载 Pdf 默认为 true
     /// </summary>
     [Parameter]
-    public bool AutoDownload { get; set; }
+    public bool AutoDownload { get; set; } = true;
 
     [Inject, NotNull]
     private IHtml2Pdf? Html2PdfService { get; set; }
@@ -82,7 +83,6 @@ public class ExportPdfButton : Button
         base.OnParametersSet();
 
         Icon ??= IconTheme.GetIconByKey(ComponentIcons.TableExportPdfIcon);
-        ButtonIcon = Icon;
     }
 
     /// <summary>
@@ -117,7 +117,10 @@ public class ExportPdfButton : Button
                 """;
 
             // 增加网页所需样式表文件
-            List<string> styles = [$"{NavigationManager.BaseUri}_content/BootstrapBlazor/css/bootstrap.blazor.bundle.min.css"];
+            List<string> styles = [
+                $"{NavigationManager.BaseUri}_content/BootstrapBlazor.FontAwesome/css/font-awesome.min.css",
+                $"{NavigationManager.BaseUri}_content/BootstrapBlazor/css/bootstrap.blazor.bundle.min.css"
+            ];
             if (StyleTags != null)
             {
                 styles.AddRange(StyleTags);

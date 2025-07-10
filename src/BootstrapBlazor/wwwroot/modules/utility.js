@@ -1,4 +1,6 @@
-﻿const vibrate = () => {
+﻿import EventHandler from "./event-handler.js"
+
+const vibrate = () => {
     if ('vibrate' in window.navigator) {
         window.navigator.vibrate([200, 100, 200])
         const handler = window.setTimeout(function () {
@@ -570,6 +572,19 @@ const hackPopover = (popover, css) => {
     }
 }
 
+const hackTooltip = function () {
+    const mock = () => {
+        const originalDispose = bootstrap.Tooltip.prototype.dispose;
+        bootstrap.Tooltip.prototype.dispose = function () {
+            originalDispose.call(this);
+            // fix https://github.com/twbs/bootstrap/issues/37474
+            this._activeTrigger = {};
+            this._element = document.createElement('noscript'); // placeholder with no behavior
+        }
+    }
+    registerBootstrapBlazorModule('Tooltip', null, mock);
+}
+
 const setIndeterminate = (object, state) => {
     const element = getElementById(object)
     if (isElement(element)) {
@@ -716,7 +731,9 @@ export function getTheme() {
 }
 
 export function saveTheme(theme) {
-    localStorage.setItem('theme', theme)
+    if (localStorage) {
+        localStorage.setItem('theme', theme);
+    }
 }
 
 export function getAutoThemeValue() {
@@ -739,6 +756,7 @@ export function setTheme(theme, sync) {
         })
         saveTheme(theme);
     }
+    EventHandler.trigger(document, 'changed.bb.theme', { theme: theme });
 }
 
 export function setActiveTheme(el, activeItem) {
@@ -775,18 +793,118 @@ export function switchTheme(theme, x = 0, y = 0, sync = true) {
     }
 }
 
-const deepMerge = (obj1, obj2) => {
-    for (let key in obj2) {
+const deepMerge = (obj1, obj2, skipNull = true) => {
+    for (const key in obj2) {
         if (obj2.hasOwnProperty(key)) {
             if (obj2[key] instanceof Object && obj1[key] instanceof Object) {
                 obj1[key] = deepMerge(obj1[key], obj2[key]);
             }
             else {
+                const value = obj2[key];
+                if (skipNull && (value === null || value === void 0)) {
+                    continue;
+                }
                 obj1[key] = obj2[key];
             }
         }
     }
     return obj1;
+}
+
+export function registerBootstrapBlazorModule(name, identifier, callback) {
+    window.BootstrapBlazor = window.BootstrapBlazor || {};
+    window.BootstrapBlazor[name] = window.BootstrapBlazor[name] || {
+        _init: false,
+        _items: [],
+        register: function (id, cb) {
+            if (id) {
+                this._items.push(id);
+            }
+            if (this._init === false) {
+                this._init = true;
+                if (isFunction(cb)) {
+                    cb(this);
+                }
+            }
+            return this;
+        },
+        dispose: function (id, cb) {
+            if (id) {
+                this._items = this._items.filter(item => item !== id);
+            }
+            if (this._items.length === 0) {
+                this._init = false;
+                if (isFunction(cb)) {
+                    cb(this);
+                }
+            }
+        }
+    };
+
+    return window.BootstrapBlazor[name].register(identifier, callback);
+}
+
+export function setTitle(title) {
+    document.title = title;
+}
+
+export function calcCenterPosition(el) {
+    const rect = el.getBoundingClientRect();
+    return {
+        x: rect.left + el.offsetWidth / 2,
+        y: rect.top + el.offsetHeight / 2
+    }
+}
+
+export function setMemorialMode(memorial) {
+    const el = document.documentElement;
+    if (memorial) {
+        const theme = el.getAttribute('data-bs-theme');
+        if (theme) {
+            el.setAttribute('data-bs-original-theme', theme);
+        }
+        el.setAttribute('data-bs-theme', 'dark');
+        el.setAttribute('data-bb-theme', 'memorial');
+    }
+    else {
+        const theme = el.getAttribute('data-bs-original-theme');
+        el.removeAttribute('data-bs-theme');
+        el.removeAttribute('data-bb-theme');
+        if (theme) {
+            el.setAttribute('data-bs-theme', theme);
+        }
+    }
+}
+
+export function drawImage(canvas, image, offsetWidth, offsetHeight) {
+    canvas.width = offsetWidth * devicePixelRatio;
+    canvas.height = offsetHeight * devicePixelRatio;
+    canvas.style.width = `${offsetWidth}px`;
+    canvas.style.height = `${offsetHeight}px`;
+    const context = canvas.getContext('2d');
+    context.scale(devicePixelRatio, devicePixelRatio);
+    context.drawImage(image, 0, 0, offsetWidth, offsetHeight);
+}
+
+/**
+ *  @param {File} file
+ *  @returns {Blob}
+ */
+export function readFileAsync(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            const blob = new Blob([reader.result], { type: file.type });
+            resolve(blob);
+        };
+
+        reader.onerror = (error) => {
+            reject(error);
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
 }
 
 export {
@@ -826,6 +944,7 @@ export {
     getWindow,
     getWindowScroll,
     getUID,
+    hackTooltip,
     hackPopover,
     removeLink,
     removeScript,

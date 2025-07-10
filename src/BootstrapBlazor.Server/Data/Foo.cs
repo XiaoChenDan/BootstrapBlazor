@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 using System.Collections.Concurrent;
@@ -87,11 +88,6 @@ public class Foo
 
     #region Static methods
     /// <summary>
-    /// 随机数 Random 实例
-    /// </summary>
-    protected static readonly Random Random = new();
-
-    /// <summary>
     /// 生成Foo类,随机数据
     /// Generate Foo class, random data
     /// </summary>
@@ -102,10 +98,10 @@ public class Foo
         Id = 1,
         Name = localizer["Foo.Name", "1000"],
         DateTime = System.DateTime.Now,
-        Address = localizer["Foo.Address", $"{Random.Next(1000, 2000)}"],
-        Count = Random.Next(1, 100),
-        Complete = Random.Next(1, 100) > 50,
-        Education = Random.Next(1, 100) > 50 ? EnumEducation.Primary : EnumEducation.Middle
+        Address = localizer["Foo.Address", $"{Random.Shared.Next(1000, 2000)}"],
+        Count = Random.Shared.Next(1, 100),
+        Complete = Random.Shared.Next(1, 100) > 50,
+        Education = Random.Shared.Next(1, 100) > 50 ? EnumEducation.Primary : EnumEducation.Middle
     };
 
     /// <summary>
@@ -113,31 +109,23 @@ public class Foo
     /// Generate Foo class, random data
     /// </summary>
     /// <returns>返回一个Foo类的List，Return a List of Foo class</returns>
-    public static List<Foo> GenerateFoo(IStringLocalizer<Foo> localizer, int count = 80) => Enumerable.Range(1, count).Select(i => new Foo()
+    public static List<Foo> GenerateFoo(IStringLocalizer<Foo> localizer, int count = 80) => [.. Enumerable.Range(1, count).Select(i => new Foo()
     {
         Id = i,
         Name = localizer["Foo.Name", $"{i:d4}"],
         DateTime = System.DateTime.Now.AddDays(i - 1),
-        Address = localizer["Foo.Address", $"{Random.Next(1000, 2000)}"],
-        Count = Random.Next(1, 100),
-        Complete = Random.Next(1, 100) > 50,
-        Education = Random.Next(1, 100) > 50 ? EnumEducation.Primary : EnumEducation.Middle,
-        ReadonlyColumn = Random.Next(10, 50)
-    }).ToList();
+        Address = localizer["Foo.Address", $"{Random.Shared.Next(1000, 2000)}"],
+        Count = Random.Shared.Next(1, 100),
+        Complete = Random.Shared.Next(1, 100) > 50,
+        Education = Random.Shared.Next(1, 100) > 50 ? EnumEducation.Primary : EnumEducation.Middle,
+        ReadonlyColumn = Random.Shared.Next(10, 50)
+    })];
 
     /// <summary>
     /// 生成 Foo 类 Hobbies 数据
     /// </summary>
     /// <returns></returns>
     public static IEnumerable<SelectedItem> GenerateHobbies(IStringLocalizer<Foo> localizer) => localizer["Hobbies"].Value.Split(",").Select(i => new SelectedItem(i, i)).ToList();
-
-
-    /// <summary>
-    /// 通过 Id 获取头像链接
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    public static string GetAvatarUrl(int id) => $"./images/avatars/150-{Math.Max(1, id % 25)}.jpg";
 
     /// <summary>
     /// 获取 Complete 转化为 SelectedItem 方法
@@ -169,7 +157,7 @@ public class Foo
     /// 通过 Id 获取 Title
     /// </summary>
     /// <returns></returns>
-    private static string GetTitle() => Random.Next(1, 80) switch
+    private static string GetTitle() => Random.Shared.Next(1, 80) switch
     {
         >= 1 and < 10 => "Clerk",
         >= 10 and < 50 => "Engineer",

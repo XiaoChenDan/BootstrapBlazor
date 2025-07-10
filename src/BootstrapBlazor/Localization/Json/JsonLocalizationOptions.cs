@@ -1,11 +1,12 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 using System.Reflection;
 
-namespace BootstrapBlazor.Localization.Json;
+namespace BootstrapBlazor.Components;
 
 /// <summary>
 /// LocalizationOptions 配置类
@@ -43,8 +44,25 @@ public class JsonLocalizationOptions : LocalizationOptions
     public bool IgnoreLocalizerMissing { get; set; }
 
     /// <summary>
+    /// 获得/设置 如果 Value 值为 null 时使用 Key 代替 默认 false 触发异常
+    /// </summary>
+    public bool UseKeyWhenValueIsNull { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否禁用从服务中获取本地化资源 默认 false 未禁用
+    /// </summary>
+    public bool DisableGetLocalizerFromService { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否禁用获取 <see cref="ResourceManagerStringLocalizer"/> 类型本地化资源 默认 false 未禁用
+    /// </summary>
+    public bool DisableGetLocalizerFromResourceManager { get; set; }
+
+    /// <summary>
     /// 获得/设置 资源文件是否热加载 默认 false
     /// </summary>
+    [Obsolete("已弃用 Deprecated")]
+    [ExcludeFromCodeCoverage]
     public bool ReloadOnChange { get; set; }
 
     /// <summary>

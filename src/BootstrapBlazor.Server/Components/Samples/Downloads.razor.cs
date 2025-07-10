@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -17,7 +18,7 @@ public partial class Downloads
     {
         try
         {
-            var filePath = Path.Combine(SiteOptions.CurrentValue.WebRootPath, "favicon.png");
+            var filePath = Path.Combine(WebsiteOption.CurrentValue.WebRootPath, "favicon.png");
             await using var stream = File.OpenRead(filePath);
             await DownloadService.DownloadFromStreamAsync("favicon.png", stream);
         }
@@ -47,12 +48,11 @@ public partial class Downloads
     {
         try
         {
-            await DownloadService.DownloadFolderAsync("test.zip", SiteOptions.CurrentValue.WebRootPath);
+            await DownloadService.DownloadFolderAsync("test.zip", WebsiteOption.CurrentValue.WebRootPath);
         }
-        catch (FileNotFoundException msg)
+        catch (Exception ex)
         {
-
-            await ToastService.Error("下载", msg.Message);
+            await ToastService.Error("下载", ex.Message);
         }
     }
 

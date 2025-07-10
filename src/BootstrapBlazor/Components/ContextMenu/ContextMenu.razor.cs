@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Web;
 
@@ -40,7 +41,7 @@ public partial class ContextMenu
 
     private string ZoneId => ContextMenuZone.Id;
 
-    private List<ContextMenuItem> _contextMenuItems = [];
+    private readonly List<IContextMenuItem> _contextMenuItems = [];
 
     private static string? GetItemClassString(bool disabled) => CssBuilder.Default("dropdown-item")
         .AddClass("disabled", disabled)
@@ -111,11 +112,11 @@ public partial class ContextMenu
     /// 增加 ContextMenuItem 方法
     /// </summary>
     /// <param name="item"></param>
-    internal void AddItem(ContextMenuItem item) => _contextMenuItems.Add(item);
+    internal void AddItem(IContextMenuItem item) => _contextMenuItems.Add(item);
 
     /// <summary>
     /// 移除 ContextMenuItem 方法
     /// </summary>
     /// <param name="item"></param>
-    internal void RemoveItem(ContextMenuItem item) => _contextMenuItems.Remove(item);
+    internal void RemoveItem(IContextMenuItem item) => _contextMenuItems.Remove(item);
 }

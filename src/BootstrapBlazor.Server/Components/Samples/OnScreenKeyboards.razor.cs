@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -11,6 +12,30 @@ public sealed partial class OnScreenKeyboards
 {
     private static readonly Dictionary<string, string> Keys1 = new() { { "0", "L" }, { "1", "O" } };
     private static readonly Dictionary<string, string> Keys2 = new() { { "0", "V" }, { "1", "E" } };
+
+    static KeyboardOption CustomerOption => new()
+    {
+        KeyboardSpecialcharacters = KeyboardSpecialcharacters.europe
+    };
+
+    static KeyboardOption SpecialcharactersOption => new()
+    {
+        CustomerKeyboardSpecialcharacters = new string[] { "中", "国", "女", "足", "牛啊" }
+    };
+
+    static KeyboardOption Option => new()
+    {
+        keysFontFamily = "Barlow",
+        keysFontWeight = "500",
+        Theme = KeyboardTheme.dark,
+    };
+
+    string BindValue { get; set; } = "virtualkeyboard";
+
+    static KeyboardOption AppOption => new()
+    {
+        autoScroll = true
+    };
 
     /// <summary>
     /// 获得属性方法

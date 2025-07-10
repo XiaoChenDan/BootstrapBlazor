@@ -1,13 +1,14 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.ComponentModel;
 using System.Globalization;
 
 namespace UnitTest.Extensions;
 
-public class ObjectExtensionsTest
+public class ObjectExtensionsTest : BootstrapBlazorTestBase
 {
     [Theory]
     [InlineData(null, "")]
@@ -41,6 +42,20 @@ public class ObjectExtensionsTest
     {
         var actual = source.IsNumber();
         Assert.Equal(expect, actual);
+    }
+
+    [Fact]
+    public void IsNumber_Culture()
+    {
+        var culture = new CultureInfo("es-ES");
+        CultureInfo.CurrentUICulture = culture;
+        Assert.True(typeof(long).IsNumber());
+        Assert.False(typeof(long).IsNumberWithDotSeparator());
+
+        culture = new CultureInfo("en-US");
+        CultureInfo.CurrentUICulture = culture;
+        Assert.True(typeof(long).IsNumber());
+        Assert.True(typeof(long).IsNumberWithDotSeparator());
     }
 
     [Theory]
@@ -286,6 +301,27 @@ public class ObjectExtensionsTest
         var v = new MockStatic();
         var pi = v.GetType().GetProperty(nameof(MockStatic.Test))!;
         Assert.True(pi.IsStatic());
+    }
+
+    [Fact]
+    public void CreateInstance_Ok()
+    {
+        var exception = Assert.ThrowsAny<Exception>(() => ObjectExtensions.CreateInstance<MockComplexObject>(true));
+
+        var mi = typeof(ObjectExtensions).GetMethod("EnsureInitialized", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        Assert.NotNull(mi);
+        mi.Invoke(null, [null, false]);
+
+        var instance = ObjectExtensions.CreateInstance<MockComplexObject>(false);
+        Assert.NotNull(instance);
+        Assert.Null(instance.Test);
+    }
+
+    private class MockComplexObject
+    {
+        public Foo? Foo { get; set; }
+
+        public (string Name, int Count)[]? Test { get; set; }
     }
 
     private class MockStatic

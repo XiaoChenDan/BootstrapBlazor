@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Extensions;
 
@@ -52,11 +53,13 @@ public class ITableColumnExtensionsTest
             Lookup = new List<SelectedItem>(),
             LookupStringComparison = StringComparison.Ordinal,
             LookupServiceKey = "test-key",
+            LookupService = new LookupService(),
             LookupServiceData = true,
             IsReadonlyWhenAdd = true,
             IsReadonlyWhenEdit = true,
             Readonly = true,
             Rows = 3,
+            Cols = 6,
             SkipValidate = true,
             Text = "Test",
             ValidateRules = [new RequiredValidator()],
@@ -70,7 +73,7 @@ public class ITableColumnExtensionsTest
             CssClass = "test-css",
             DefaultSort = true,
             DefaultSortOrder = SortOrder.Desc,
-            Filter = new TableFilter(),
+            Filter = new TableColumnFilter(),
             Filterable = true,
             FilterTemplate = builder => builder.AddContent(0, "test-filter"),
             Fixed = true,
@@ -105,7 +108,12 @@ public class ITableColumnExtensionsTest
             Order = -1,
             IsMarkupString = true,
             GetTooltipTextCallback = _ => Task.FromResult<string?>(null),
-            CustomSearch = (_, _) => new SearchFilterAction("test", "test")
+            CustomSearch = (_, _) => new SearchFilterAction("test", "test"),
+
+            Required = true,
+            RequiredErrorMessage = "test",
+            IsRequiredWhenAdd = true,
+            IsRequiredWhenEdit = true
         };
         col.CopyValue(attr);
         Assert.NotNull(col.ComponentType);
@@ -123,6 +131,7 @@ public class ITableColumnExtensionsTest
         Assert.False(col.IsVisibleWhenEdit);
         Assert.True(col.Readonly);
         Assert.Equal(3, col.Rows);
+        Assert.Equal(6, col.Cols);
         Assert.True(col.SkipValidate);
         Assert.Equal("Test", col.Text);
         Assert.NotNull(col.ValidateRules);
@@ -165,6 +174,15 @@ public class ITableColumnExtensionsTest
         Assert.NotNull(col.GetTooltipTextCallback);
         Assert.True(col.IsMarkupString);
         Assert.NotNull(col.CustomSearch);
+
+        Assert.True(col.Required);
+        Assert.True(col.IsRequiredWhenEdit);
+        Assert.True(col.IsRequiredWhenAdd);
+        Assert.Equal("test", col.RequiredErrorMessage);
+
+        Assert.NotNull(col.LookupService);
+        Assert.Equal("test-key", col.LookupServiceKey);
+        Assert.Equal(true, col.LookupServiceData);
     }
 
     [Fact]
@@ -215,5 +233,10 @@ public class ITableColumnExtensionsTest
         Assert.Equal(2, filters.Count(f => f.GetFilterConditions().FieldValue?.GetType() == typeof(float)));
         Assert.Equal(2, filters.Count(f => f.GetFilterConditions().FieldValue?.GetType() == typeof(double)));
         Assert.Equal(2, filters.Count(f => f.GetFilterConditions().FieldValue?.GetType() == typeof(decimal)));
+    }
+
+    class LookupService : LookupServiceBase
+    {
+        public override IEnumerable<SelectedItem>? GetItemsByKey(string? key, object? data) => null;
     }
 }

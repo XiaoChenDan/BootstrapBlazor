@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 using System.Reflection.Metadata;
@@ -120,7 +121,7 @@ public partial class Console
     /// 获得/设置 清空委托方法
     /// </summary>
     [Parameter]
-    public Action? OnClear { get; set; }
+    public Func<Task>? OnClear { get; set; }
 
     /// <summary>
     /// 获得/设置 组件高度 默认为 126px;
@@ -149,7 +150,7 @@ public partial class Console
     /// <summary>
     /// 获得 是否显示 Footer
     /// </summary>
-    protected bool ShowFooter => OnClear != null || ShowAutoScroll || FooterTemplate != null;
+    private bool ShowFooter => OnClear != null || ShowAutoScroll || FooterTemplate != null;
 
     [Inject]
     [NotNull]
@@ -193,8 +194,11 @@ public partial class Console
     /// <summary>
     /// 清空控制台消息方法
     /// </summary>
-    public void ClearConsole()
+    public async Task OnClearConsole()
     {
-        OnClear?.Invoke();
+        if (OnClear != null)
+        {
+            await OnClear();
+        }
     }
 }

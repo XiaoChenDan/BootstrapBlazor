@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -53,6 +54,12 @@ public partial class Tooltip : ITooltip
     /// </summary>
     [Parameter]
     public string? Title { get; set; }
+
+    /// <summary>
+    /// 获得/设置 获得显示内容异步回调方法 默认 null
+    /// </summary>
+    [Parameter]
+    public Func<Task<string>>? GetTitleCallback { get; set; }
 
     /// <summary>
     /// 获得/设置 显示文字是否为 Html 默认为 false
@@ -116,6 +123,20 @@ public partial class Tooltip : ITooltip
         base.OnParametersSet();
 
         Trigger ??= "focus hover";
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (string.IsNullOrEmpty(Title) && GetTitleCallback != null)
+        {
+            Title ??= await GetTitleCallback();
+        }
     }
 
     /// <summary>

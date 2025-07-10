@@ -1,71 +1,84 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// TabItem 组件基类
+/// TabItem component
 /// </summary>
-public class TabItem : ComponentBase
+public class TabItem : IdComponentBase
 {
     /// <summary>
-    /// 获得/设置 文本文字
+    /// Gets or sets the text. Default is null
     /// </summary>
     [Parameter]
     public string? Text { get; set; }
 
     /// <summary>
-    /// 获得/设置 TabItem Header 模板
+    /// Gets or sets the TabItem Header template. Default is null
     /// </summary>
     [Parameter]
     public RenderFragment<TabItem>? HeaderTemplate { get; set; }
 
     /// <summary>
-    /// 获得/设置 请求地址
+    /// Gets or sets the request URL. Default is null
     /// </summary>
     [Parameter]
     [NotNull]
     public string? Url { get; set; }
 
     /// <summary>
-    /// 获得/设置 当前状态是否激活
+    /// Gets or sets whether the current state is active. Default is false
     /// </summary>
     [Parameter]
     public bool IsActive { get; set; }
 
     /// <summary>
-    /// 获得/设置 当前 TabItem 是否可关闭 默认为 true 可关闭
+    /// Gets or sets whether the current state is disabled, default is false
+    /// </summary>
+    [Parameter]
+    public bool IsDisabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the current TabItem is closable, default is true
     /// </summary>
     [Parameter]
     public bool Closable { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 当前 TabItem 是否始终加载 此参数作用于设置 <see cref="Tab.IsLazyLoadTabItem"/> 默认 false
+    /// Gets or sets whether the current TabItem is always loaded, this parameter is used to set <see cref="Tab.IsLazyLoadTabItem"/>, default is false
     /// </summary>
     [Parameter]
     public bool AlwaysLoad { get; set; }
 
     /// <summary>
-    /// 获得/设置 图标字符串
+    /// Gets or sets the custom CSS class. Default is null
+    /// </summary>
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    /// <summary>
+    /// Gets or sets the icon string. Default is null
     /// </summary>
     [Parameter]
     public string? Icon { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否显示全屏按钮 默认 true
+    /// Gets or sets whether to show the full screen button, default is true
     /// </summary>
     [Parameter]
     public bool ShowFullScreen { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 组件内容
+    /// Gets or sets the component content. Default is null
     /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
-    /// 获得/设置 所属 Tab 实例
+    /// Gets or sets the associated Tab instance
     /// </summary>
     [CascadingParameter]
     protected internal Tab? TabSet { get; set; }
@@ -73,7 +86,7 @@ public class TabItem : ComponentBase
     private string? LastText { get; set; }
 
     /// <summary>
-    /// OnInitialized 方法
+    /// <inheritdoc/>
     /// </summary>
     protected override void OnInitialized()
     {
@@ -97,13 +110,28 @@ public class TabItem : ComponentBase
     }
 
     /// <summary>
-    /// 设置是否被选中方法
+    /// Method to set whether it is active
     /// </summary>
     /// <param name="active"></param>
-    public virtual void SetActive(bool active) => IsActive = active;
+    public void SetActive(bool active) => IsActive = active;
 
     /// <summary>
-    /// 重新设置标签文字等参数
+    /// Method to set whether it is disabled
+    /// </summary>
+    /// <param name="disabled"></param>
+    public void SetDisabled(bool disabled)
+    {
+        TabSet?.SetDisabledItem(this, disabled);
+    }
+
+    /// <summary>
+    /// Method to set whether it is disabled without rendering
+    /// </summary>
+    /// <param name="disabled"></param>
+    internal void SetDisabledWithoutRender(bool disabled) => IsDisabled = disabled;
+
+    /// <summary>
+    /// Method to reset the tab text and other parameters
     /// </summary>
     /// <param name="text"></param>
     /// <param name="icon"></param>
@@ -127,7 +155,7 @@ public class TabItem : ComponentBase
     }
 
     /// <summary>
-    /// 通过指定参数集合获取 TabItem 实例
+    /// Gets a TabItem instance by specifying a set of parameters
     /// </summary>
     /// <param name="parameters"></param>
     /// <returns></returns>
@@ -138,7 +166,8 @@ public class TabItem : ComponentBase
         {
             parameters[nameof(Url)] = url?.ToString()?.TrimStart('/') ?? "";
         }
-        _ = item.SetParametersAsync(ParameterView.FromDictionary(parameters!));
+        var pv = ParameterView.FromDictionary(parameters);
+        pv.SetParameterProperties(item);
         return item;
     }
 }

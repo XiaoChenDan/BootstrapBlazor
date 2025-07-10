@@ -1,22 +1,23 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// RenderTemplate 组件
+/// RenderTemplate component
 /// </summary>
 public partial class RenderTemplate
 {
     /// <summary>
-    /// 获得/设置 子组件
+    /// Gets or sets the child component
     /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
-    /// 获得/设置 首次加载回调委托
+    /// Gets or sets the callback delegate for the first load
     /// </summary>
     [Parameter]
     public Func<bool, Task>? OnRenderAsync { get; set; }
@@ -34,5 +35,13 @@ public partial class RenderTemplate
         {
             await OnRenderAsync(firstRender);
         }
+    }
+
+    /// <summary>
+    /// Render method
+    /// </summary>
+    public void Render()
+    {
+        StateHasChanged();
     }
 }

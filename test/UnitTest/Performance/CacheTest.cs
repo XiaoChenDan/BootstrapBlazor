@@ -1,9 +1,11 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Diagnostics;
 
 namespace UnitTest.Performance;
@@ -51,6 +53,35 @@ public class CacheTest : BootstrapBlazorTestBase
 
         IEnumerable<Foo> CacheMethod() => cache.GetOrAdd("test", key => NoCacheMethod());
     }
+
+    [Fact]
+    public void List_Perf()
+    {
+        var listItms = GetListLocalizedStrings();
+        var setItems = GetSetLocalizedStrings();
+        var frozenItems = GetFrozenLocalizedStrings();
+
+        var sw = Stopwatch.StartNew();
+        listItms.FirstOrDefault(i => i.Name == "500000");
+        sw.Stop();
+        var sp1 = sw.Elapsed;
+
+        sw.Restart();
+        setItems.FirstOrDefault(i => i.Name == "500000");
+        sw.Stop();
+        var sp2 = sw.Elapsed;
+
+        sw.Restart();
+        frozenItems.FirstOrDefault(i => i.Name == "500000");
+        sw.Stop();
+        var sp3 = sw.Elapsed;
+    }
+
+    private IEnumerable<LocalizedString> GetListLocalizedStrings() => Enumerable.Range(1, 1000000).Select(i => new LocalizedString($"{i}", $"{i}", false, nameof(CacheTest)));
+
+    private IEnumerable<LocalizedString> GetSetLocalizedStrings() => Enumerable.Range(1, 1000000).Select(i => new LocalizedString($"{i}", $"{i}", false, nameof(CacheTest))).ToHashSet();
+
+    private IEnumerable<LocalizedString> GetFrozenLocalizedStrings() => Enumerable.Range(1, 1000000).Select(i => new LocalizedString($"{i}", $"{i}", false, nameof(CacheTest))).ToFrozenSet();
 
     private IEnumerable<Foo> NoCacheMethod() => Enumerable.Range(1, 80).Select(i => new Foo()
     {

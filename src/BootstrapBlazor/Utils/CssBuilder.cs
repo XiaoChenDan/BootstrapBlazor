@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -105,7 +106,71 @@ public class CssBuilder
     }
 
     /// <summary>
-    /// Adds a conditional Style when it exists in a dictionary to the builder with space separator.
+    /// Adds a raw string to the builder that will be concatenated with the next style or value added to the builder.
+    /// </summary>
+    /// <param name="key">style property name</param>
+    /// <param name="value">CSS style to conditionally add.</param>
+    /// <returns>CssBuilder</returns>
+    public CssBuilder AddStyle(string key, string? value)
+    {
+        if (!string.IsNullOrEmpty(value)) stringBuffer.Add($"{key}: {value};");
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a conditional css Style to the builder with space separator.
+    /// </summary>
+    /// <param name="key">style property name</param>
+    /// <param name="value">CSS style to conditionally add.</param>
+    /// <param name="when">Condition in which the CSS style is added.</param>
+    /// <returns>CssBuilder</returns>
+    public CssBuilder AddStyle(string key, string? value, bool when = true) => when ? AddStyle(key, value) : this;
+
+    /// <summary>
+    /// Adds a conditional css Style to the builder with space separator.
+    /// </summary>
+    /// <param name="key">style property name</param>
+    /// <param name="value">CSS style to conditionally add.</param>
+    /// <param name="when">Condition in which the CSS Style is added.</param>
+    /// <returns>CssBuilder</returns>
+    public CssBuilder AddStyle(string key, string? value, Func<bool> when) => AddStyle(key, value, when());
+
+    /// <summary>
+    /// Adds a conditional css Style to the builder with space separator.
+    /// </summary>
+    /// <param name="key">style property name</param>
+    /// <param name="value">Function that returns a css Style to conditionally add.</param>
+    /// <param name="when">Condition in which the CSS Style is added.</param>
+    /// <returns>CssBuilder</returns>
+    public CssBuilder AddStyle(string key, Func<string?> value, bool when = true) => when ? AddStyle(key, value()) : this;
+
+    /// <summary>
+    /// Adds a conditional css Style to the builder with space separator.
+    /// </summary>
+    /// <param name="key">style property name</param>
+    /// <param name="value">Function that returns a css Style to conditionally add.</param>
+    /// <param name="when">Condition in which the CSS Style is added.</param>
+    /// <returns>CssBuilder</returns>
+    public CssBuilder AddStyle(string key, Func<string?> value, Func<bool> when) => AddStyle(key, value, when());
+
+    /// <summary>
+    /// Adds a conditional nested CssBuilder to the builder with space separator.
+    /// </summary>
+    /// <param name="builder">CSS Style to conditionally add.</param>
+    /// <param name="when">Condition in which the CSS Style is added.</param>
+    /// <returns>CssBuilder</returns>
+    public CssBuilder AddStyle(CssBuilder builder, bool when = true) => when ? AddClass(builder.Build()) : this;
+
+    /// <summary>
+    /// Adds a conditional CSS Class to the builder with space separator.
+    /// </summary>
+    /// <param name="builder">CSS Class to conditionally add.</param>
+    /// <param name="when">Condition in which the CSS Class is added.</param>
+    /// <returns>CssBuilder</returns>
+    public CssBuilder AddStyle(CssBuilder builder, Func<bool> when) => AddClass(builder, when());
+
+    /// <summary>
+    /// Adds a conditional css Style when it exists in a dictionary to the builder with space separator.
     /// Null safe operation.
     /// </summary>
     /// <param name="additionalAttributes">Additional Attribute splat parameters</param>

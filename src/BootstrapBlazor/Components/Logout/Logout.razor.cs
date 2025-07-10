@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 
@@ -11,9 +12,9 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Logout
 {
-    private string? LogoutClassString => CssBuilder.Default("dropdown dropdown-logout")
-        .AddClassFromAttributes(AdditionalAttributes)
-        .Build();
+    [Inject]
+    [NotNull]
+    private IStringLocalizer<Logout>? Localizer { get; set; }
 
     /// <summary>
     /// 获得/设置 组件当前用户头像
@@ -69,9 +70,19 @@ public partial class Logout
     [Parameter]
     public RenderFragment? LinkTemplate { get; set; }
 
-    [Inject]
-    [NotNull]
-    private IStringLocalizer<Logout>? Localizer { get; set; }
+    /// <summary>
+    /// Gets or sets the avatar border radius. Default is null.
+    /// </summary>
+    [Parameter]
+    public string? AvatarRadius { get; set; }
+
+    private string? LogoutClassString => CssBuilder.Default("dropdown dropdown-logout")
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
+
+    private string? AvatarStyleString => CssBuilder.Default()
+        .AddStyle("--bb-logout-user-avatar-border-radius", AvatarRadius, !string.IsNullOrEmpty(AvatarRadius))
+        .Build();
 
     /// <summary>
     /// OnInitialized 方法

@@ -1,14 +1,37 @@
-## {PR title}
+## Link issues
+fixes #{issue number}
 
-<!-- Thank you for submitting a pull request to our repo. -->
+<!--[Please fill in the relevant Issue number after the # above, such as #42]-->
+<!--[请在上方 # 后面填写相关 Issue 编号，如 #42]-->
 
-<!-- If this is your first PR in the ASP.NET Core repo, please run through the checklist
-below to ensure a smooth review and merge process for your PR. -->
+## Summary By Copilot
 
-<!-- Once all that is done, you're ready to go. Open the PR with the content below. -->
 
-<!-- Summary of the changes (Less than 80 chars) -->
+## Regression?
+- [ ] Yes
+- [ ] No
 
-### Description
+<!--[If yes, specify the version the behavior has regressed from]-->
+<!--[是否影响老版本]-->
 
-close #{bug number}
+## Risk
+- [ ] High
+- [ ] Medium
+- [ ] Low
+
+<!--[Justify the selection above]-->
+
+## Verification
+- [ ] Manual (required)
+- [ ] Automated
+
+## Packaging changes reviewed?
+- [ ] Yes
+- [ ] No
+- [ ] N/A
+
+## ☑️ Self Check before Merge
+⚠️ Please check all items below before review. ⚠️
+- [ ] Doc is updated/provided or not needed
+- [ ] Demo is updated/provided or not needed
+- [ ] Merge the latest code from the main branch

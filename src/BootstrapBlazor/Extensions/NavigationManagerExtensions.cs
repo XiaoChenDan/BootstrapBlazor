@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,5 +28,28 @@ public static class NavigationManagerExtensions
         option.Icon = icon;
         option.Closable = closable;
         navigation.NavigateTo(url);
+    }
+
+    /// <summary>
+    /// 获得当前 Url 的相对路径，不包含 QueryString 和 Fragment（Hash）
+    /// </summary>
+    /// <param name="navigationManager"></param>
+    /// <returns></returns>
+    public static string ToBaseRelativePathWithoutQueryAndFragment(this NavigationManager navigationManager)
+    {
+        var url = navigationManager.ToBaseRelativePath(navigationManager.Uri);
+
+        var index = url.IndexOf('?');
+        if (index > -1)
+        {
+            url = url[..index];
+        }
+
+        index = url.IndexOf('#');
+        if (index > -1)
+        {
+            url = url[..index];
+        }
+        return url;
     }
 }

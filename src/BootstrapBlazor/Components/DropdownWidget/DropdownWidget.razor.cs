@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -25,7 +26,25 @@ public sealed partial class DropdownWidget
     [Parameter]
     public IEnumerable<DropdownWidgetItem>? Items { get; set; }
 
+    /// <summary>
+    /// 获得/设置 下拉项关闭回调方法
+    /// </summary>
+    [Parameter]
+    public Func<DropdownWidgetItem, Task>? OnItemCloseAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 下拉项关闭回调方法
+    /// </summary>
+    [Parameter]
+    public Func<DropdownWidgetItem, Task>? OnItemShownAsync { get; set; }
+
     private List<DropdownWidgetItem> Childs { get; } = new List<DropdownWidgetItem>(20);
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Method = nameof(TriggerStateChanged) });
 
     /// <summary>
     /// 添加 DropdownWidgetItem 方法
@@ -37,4 +56,28 @@ public sealed partial class DropdownWidget
     }
 
     private IEnumerable<DropdownWidgetItem> GetItems() => Items == null ? Childs : Childs.Concat(Items);
+
+    /// <summary>
+    /// Widget 下拉项关闭回调方法 由 JavaScript 调用
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="shown"></param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerStateChanged(int index, bool shown)
+    {
+        var items = GetItems().ToList();
+        var item = index < items.Count ? items[index] : null;
+        if (item != null)
+        {
+            if (OnItemCloseAsync != null && !shown)
+            {
+                await OnItemCloseAsync(item);
+            }
+            else if (OnItemShownAsync != null && shown)
+            {
+                await OnItemShownAsync(item);
+            }
+        }
+    }
 }

@@ -1,8 +1,8 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using BootstrapBlazor.Localization.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
@@ -27,22 +27,22 @@ internal static class LocalizationOptionsExtensions
         var builder = new ConfigurationBuilder();
 
         // 获取程序集中的资源文件
-        var assemblies = new List<Assembly>()
-        {
-            assembly
-        };
+        var assemblies = new List<Assembly>() { assembly };
 
-        var entryAssembly = GetAssembly();
+        // 获得主程序集资源文件
+        // 支持合并操作
+        var entryAssembly = GetEntryAssembly();
         if (assembly != entryAssembly)
         {
             assemblies.Add(entryAssembly);
         }
+
         if (option.AdditionalJsonAssemblies != null)
         {
             assemblies.AddRange(option.AdditionalJsonAssemblies);
         }
 
-        var streams = assemblies.SelectMany(i => option.GetResourceStream(i, cultureName));
+        var streams = assemblies.SelectMany(i => option.GetResourceStream(i, cultureName)).ToList();
 
         // 添加 Json 文件流到配置
         foreach (var s in streams)
@@ -60,7 +60,7 @@ internal static class LocalizationOptionsExtensions
             });
             foreach (var file in files)
             {
-                builder.AddJsonFile(file, true, option.ReloadOnChange);
+                builder.AddJsonFile(file, true, false);
             }
         }
 
@@ -76,7 +76,7 @@ internal static class LocalizationOptionsExtensions
         return config.GetChildren();
 
         [ExcludeFromCodeCoverage]
-        Assembly GetAssembly() => Assembly.GetEntryAssembly() ?? assembly;
+        Assembly GetEntryAssembly() => Assembly.GetEntryAssembly() ?? assembly;
     }
 
     private static List<Stream> GetResourceStream(this JsonLocalizationOptions option, Assembly assembly, string cultureName)
@@ -120,16 +120,17 @@ internal static class LocalizationOptionsExtensions
 
         // 开启回落机制并且当前文化信息与回落语言相同
         bool EqualFallbackCulture(string name) => option.EnableFallbackCulture && option.FallbackCulture == name;
+    }
 
-        StringSegment GetParentCultureName(StringSegment cultureInfoName)
+    static StringSegment GetParentCultureName(StringSegment cultureInfoName)
+    {
+        var ret = new StringSegment();
+        var index = cultureInfoName.IndexOf('-');
+        if (index > 0)
         {
-            var ret = new StringSegment();
-            var index = cultureInfoName.IndexOf('-');
-            if (index > 0)
-            {
-                ret = cultureInfoName.Subsegment(0, index);
-            }
-            return ret;
+            ret = cultureInfoName.Subsegment(0, index);
         }
+
+        return ret;
     }
 }

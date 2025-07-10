@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -225,6 +226,9 @@ public class EditorFormTest : BootstrapBlazorTestBase
                     builder.OpenComponent<EditorItem<Foo, string>>(index++);
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Field), f.Name);
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.FieldExpression), Utility.GenerateValueExpression(foo, nameof(Foo.Name), typeof(string)));
+
+                    builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Required), true);
+                    builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.RequiredErrorMessage), "Test");
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Readonly), true);
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.SkipValidate), false);
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Text), "Test-Text");
@@ -239,6 +243,7 @@ public class EditorFormTest : BootstrapBlazorTestBase
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Field), f.Address);
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.FieldExpression), Utility.GenerateValueExpression(foo, nameof(Foo.Address), typeof(string)));
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Rows), 3);
+                    builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Cols), 0);
                     builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.ValidateRules), new List<IValidator>
                     {
                         new FormItemValidator(new RequiredAttribute())
@@ -405,7 +410,7 @@ public class EditorFormTest : BootstrapBlazorTestBase
             });
         });
         var editor = cut.Instance;
-        var itemsField = editor.GetType().GetField("_formItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetField);
+        var itemsField = editor.GetType().GetProperty("RenderItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         Assert.NotNull(itemsField);
 
         var v = itemsField.GetValue(editor) as List<IEditorItem>;
@@ -414,7 +419,7 @@ public class EditorFormTest : BootstrapBlazorTestBase
     }
 
     [Fact]
-    public void LookupServiceKey_Ok()
+    public async Task LookupServiceKey_Ok()
     {
         var foo = new Foo();
         var cut = Context.RenderComponent<EditorForm<Foo>>(pb =>
@@ -434,10 +439,70 @@ public class EditorFormTest : BootstrapBlazorTestBase
                 builder.CloseComponent();
             });
         });
+        cut.WaitForAssertion(() => cut.Contains("LookupService-Test-1"));
         var select = cut.FindComponent<Select<string>>();
         var lookupService = Context.Services.GetRequiredService<ILookupService>();
-        var lookup = lookupService.GetItemsByKey("FooLookup");
-        Assert.Equal(lookup!.Count(), select.Instance.Items.Count());
+        var lookup = await lookupService.GetItemsAsync("FooLookup", "");
+        Assert.NotNull(lookup);
+        Assert.Equal(lookup.Count(), select.Instance.Items.Count());
+
+        lookup = await lookupService.GetItemsAsync(null, "");
+        Assert.Null(lookup);
+    }
+
+    [Fact]
+    public async Task LookupService_Ok()
+    {
+        var lookupService = new FooLookupService();
+        var foo = new Foo();
+        var cut = Context.RenderComponent<EditorForm<Foo>>(pb =>
+        {
+            pb.Add(a => a.Model, foo);
+            pb.Add(a => a.AutoGenerateAllItem, false);
+            pb.Add(a => a.FieldItems, f => builder =>
+            {
+                var index = 0;
+                builder.OpenComponent<EditorItem<Foo, string>>(index++);
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Field), f.Name);
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.FieldExpression), Utility.GenerateValueExpression(foo, nameof(Foo.Name), typeof(string)));
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Text), "Test-Text");
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.LookupService), lookupService);
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.LookupServiceKey), "FooLookup");
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.LookupServiceData), true);
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.LookupStringComparison), StringComparison.OrdinalIgnoreCase);
+                builder.CloseComponent();
+            });
+        });
+        cut.WaitForAssertion(() => cut.Contains("LookupService-Test-1-async"));
+        var select = cut.FindComponent<Select<string>>();
+        var lookup = await lookupService.GetItemsAsync("FooLookup", "");
+        Assert.NotNull(lookup);
+        Assert.Equal(lookup.Count(), select.Instance.Items.Count());
+        Assert.Equal("LookupService-Test-1-async", select.Instance.Items.First().Text);
+    }
+
+    [Fact]
+    public void Lookup_Ok()
+    {
+        var foo = new Foo();
+        var lookup = new List<SelectedItem>() { new("v1", "test1"), new("v2", "test2") };
+        var cut = Context.RenderComponent<EditorForm<Foo>>(pb =>
+        {
+            pb.Add(a => a.Model, foo);
+            pb.Add(a => a.AutoGenerateAllItem, false);
+            pb.Add(a => a.FieldItems, f => builder =>
+            {
+                var index = 0;
+                builder.OpenComponent<EditorItem<Foo, string>>(index++);
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Field), f.Name);
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.FieldExpression), Utility.GenerateValueExpression(foo, nameof(Foo.Name), typeof(string)));
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Text), "Test-Text");
+                builder.AddAttribute(index++, nameof(EditorItem<Foo, string>.Lookup), lookup);
+                builder.CloseComponent();
+            });
+        });
+        var select = cut.FindComponent<Select<string>>();
+        Assert.Equal(2, select.Instance.Items.Count());
     }
 
     [Theory]
@@ -655,6 +720,28 @@ public class EditorFormTest : BootstrapBlazorTestBase
             {
                 await FieldChanged.InvokeAsync();
             }
+        }
+    }
+
+    class FooLookupService : LookupServiceBase
+    {
+        public override IEnumerable<SelectedItem>? GetItemsByKey(string? key, object? data) => null;
+
+        public override async Task<IEnumerable<SelectedItem>?> GetItemsByKeyAsync(string? key, object? data)
+        {
+            await Task.Delay(300);
+
+            IEnumerable<SelectedItem>? ret = null;
+
+            if (key == "FooLookup")
+            {
+                ret = new SelectedItem[]
+                {
+                    new("v1", "LookupService-Test-1-async"),
+                    new("v2", "LookupService-Test-2-async")
+                };
+            }
+            return ret;
         }
     }
 }

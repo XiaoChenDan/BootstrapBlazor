@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
@@ -68,8 +69,8 @@ public partial class ComponentLayout : IAsyncDisposable
         IconThemes.AddRange(new SelectedItem[]
         {
             new("fa", "Font Awesome"),
-            new("mdi", "Material Design"),
-            new("bootstrap", "Bootstrap")
+            new("bootstrap", "Bootstrap"),
+            new("mdi", "Material Design")
         });
         IconThemeKey = IconThemeOptions.Value.ThemeKey;
 
@@ -103,11 +104,11 @@ public partial class ComponentLayout : IAsyncDisposable
     {
         if (firstRender)
         {
-            Module = await JSRuntime.LoadModule("./Components/Layout/ComponentLayout.razor.js");
+            Module = await JSRuntime.LoadModule($"{WebsiteOption.CurrentValue.AssetRootPath}Components/Layout/ComponentLayout.razor.js");
         }
         if (Module != null)
         {
-            await Module.InvokeVoidAsync("init");
+            await Module.InvokeVoidAsync("scrollToAnchor");
         }
     }
 

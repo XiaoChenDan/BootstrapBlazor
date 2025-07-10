@@ -1,14 +1,17 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using BootstrapBlazor.Localization.Json;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.Localization;
 using System.ComponentModel;
 using System.Data;
 using System.Linq.Expressions;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace BootstrapBlazor.Components;
 
@@ -52,18 +55,28 @@ public static class Utility
     /// <summary>
     /// 获得 RangeAttribute 标签值
     /// </summary>
-    /// <param name="modelType">模型类型</param>
-    /// <param name="fieldName">字段名称</param>
-    /// <returns></returns>
-    public static RangeAttribute? GetRange(Type modelType, string fieldName) => CacheManager.GetRange(Nullable.GetUnderlyingType(modelType) ?? modelType, fieldName);
-
-    /// <summary>
-    /// 获得 RangeAttribute 标签值
-    /// </summary>
     /// <typeparam name="TModel">模型</typeparam>
     /// <param name="fieldName">字段名称</param>
     /// <returns></returns>
     public static RangeAttribute? GetRange<TModel>(string fieldName) => GetRange(typeof(TModel), fieldName);
+
+    /// <summary>
+    /// 获得 RangeAttribute 标签值
+    /// </summary>
+    /// <param name="modelType">模型类型</param>
+    /// <param name="fieldName">字段名称</param>
+    /// <returns></returns>
+    public static RangeAttribute? GetRange(Type modelType, string fieldName)
+    {
+        var type = Nullable.GetUnderlyingType(modelType) ?? modelType;
+
+        RangeAttribute? dn = null;
+        if (TryGetProperty(type, fieldName, out var propertyInfo))
+        {
+            dn = propertyInfo.GetCustomAttribute<RangeAttribute>(true);
+        }
+        return dn;
+    }
 
     /// <summary>
     /// 获取资源文件中 NullableBoolItemsAttribute 标签名称方法
@@ -109,7 +122,9 @@ public static class Utility
     /// <returns></returns>
     public static object? GetPropertyValue(object model, string fieldName)
     {
-        return model.GetType().Assembly.IsDynamic ? ReflectionInvoke() : LambdaInvoke();
+        return model.GetType().Assembly.IsDynamic
+            ? ReflectionInvoke()
+            : GetPropertyValue<object, object?>(model, fieldName);
 
         object? ReflectionInvoke()
         {
@@ -121,8 +136,6 @@ public static class Utility
             }
             return ret;
         }
-
-        object? LambdaInvoke() => GetPropertyValue<object, object?>(model, fieldName);
     }
 
     /// <summary>
@@ -156,7 +169,6 @@ public static class Utility
     /// <param name="typeName">类名称</param>
     /// <param name="cultureName">cultureName 未空时使用 CultureInfo.CurrentUICulture.Name</param>
     /// <param name="forceLoad">默认 false 使用缓存值 设置 true 时内部强制重新加载</param>
-    /// <returns></returns>
     public static IEnumerable<LocalizedString> GetJsonStringByTypeName(JsonLocalizationOptions option, Assembly assembly, string typeName, string? cultureName = null, bool forceLoad = false) => CacheManager.GetJsonStringByTypeName(option, assembly, typeName, cultureName, forceLoad) ?? [];
 
     /// <summary>
@@ -213,13 +225,13 @@ public static class Utility
     /// <typeparam name="TModel"></typeparam>
     public static void Reset<TModel>(TModel source, TModel model) where TModel : class
     {
-        var v = model;
+        var modelType = model.GetType();
         foreach (var pi in source.GetType().GetRuntimeProperties().Where(p => p.IsCanWrite()))
         {
-            var pInfo = v.GetType().GetPropertyByName(pi.Name);
+            var pInfo = modelType.GetPropertyByName(pi.Name);
             if (pInfo != null)
             {
-                pi.SetValue(source, pInfo.GetValue(v));
+                pi.SetValue(source, pInfo.GetValue(model));
             }
         }
     }
@@ -367,7 +379,7 @@ public static class Utility
         return defaultOrderCallback?.Invoke(cols) ?? cols;
     }
 
-    internal static IEnumerable<ITableColumn> OrderFunc(this IEnumerable<ITableColumn> cols) => cols
+    internal static IEnumerable<ITableColumn> OrderFunc(this List<ITableColumn> cols) => cols
         .Where(a => a.Order > 0).OrderBy(a => a.Order)
         .Concat(cols.Where(a => a.Order == 0))
         .Concat(cols.Where(a => a.Order < 0).OrderBy(a => a.Order));
@@ -389,7 +401,7 @@ public static class Utility
     {
         var fieldType = item.PropertyType;
         var fieldName = item.GetFieldName();
-        var displayName = item.GetDisplayName() ?? GetDisplayName(model, fieldName);
+        var displayName = item.GetDisplayName();
         var fieldValue = GenerateValue(model, fieldName);
         var type = (Nullable.GetUnderlyingType(fieldType) ?? fieldType);
         if (type == typeof(bool) || fieldValue?.GetType() == typeof(bool))
@@ -404,7 +416,6 @@ public static class Utility
                 builder.AddAttribute(50, "class", col.CssClass);
             }
             builder.AddMultipleAttributes(60, item.ComponentParameters);
-            builder.CloseComponent();
         }
         else if (item.ComponentType == typeof(Textarea) || item.Rows > 0)
         {
@@ -422,17 +433,18 @@ public static class Utility
                 builder.AddAttribute(60, "class", col.CssClass);
             }
             builder.AddMultipleAttributes(70, item.ComponentParameters);
-            builder.CloseComponent();
         }
         else
         {
             builder.OpenComponent(0, typeof(Display<>).MakeGenericType(fieldType));
             builder.AddAttribute(10, nameof(Display<string>.DisplayText), displayName);
             builder.AddAttribute(20, nameof(Display<string>.Value), fieldValue);
-            builder.AddAttribute(30, nameof(Display<string>.LookupServiceKey), item.LookupServiceKey);
-            builder.AddAttribute(40, nameof(Display<string>.LookupServiceData), item.LookupServiceData);
-            builder.AddAttribute(50, nameof(Display<string>.Lookup), item.Lookup);
-            builder.AddAttribute(60, nameof(Display<string>.ShowLabelTooltip), item.ShowLabelTooltip);
+            builder.AddAttribute(30, nameof(Display<string>.Lookup), item.Lookup);
+            builder.AddAttribute(30, nameof(Display<string>.LookupService), item.LookupService);
+            builder.AddAttribute(40, nameof(Display<string>.LookupServiceKey), item.LookupServiceKey);
+            builder.AddAttribute(50, nameof(Display<string>.LookupServiceData), item.LookupServiceData);
+            builder.AddAttribute(60, nameof(Display<string>.LookupStringComparison), item.LookupStringComparison);
+            builder.AddAttribute(65, nameof(Display<string>.ShowLabelTooltip), item.ShowLabelTooltip);
             if (item is ITableColumn col)
             {
                 if (col.Formatter != null)
@@ -446,8 +458,9 @@ public static class Utility
                 builder.AddAttribute(90, "class", col.CssClass);
             }
             builder.AddMultipleAttributes(100, item.ComponentParameters);
-            builder.CloseComponent();
         }
+
+        builder.CloseComponent();
     }
 
     /// <summary>
@@ -459,18 +472,18 @@ public static class Utility
     /// <param name="item"></param>
     /// <param name="changedType"></param>
     /// <param name="isSearch"></param>
-    /// <param name="lookUpService"></param>
-    public static void CreateComponentByFieldType(this RenderTreeBuilder builder, ComponentBase component, IEditorItem item, object model, ItemChangedType changedType = ItemChangedType.Update, bool isSearch = false, ILookupService? lookUpService = null)
+    /// <param name="lookupService"></param>
+    /// <param name="skipValidate"></param>
+    public static void CreateComponentByFieldType(this RenderTreeBuilder builder, ComponentBase component, IEditorItem item, object model, ItemChangedType changedType = ItemChangedType.Update, bool isSearch = false, ILookupService? lookupService = null, bool? skipValidate = null)
     {
         var fieldType = item.PropertyType;
         var fieldName = item.GetFieldName();
-        var displayName = item.GetDisplayName() ?? GetDisplayName(model, fieldName);
+        var displayName = item.GetDisplayName();
 
         var fieldValue = GenerateValue(model, fieldName);
         var fieldValueChanged = GenerateValueChanged(component, model, fieldName, fieldType);
         var valueExpression = GenerateValueExpression(model, fieldName, fieldType);
-        var lookup = item.Lookup ?? lookUpService?.GetItemsByKey(item.LookupServiceKey, item.LookupServiceData);
-        var componentType = item.ComponentType ?? GenerateComponentType(fieldType, item.Rows != 0, lookup);
+        var componentType = item.ComponentType ?? GenerateComponentType(item);
         builder.OpenComponent(0, componentType);
         if (componentType.IsSubclassOf(typeof(ValidateBase<>).MakeGenericType(fieldType)))
         {
@@ -478,6 +491,8 @@ public static class Utility
             builder.AddAttribute(20, nameof(ValidateBase<string>.Value), fieldValue);
             builder.AddAttribute(30, nameof(ValidateBase<string>.ValueChanged), fieldValueChanged);
             builder.AddAttribute(40, nameof(ValidateBase<string>.ValueExpression), valueExpression);
+            builder.AddAttribute(41, nameof(ValidateBase<string>.ShowRequired), GetRequired(item, changedType));
+            builder.AddAttribute(42, nameof(ValidateBase<string>.RequiredErrorMessage), item.RequiredErrorMessage);
 
             if (!item.CanWrite(model.GetType(), changedType, isSearch))
             {
@@ -492,6 +507,11 @@ public static class Utility
             if (item.ShowLabelTooltip != null)
             {
                 builder.AddAttribute(70, nameof(ValidateBase<string>.ShowLabelTooltip), item.ShowLabelTooltip);
+            }
+
+            if (skipValidate is true)
+            {
+                builder.AddAttribute(71, nameof(ValidateBase<string>.SkipValidate), true);
             }
         }
 
@@ -512,20 +532,23 @@ public static class Utility
         }
 
         // Nullable<bool?>
-        if (item.ComponentType == typeof(Select<bool?>) && fieldType == typeof(bool?) && lookup == null && item.Items == null)
+        if (item.ComponentType == typeof(Select<bool?>) && fieldType == typeof(bool?) && !item.IsLookup() && item.Items == null)
         {
             builder.AddAttribute(100, nameof(Select<bool?>.Items), GetNullableBoolItems(model, fieldName));
         }
 
         // Lookup
-        if (lookup != null && item.Items == null)
+        if (item.IsLookup() && item.Items == null)
         {
             builder.AddAttribute(110, nameof(Select<SelectedItem>.ShowSearch), item.ShowSearchWhenSelect);
-            builder.AddAttribute(120, nameof(Select<SelectedItem>.Items), lookup.Clone());
+            builder.AddAttribute(115, nameof(Select<SelectedItem>.Items), item.Lookup);
+            builder.AddAttribute(120, nameof(Select<SelectedItem>.LookupService), lookupService);
+            builder.AddAttribute(121, nameof(Select<SelectedItem>.LookupServiceKey), item.LookupServiceKey);
+            builder.AddAttribute(122, nameof(Select<SelectedItem>.LookupServiceData), item.LookupServiceData);
             builder.AddAttribute(130, nameof(Select<SelectedItem>.StringComparison), item.LookupStringComparison);
         }
 
-        // 增加非枚举类,手动设定 ComponentType 为 Select 并且 Data 有值 自动生成下拉框
+        // 增加非枚举类,手动设定 ComponentType 为 Select 并且 Items 有值 自动生成下拉框
         if (item.Items != null && item.ComponentType == typeof(Select<>).MakeGenericType(fieldType))
         {
             builder.AddAttribute(140, nameof(Select<SelectedItem>.Items), item.Items.Clone());
@@ -533,9 +556,9 @@ public static class Utility
         }
 
         // 设置 SkipValidate 参数
-        if (IsValidComponent(componentType))
+        if (skipValidate is not true && IsValidComponent(componentType))
         {
-            builder.AddAttribute(160, nameof(IEditorItem.SkipValidate), item.SkipValidate);
+            builder.AddAttribute(160, nameof(IEditorItem.SkipValidate), isSearch || item.SkipValidate);
         }
 
         builder.AddMultipleAttributes(170, CreateMultipleAttributes(fieldType, model, fieldName, item));
@@ -550,12 +573,22 @@ public static class Utility
         builder.CloseComponent();
     }
 
-    private static List<SelectedItem> Clone(this IEnumerable<SelectedItem> source) => source.Select(d => new SelectedItem(d.Value, d.Text)
+    private static bool? GetRequired(IEditorItem editorItem, ItemChangedType changedType)
+    {
+        var ret = editorItem.Required;
+        if (ret is null && editorItem is ITableColumn col)
+        {
+            ret = changedType == ItemChangedType.Add ? col.IsRequiredWhenAdd : col.IsRequiredWhenEdit;
+        }
+        return ret;
+    }
+
+    private static List<SelectedItem> Clone(this IEnumerable<SelectedItem> source) => [.. source.Select(d => new SelectedItem(d.Value, d.Text)
     {
         Active = d.Active,
         IsDisabled = d.IsDisabled,
         GroupName = d.GroupName
-    }).ToList();
+    })];
 
     private static object? GenerateValue(object model, string fieldName) => GetPropertyValue<object, object?>(model, fieldName);
 
@@ -604,15 +637,13 @@ public static class Utility
     /// <summary>
     /// 通过指定类型生成组件类型
     /// </summary>
-    /// <param name="fieldType"></param>
-    /// <param name="hasRows">是否为 TextArea 组件</param>
-    /// <param name="lookup"></param>
-    /// <returns></returns>
-    private static Type GenerateComponentType(Type fieldType, bool hasRows, IEnumerable<SelectedItem>? lookup)
+    /// <param name="item"></param>
+    private static Type GenerateComponentType(IEditorItem item)
     {
+        var fieldType = item.PropertyType;
         Type? ret = null;
         var type = (Nullable.GetUnderlyingType(fieldType) ?? fieldType);
-        if (type.IsEnum || lookup != null)
+        if (type.IsEnum || item.IsLookup())
         {
             ret = typeof(Select<>).MakeGenericType(fieldType);
         }
@@ -624,7 +655,7 @@ public static class Utility
         {
             ret = typeof(NullSwitch);
         }
-        else if (fieldType.IsNumber())
+        else if (fieldType.IsNumberWithDotSeparator())
         {
             ret = typeof(BootstrapInputNumber<>).MakeGenericType(fieldType);
         }
@@ -638,7 +669,7 @@ public static class Utility
         }
         else if (fieldType == typeof(string))
         {
-            ret = hasRows ? typeof(Textarea) : typeof(BootstrapInput<>).MakeGenericType(typeof(string));
+            ret = item.Rows > 0 ? typeof(Textarea) : typeof(BootstrapInput<>).MakeGenericType(typeof(string));
         }
         return ret ?? typeof(BootstrapInput<>).MakeGenericType(fieldType);
     }
@@ -649,7 +680,7 @@ public static class Utility
     /// <param name="fieldType"></param>
     /// <param name="componentType">组件类型</param>
     /// <returns></returns>
-    private static bool IsCheckboxList(Type fieldType, Type? componentType = null)
+    public static bool IsCheckboxList(Type fieldType, Type? componentType = null)
     {
         var ret = false;
         if (componentType != null)
@@ -690,7 +721,7 @@ public static class Utility
                 ret.Add("rows", item.Rows);
             }
         }
-        else if (type.IsNumber())
+        else if (type.IsNumberWithDotSeparator())
         {
             if (!string.IsNullOrEmpty(item.Step))
             {
@@ -808,6 +839,10 @@ public static class Utility
                 }
             }
         }
+        else if (typeValue.IsFlagEnum())
+        {
+            ret = value!.ToString();
+        }
         return ret;
     }
 
@@ -866,4 +901,63 @@ public static class Utility
     /// <param name="type"></param>
     /// <returns></returns>
     public static IStringLocalizer? CreateLocalizer(Type type) => CacheManager.CreateLocalizerByType(type);
+
+    /// <summary>
+    /// Converts a string representation of an IP address or hostname into an <see cref="IPAddress"/> object.
+    /// </summary>
+    /// <remarks>This method handles common special cases for IP address strings, such as "localhost" and
+    /// "any". For other inputs, it attempts  to parse the string as an IP address using <see
+    /// cref="IPAddress.TryParse(string, out IPAddress)"/>. If parsing fails, the method  resolves the input as a
+    /// hostname.</remarks>
+    /// <param name="ipString">A string containing the IP address or hostname to convert. Special values include: <list type="bullet">
+    /// <item><description><c>"localhost"</c> returns the loopback address (<see
+    /// cref="IPAddress.Loopback"/>).</description></item> <item><description><c>"any"</c> returns the wildcard address
+    /// (<see cref="IPAddress.Any"/>).</description></item> </list> For other values, the method attempts to parse the
+    /// string as an IP address or resolve it as a hostname.</param>
+    /// <returns>An <see cref="IPAddress"/> object representing the parsed or resolved IP address. If the input cannot be parsed
+    /// or resolved,  the method returns a default IP address.</returns>
+    [UnsupportedOSPlatform("browser")]
+    public static IPAddress ConvertToIPAddress(string ipString)
+    {
+        if (string.IsNullOrEmpty(ipString))
+        {
+            throw new ArgumentNullException(nameof(ipString), "IP address cannot be null or empty.");
+        }
+
+        if (ipString.Equals("localhost", StringComparison.OrdinalIgnoreCase))
+        {
+            return IPAddress.Loopback;
+        }
+        if (ipString.Equals("any", StringComparison.OrdinalIgnoreCase))
+        {
+            return IPAddress.Any;
+        }
+
+        return IPAddress.TryParse(ipString, out var ip) ? ip : IPAddressByHostName;
+    }
+
+    [ExcludeFromCodeCoverage]
+
+    [UnsupportedOSPlatform("browser")]
+    private static IPAddress IPAddressByHostName => Dns.GetHostAddresses(Dns.GetHostName(), AddressFamily.InterNetwork).FirstOrDefault() ?? IPAddress.Any;
+
+    /// <summary>
+    /// Converts a string representation of an IP address and a port number into an <see cref="IPEndPoint"/> instance.
+    /// </summary>
+    /// <remarks>This method is not supported on browser platforms.</remarks>
+    /// <param name="ipString">The string representation of the IP address. Must be a valid IPv4 or IPv6 address.</param>
+    /// <param name="port">The port number associated with the endpoint. Must be between 0 and 65535.</param>
+    /// <returns>An <see cref="IPEndPoint"/> representing the specified IP address and port.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="port"/> is less than 0 or greater than 65535.</exception>
+    [UnsupportedOSPlatform("browser")]
+    public static IPEndPoint ConvertToIpEndPoint(string ipString, int port)
+    {
+        if (port < 0 || port > 65535)
+        {
+            throw new ArgumentOutOfRangeException(nameof(port), "Port must be between 0 and 65535.");
+        }
+
+        var address = ConvertToIPAddress(ipString);
+        return new IPEndPoint(address, port);
+    }
 }

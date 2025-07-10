@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -35,6 +36,11 @@ public partial class CheckboxLists
 
     [NotNull]
     private IEnumerable<SelectedItem>? Items5 { get; set; }
+
+    [NotNull]
+    private IEnumerable<SelectedItem<Foo>>? GenericItems { get; set; }
+
+    private List<Foo>? _selectedFoos;
 
     /// <summary>
     /// OnInitialized method
@@ -83,9 +89,31 @@ public partial class CheckboxLists
             new() { Text = Localizer["item4"], Value = Localizer["item4"] },
         };
 
+        IconDemoValues = new List<IconSelectedItem>()
+        {
+            new() { Text = "Item1", Value = "1", Icon = "fa-solid fa-users" },
+            new() { Text = "Item2", Value = "2", Icon = "fa-solid fa-users-gear" }
+        };
+
         Dummy = new Foo() { Name = Localizer["Foo"] };
         Model = Foo.Generate(LocalizerFoo);
         FooItems = Foo.GenerateHobbies(LocalizerFoo);
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        GenericItems = new List<SelectedItem<Foo>>()
+        {
+            new() { Text = Localizer["item1"], Value = new Foo() { Name = LocalizerFoo["Foo.Name", "001"] } },
+            new() { Text = Localizer["item2"], Value = new Foo() { Name = LocalizerFoo["Foo.Name", "002"] } },
+            new() { Text = Localizer["item3"], Value = new Foo() { Name = LocalizerFoo["Foo.Name", "003"] } },
+        };
     }
 
     [NotNull]
@@ -113,6 +141,9 @@ public partial class CheckboxLists
         new() { Text = "Item 4", Value = "4" },
     };
 
+    [NotNull]
+    private IEnumerable<IconSelectedItem>? IconDemoValues { get; set; }
+
     private Task OnSelectedChanged(IEnumerable<SelectedItem> items, string value)
     {
         NormalLogger.Log($"{Localizer["Header"]} {items.Count(i => i.Active)} {Localizer["Counter"]}：{value}");
@@ -133,6 +164,11 @@ public partial class CheckboxLists
     private Task OnMaxSelectedCountExceed()
     {
         return ToastService.Information(Localizer["OnMaxSelectedCountExceedTitle"], Localizer["OnMaxSelectedCountExceedContent", 2]);
+    }
+
+    class IconSelectedItem : SelectedItem
+    {
+        public string? Icon { get; init; }
     }
 
     private AttributeItem[] GetAttributes() =>

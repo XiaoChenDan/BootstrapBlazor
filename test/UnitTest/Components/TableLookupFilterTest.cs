@@ -1,139 +1,194 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Components;
 
 public class TableLookupFilterTest : BootstrapBlazorTestBase
 {
     [Fact]
-    public void Reset_Ok()
+    public async Task OnFilterAsync_Ok()
     {
-        var cut = Context.RenderComponent<LookupFilter>(pb =>
+        var cut = Context.RenderComponent<TableColumnFilter>(pb =>
         {
-            pb.Add(a => a.Type, typeof(string));
-            pb.Add(a => a.Lookup, new List<SelectedItem>()
-            {
-                new("true", "True"),
-                new("false", "False")
-            });
-        });
-
-        var filter = cut.Instance;
-        cut.InvokeAsync(() => filter.Reset());
-    }
-
-    [Fact]
-    public void GetFilterConditions_Ok()
-    {
-        var cut = Context.RenderComponent<LookupFilter>(pb =>
-        {
-            pb.Add(a => a.Type, typeof(string));
-            pb.Add(a => a.Lookup, new List<SelectedItem>()
-            {
-                new("true", "True"),
-                new("false", "False")
-            });
-        });
-
-        var filter = cut.Instance;
-        var conditions = filter.GetFilterConditions();
-        Assert.NotNull(conditions.Filters);
-        Assert.Empty(conditions.Filters);
-
-        // Set Value
-        var items = cut.FindAll(".dropdown-item");
-        cut.InvokeAsync(() => items[1].Click());
-        conditions = filter.GetFilterConditions();
-        Assert.NotNull(conditions.Filters);
-        Assert.Single(conditions.Filters);
-    }
-
-    [Fact]
-    public void InvalidOperationException_Exception()
-    {
-        Assert.ThrowsAny<InvalidOperationException>(() => Context.RenderComponent<LookupFilter>());
-        Assert.ThrowsAny<InvalidOperationException>(() => Context.RenderComponent<LookupFilter>(pb =>
-        {
-            pb.Add(a => a.Lookup, new List<SelectedItem>());
-        }));
-    }
-
-    [Fact]
-    public void IsHeaderRow_OnFilterValueChanged()
-    {
-        var cut = Context.RenderComponent<BootstrapBlazorRoot>(pb =>
-        {
-            pb.AddChildContent<Table<Foo>>(pb =>
-            {
-                pb.Add(a => a.Items, new List<Foo>() { new() });
-                pb.Add(a => a.RenderMode, TableRenderMode.Table);
-                pb.Add(a => a.ShowFilterHeader, true);
-                pb.Add(a => a.TableColumns, new RenderFragment<Foo>(foo => builder =>
-                {
-                    var index = 0;
-                    builder.OpenComponent<TableColumn<Foo, bool>>(index++);
-                    builder.AddAttribute(index++, nameof(TableColumn<Foo, bool>.Field), foo.Complete);
-                    builder.AddAttribute(index++, nameof(TableColumn<Foo, bool>.FieldExpression), foo.GenerateValueExpression(nameof(foo.Complete), typeof(bool)));
-                    builder.AddAttribute(index++, nameof(TableColumn<Foo, bool>.Filterable), true);
-                    builder.AddAttribute(index++, nameof(TableColumn<Foo, bool>.LookupStringComparison), StringComparison.OrdinalIgnoreCase);
-                    builder.AddAttribute(index++, nameof(TableColumn<Foo, bool>.Lookup), new List<SelectedItem>()
-                    {
-                        new("true", "True"),
-                        new("false", "False")
-                    });
-                    builder.CloseComponent();
-                }));
-            });
+            pb.Add(a => a.Table, new MockTable());
+            pb.Add(a => a.Column, new MockColumn());
+            pb.Add(a => a.IsHeaderRow, true);
         });
 
         var items = cut.FindAll(".dropdown-item");
-        cut.InvokeAsync(() => items[1].Click());
-        var conditions = cut.FindComponent<LookupFilter>().Instance.GetFilterConditions();
-        Assert.NotNull(conditions.Filters);
-        Assert.Single(conditions.Filters);
+        await cut.InvokeAsync(() => { items[1].Click(); });
     }
 
     [Fact]
-    public void SetFilterConditions_Ok()
+    public async Task FilterAction_Ok()
     {
-        var cut = Context.RenderComponent<LookupFilter>(pb =>
+        var cut = Context.RenderComponent<TableColumnFilter>(pb =>
         {
-            pb.Add(a => a.Type, typeof(bool));
-            pb.Add(a => a.Lookup, new List<SelectedItem>()
-            {
-                new("true", "True"),
-                new("false", "False")
-            });
+            pb.Add(a => a.Table, new MockTable());
+            pb.Add(a => a.Column, new MockColumn());
         });
-
-        var filter = cut.Instance;
-        var conditions = filter.GetFilterConditions();
-        Assert.NotNull(conditions.Filters);
-        Assert.Empty(conditions.Filters);
-
+        var lookup = cut.FindComponent<LookupFilter>();
+        var filter = lookup.Instance;
         var newConditions = new FilterKeyValueAction()
         {
-            Filters = [new FilterKeyValueAction() { FieldValue = true }]
+            Filters =
+            [
+                new FilterKeyValueAction() { FieldValue = "2" },
+            ]
         };
-        cut.InvokeAsync(() => filter.SetFilterConditionsAsync(newConditions));
-        conditions = filter.GetFilterConditions();
-        Assert.NotNull(conditions.Filters);
+        await cut.InvokeAsync(() => filter.SetFilterConditionsAsync(newConditions));
+        var conditions = filter.GetFilterConditions();
         Assert.Single(conditions.Filters);
+        Assert.Equal("2", conditions.Filters[0].FieldValue);
 
-        newConditions = new FilterKeyValueAction()
-        {
-            Filters = [new FilterKeyValueAction() { FieldValue = null }]
-        };
-        cut.InvokeAsync(() => filter.SetFilterConditionsAsync(newConditions));
+        await cut.InvokeAsync(() => filter.Reset());
         conditions = filter.GetFilterConditions();
-        Assert.NotNull(conditions.Filters);
         Assert.Empty(conditions.Filters);
 
-        newConditions = new FilterKeyValueAction() { FieldValue = true };
-        cut.InvokeAsync(() => filter.SetFilterConditionsAsync(newConditions));
+        // Improve test coverage
+        newConditions = new FilterKeyValueAction()
+        {
+            Filters =
+            [
+                new FilterKeyValueAction() { FieldValue = false },
+            ]
+        };
+        await cut.InvokeAsync(() => filter.SetFilterConditionsAsync(newConditions));
         conditions = filter.GetFilterConditions();
-        Assert.NotNull(conditions.Filters);
+        Assert.Empty(conditions.Filters);
+
+        newConditions = new FilterKeyValueAction() { FieldValue = null };
+        await cut.InvokeAsync(() => filter.SetFilterConditionsAsync(newConditions));
+        conditions = filter.GetFilterConditions();
+        Assert.Empty(conditions.Filters);
+    }
+
+    [Fact]
+    public async Task LookupService_Ok()
+    {
+        var cut = Context.RenderComponent<TableColumnFilter>(pb =>
+        {
+            pb.Add(a => a.Table, new MockTable());
+            pb.Add(a => a.Column, new MockLookupServiceColumn());
+        });
+        var lookup = cut.FindComponent<LookupFilter>();
+        var filter = lookup.Instance;
+
+        // 由于 LookupFilter 默认值未设置使用候选项第一个
+        cut.WaitForAssertion(() => cut.Contains("value=\"LookupService-Test-1-async\""), TimeSpan.FromMilliseconds(100));
+        var newConditions = new FilterKeyValueAction()
+        {
+            Filters =
+            [
+                new FilterKeyValueAction() { FieldValue = "v2" },
+            ]
+        };
+        await cut.InvokeAsync(() => filter.SetFilterConditionsAsync(newConditions));
+        var conditions = filter.GetFilterConditions();
         Assert.Single(conditions.Filters);
+        Assert.Equal("v2", conditions.Filters[0].FieldValue);
+
+        await cut.InvokeAsync(() => filter.Reset());
+        conditions = filter.GetFilterConditions();
+        Assert.Empty(conditions.Filters);
+    }
+
+    [Fact]
+    public async Task LookupService_Empty()
+    {
+        var column = new MockEmptyLookupServiceColumn();
+        var cut = Context.RenderComponent<TableColumnFilter>(pb =>
+        {
+            pb.Add(a => a.Table, new MockTable());
+            pb.Add(a => a.Column, column);
+        });
+        var lookup = cut.FindComponent<LookupFilter>();
+        var filter = lookup.Instance;
+
+        await column.Task;
+    }
+
+    class MockTable : ITable
+    {
+        public Dictionary<string, IFilterAction> Filters { get; set; } = [];
+
+        public Func<Task>? OnFilterAsync { get; set; }
+
+        public List<ITableColumn> Columns => [];
+
+        public IEnumerable<ITableColumn> GetVisibleColumns() => Columns;
+    }
+
+    class MockColumn : TableColumn<Foo, string>
+    {
+        public MockColumn()
+        {
+            PropertyType = typeof(string);
+            FieldName = "Lookup";
+            Lookup = new List<SelectedItem>()
+            {
+                new("1", "Test-1"),
+                new("2", "Test-2"),
+                new("3", "Test-3")
+            };
+        }
+    }
+
+    class MockLookupServiceColumn : TableColumn<Foo, string>
+    {
+        public MockLookupServiceColumn()
+        {
+            PropertyType = typeof(string);
+            FieldName = "Lookup";
+            LookupService = new LookupFilterService();
+            LookupServiceKey = "LookupKey";
+        }
+    }
+
+    class MockEmptyLookupServiceColumn : TableColumn<Foo, string>
+    {
+        private LookupFilterService _service = new LookupFilterService();
+
+        public MockEmptyLookupServiceColumn()
+        {
+            PropertyType = typeof(string);
+            FieldName = "Lookup";
+            LookupService = _service;
+            LookupServiceKey = "LookupEmptyKey";
+        }
+
+        public Task Task => _service.Task;
+    }
+
+    class LookupFilterService : LookupServiceBase
+    {
+        private TaskCompletionSource _taskCompletionSource = new();
+
+        public override IEnumerable<SelectedItem>? GetItemsByKey(string? key, object? data) => null;
+
+        public override async Task<IEnumerable<SelectedItem>?> GetItemsByKeyAsync(string? key, object? data)
+        {
+            IEnumerable<SelectedItem>? ret = null;
+
+            if (key == "LookupKey")
+            {
+                await Task.Delay(30);
+                ret =
+                [
+                    new SelectedItem("v1", "LookupService-Test-1-async"),
+                    new SelectedItem("v2", "LookupService-Test-2-async")
+                ];
+            }
+            else if (key == "LookupEmptyKey")
+            {
+                ret = [];
+                _taskCompletionSource.TrySetResult();
+            }
+            return ret;
+        }
+
+        public Task Task => _taskCompletionSource.Task;
     }
 }

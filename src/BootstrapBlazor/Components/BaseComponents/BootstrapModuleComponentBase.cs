@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Reflection;
 
@@ -37,6 +38,16 @@ public abstract class BootstrapModuleComponentBase : IdComponentBase, IAsyncDisp
     protected DotNetObjectReference<BootstrapModuleComponentBase>? Interop { get; set; }
 
     /// <summary>
+    /// 获得/设置 Module 是否加载完成
+    /// </summary>
+    protected TaskCompletionSource ModuleLoadTask { get; } = new();
+
+    /// <summary>
+    /// 获得/设置 Module 是否初始化完成
+    /// </summary>
+    protected TaskCompletionSource ModuleInitTask { get; } = new();
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     protected override void OnInitialized()
@@ -55,11 +66,13 @@ public abstract class BootstrapModuleComponentBase : IdComponentBase, IAsyncDisp
         if (firstRender && !string.IsNullOrEmpty(ModulePath))
         {
             Module ??= await JSRuntime.LoadModule(ModulePath);
+            ModuleLoadTask.SetResult();
 
             if (AutoInvokeInit)
             {
                 await InvokeInitAsync();
             }
+            ModuleInitTask.SetResult();
         }
     }
 

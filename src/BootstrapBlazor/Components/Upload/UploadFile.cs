@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -12,7 +13,7 @@ namespace BootstrapBlazor.Components;
 public class UploadFile
 {
     /// <summary>
-    /// 获得/设置 文件名
+    /// 获得/设置 文件名 由用户指定 上传文件时此参数未设置 默认为 null
     /// </summary>
     public string? FileName { get; set; }
 
@@ -47,6 +48,11 @@ public class UploadFile
     public IBrowserFile? File { get; set; }
 
     /// <summary>
+    /// 获得/设置 上传文件总数量
+    /// </summary>
+    public int FileCount { get; init; } = 1;
+
+    /// <summary>
     /// 获得/设置 更新进度回调委托
     /// </summary>
     internal Action<UploadFile>? UpdateCallback { get; set; }
@@ -67,15 +73,10 @@ public class UploadFile
     internal string? ValidateId { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件是否合规 默认为 null 未检查
-    /// </summary>
-    internal bool? IsValid { get; set; }
-
-    /// <summary>
     /// 获得 UploadFile 文件名
     /// </summary>
     /// <returns></returns>
-    public string? GetFileName() => OriginFileName ?? FileName;
+    public string? GetFileName() => FileName ?? OriginFileName ?? File?.Name;
 
     /// <summary>
     /// 获得 UploadFile 文件扩展名

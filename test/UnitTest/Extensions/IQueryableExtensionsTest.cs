@@ -1,10 +1,11 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Extensions;
 
-public class IQueryableExtensionsTest
+public class IQueryableExtensionsTest : BootstrapBlazorTestBase
 {
     [Fact]
     public void Where_Ok()
@@ -28,8 +29,8 @@ public class IQueryableExtensionsTest
             new() { Name = "Test2" }
         }.AsQueryable();
 
-        Assert.Equal("Test2", foos.Sort<Foo>("Name", SortOrder.Desc, true).First().Name);
-        Assert.Equal("Test1", foos.Sort<Foo>("Name", SortOrder.Desc, false).First().Name);
+        Assert.Equal("Test2", foos.Sort("Name", SortOrder.Desc, true).First().Name);
+        Assert.Equal("Test1", foos.Sort("Name", SortOrder.Desc, false).First().Name);
     }
 
     [Fact]

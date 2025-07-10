@@ -3,14 +3,14 @@
 @attribute [BootstrapModuleAutoLoader]
 
 <div @attributes="@AdditionalAttributes" class="@ClassString" id="@Id" data-bb-scroll="@AutoScrollString">
-    <div class="card-header d-flex">
+    <div class="card-header">
         @if (HeaderTemplate != null)
         {
             @HeaderTemplate
         }
         else
         {
-            <span class="flex-fill">@HeaderText</span>
+            <span class="card-title">@HeaderText</span>
             @if (ShowLight)
             {
                 <Light IsFlash="@IsFlashLight" TooltipText="@LightTitle" Color="@LightColor"></Light>
@@ -47,7 +47,8 @@
             }
             @if (OnClear != null)
             {
-                <Button Text="@ClearButtonText" Icon="@ClearButtonIcon" Color="@ClearButtonColor" OnClick="ClearConsole" class="console-clear" />
+                <Button Text="@ClearButtonText" Icon="@ClearButtonIcon" Color="@ClearButtonColor"
+                        OnClick="OnClearConsole" class="console-clear"></Button>
             }
         </div>
     }

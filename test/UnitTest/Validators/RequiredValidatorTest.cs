@@ -1,8 +1,8 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using BootstrapBlazor.Localization.Json;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
@@ -35,8 +35,9 @@ public class RequiredValidatorTest : BootstrapBlazorTestBase
     }
 
     [Fact]
-    public void EnnumerableValue_Ok()
+    public void EnumerableValue_Ok()
     {
+        int[] value = [1, 2];
         var foo = new Foo();
         var validator = new RequiredValidator()
         {
@@ -45,7 +46,7 @@ public class RequiredValidatorTest : BootstrapBlazorTestBase
         };
         var context = new ValidationContext(foo);
         var results = new List<ValidationResult>();
-        validator.Validate(new int[] { 1, 2 }, context, results);
+        validator.Validate(value, context, results);
         Assert.Empty(results);
 
         validator.Validate(Array.Empty<int>(), context, results);
@@ -75,5 +76,15 @@ public class RequiredValidatorTest : BootstrapBlazorTestBase
         validator.Options.ResourceManagerStringLocalizerType = typeof(Foo);
         validator.Validate("v1", context, results);
         Assert.Empty(results);
+
+        validator.Validate("", context, results);
+        Assert.Single(results);
+
+        results.Clear();
+        var provider = Context.Services.GetRequiredService<IServiceProvider>();
+        validator = new RequiredValidator();
+        context = new ValidationContext(foo, provider, null);
+        validator.Validate(null, context, results);
+        Assert.Single(results);
     }
 }

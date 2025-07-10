@@ -1,27 +1,28 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 可为空布尔类型转换器
+/// Nullable boolean type converter
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
 public class NullableBoolItemsAttribute : Attribute
 {
     /// <summary>
-    /// 获得/设置 空值显示文本
+    /// Gets or sets the display text for null value
     /// </summary>
     public string? NullValueDisplayText { get; set; }
 
     /// <summary>
-    /// 获得/设置 True 值显示文本
+    /// Gets or sets the display text for true value
     /// </summary>
     public string? TrueValueDisplayText { get; set; }
 
     /// <summary>
-    /// 获得/设置 False 值显示文本
+    /// Gets or sets the display text for false value
     /// </summary>
     public string? FalseValueDisplayText { get; set; }
 }

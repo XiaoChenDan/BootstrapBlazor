@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples.Charts;
 
@@ -9,8 +10,6 @@ namespace BootstrapBlazor.Server.Components.Samples.Charts;
 /// </summary>
 public partial class Bar
 {
-    private Random Randomer { get; } = new Random();
-
     private int _barDatasetCount = 2;
     private int _barDataCount = 7;
 
@@ -67,7 +66,7 @@ public partial class Bar
         ds.Labels = Enumerable.Range(1, _barDataCount).Select(i => i.ToString());
         for (var index = 0; index < _barDatasetCount; index++)
         {
-            ds.Data.Add(new ChartDataset() { Label = $"Set {index}", Data = Enumerable.Range(1, _barDataCount).Select(i => Randomer.Next(20, 37)).Cast<object>() });
+            ds.Data.Add(new ChartDataset() { Label = $"Set {index}", Data = Enumerable.Range(1, _barDataCount).Select(i => Random.Shared.Next(20, 37)).Cast<object>() });
         }
 
         return Task.FromResult(ds);
@@ -98,7 +97,7 @@ public partial class Bar
     /// </summary>
     private Task OnReloadChart()
     {
-        BarDataCount = Randomer.Next(5, 15);
+        BarDataCount = Random.Shared.Next(5, 15);
         BarChart.Reload();
         return Task.CompletedTask;
     }
@@ -123,7 +122,7 @@ public partial class Bar
         {
             Label = $"Y2 Set {index}",
             IsAxisY2 = index == 0,
-            Data = Enumerable.Range(1, BarDataCount).Select(i => Randomer.Next(20, 7000)).Cast<object>()
+            Data = Enumerable.Range(1, BarDataCount).Select(i => Random.Shared.Next(20, 7000)).Cast<object>()
         });
 
         for (index = 1; index < BarDatasetCount; index++)
@@ -132,7 +131,7 @@ public partial class Bar
             {
                 Label = $"Y Set {index}",
                 IsAxisY2 = index == 0,
-                Data = Enumerable.Range(1, BarDataCount).Select(i => Randomer.Next(20, 37)).Cast<object>()
+                Data = Enumerable.Range(1, BarDataCount).Select(i => Random.Shared.Next(20, 37)).Cast<object>()
             });
         }
         return Task.FromResult(ds);
@@ -155,7 +154,7 @@ public partial class Bar
             ds.Data.Add(new ChartDataset()
             {
                 Label = $"Set {index}",
-                Data = Enumerable.Range(1, BarDataCount).Select(i => Randomer.Next(20, 37)).Cast<object>()
+                Data = Enumerable.Range(1, BarDataCount).Select(i => Random.Shared.Next(20, 37)).Cast<object>()
             });
         }
         return Task.FromResult(ds);
@@ -175,7 +174,7 @@ public partial class Bar
             ds.Data.Add(new ChartDataset()
             {
                 Label = $"Set {index}",
-                Data = Enumerable.Range(1, BarDataCount).Select(i => Randomer.Next(20, 37)).Cast<object>()
+                Data = Enumerable.Range(1, BarDataCount).Select(i => Random.Shared.Next(20, 37)).Cast<object>()
             });
         }
         return Task.FromResult(ds);
@@ -197,7 +196,7 @@ public partial class Bar
         ds.Data.Add(new ChartDataset()
         {
             Label = $"Set {0}",
-            Data = Enumerable.Range(1, BarDataCount).Select(i => Randomer.Next(20, 37)).Cast<object>()
+            Data = Enumerable.Range(1, BarDataCount).Select(i => Random.Shared.Next(20, 37)).Cast<object>()
         });
         return Task.FromResult(ds);
     }
@@ -214,7 +213,7 @@ public partial class Bar
         ds.Data.Add(new ChartDataset()
         {
             Label = $"Set {0}",
-            Data = Enumerable.Range(1, BarDataCount).Select(i => Randomer.Next(20, 37)).Cast<object>(),
+            Data = Enumerable.Range(1, BarDataCount).Select(i => Random.Shared.Next(20, 37)).Cast<object>(),
             BackgroundColor = ["rgb(54, 162, 235, 0.5)", "rgb(75, 192, 192, 0.5)", "rgb(255, 99, 132, 0.5)", "rgb(255, 159, 64, 0.5)", "rgb(255, 205, 86, 0.5)", "rgb(255, 99, 71, 0.5)", "rgb(255, 192, 203, 0.5)"],
             BorderColor = ["rgb(54, 162, 235)", "rgb(75, 192, 192)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(255, 99, 71)", "rgb(255, 192, 203)"]
         });

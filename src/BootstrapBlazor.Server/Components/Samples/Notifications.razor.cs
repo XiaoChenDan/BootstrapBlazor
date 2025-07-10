@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -18,10 +19,8 @@ public partial class Notifications
 
     private bool Permission { get; set; }
 
-    private NotificationItem Model { get; set; } = new()
-    {
-        Icon = "./images/Argo-C.png"
-    };
+    [NotNull]
+    private NotificationItem? Model { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
@@ -29,9 +28,14 @@ public partial class Notifications
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Model.Title ??= Localizer["NotificationsNormalTitleSampleText"];
-        Model.Message ??= Localizer["NotificationsNormalMessageSampleText"];
-        Model.OnClick = OnClickNotificationCallback;
+
+        Model = new()
+        {
+            Icon = $"{WebsiteOption.CurrentValue.AssetRootPath}images/Argo-C.png",
+            Title = Localizer["NotificationsNormalTitleSampleText"],
+            Message = Localizer["NotificationsNormalMessageSampleText"],
+            OnClick = OnClickNotificationCallback
+        };
     }
 
     /// <summary>

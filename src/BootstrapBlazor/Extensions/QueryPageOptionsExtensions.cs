@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Linq.Expressions;
 
@@ -18,7 +19,7 @@ public static class QueryPageOptionsExtensions
     /// <returns></returns>
     public static FilterKeyValueAction ToFilter(this QueryPageOptions option)
     {
-        var filter = new FilterKeyValueAction() { Filters = [] };
+        var filter = new FilterKeyValueAction();
 
         // 处理模糊搜索
         if (option.Searches.Count != 0)
@@ -26,7 +27,7 @@ public static class QueryPageOptionsExtensions
             filter.Filters.Add(new FilterKeyValueAction()
             {
                 FilterLogic = FilterLogic.Or,
-                Filters = option.Searches.Select(i => i.GetFilterConditions()).ToList()
+                Filters = [.. option.Searches.Select(i => i.GetFilterConditions())]
             });
         }
 
@@ -70,5 +71,5 @@ public static class QueryPageOptionsExtensions
     /// </summary>
     /// <param name="filterKeyValueAction"></param>
     /// <returns></returns>
-    public static bool HasFilters(this FilterKeyValueAction filterKeyValueAction) => filterKeyValueAction.Filters != null && filterKeyValueAction.Filters.Count != 0;
+    public static bool HasFilters(this FilterKeyValueAction filterKeyValueAction) => filterKeyValueAction.Filters.Count != 0;
 }

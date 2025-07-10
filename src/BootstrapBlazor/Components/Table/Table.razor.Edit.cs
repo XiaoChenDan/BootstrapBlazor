@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -86,6 +87,12 @@ public partial class Table<TItem>
     /// </summary>
     [Parameter]
     public Func<TItem, string?>? SetRowClassFormatter { get; set; }
+
+    /// <summary>
+    /// 获得/设置 取消保存后回调委托方法
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnAfterCancelSaveAsync { get; set; }
 
     /// <summary>
     /// 获得/设置 保存后回调委托方法
@@ -287,22 +294,37 @@ public partial class Table<TItem>
     [Parameter]
     public Func<TItem>? CreateItemCallback { get; set; }
 
-    private TItem CreateTItem()
+    /// <summary>
+    /// Get or sets Whether to automatically initialize model properties default value is false.
+    /// </summary>
+    [Parameter]
+    public bool IsAutoInitializeModelProperty { get; set; }
+
+    private TItem CreateTItem() => CreateItemCallback?.Invoke() ?? CreateInstance();
+
+    private readonly string ErrorMessage = $"{typeof(TItem)} create instrance failed. Please provide {nameof(CreateItemCallback)} create the {typeof(TItem)} instance. {typeof(TItem)} 自动创建实例失败，请通过 {nameof(CreateItemCallback)} 回调方法手动创建实例";
+
+    private TItem CreateInstance()
     {
-        var item = CreateItemCallback?.Invoke();
-        if (item == null)
+        TItem? item;
+        try
         {
-            try
-            {
-                item = Activator.CreateInstance<TItem>();
-            }
-            catch (Exception)
-            {
-                throw new InvalidOperationException($"{typeof(TItem)} missing new() method. Please provider {nameof(CreateItemCallback)} create the {typeof(TItem)} instance. {typeof(TItem)} 未提供无参构造函数 new() 请通过 {nameof(CreateItemCallback)} 回调方法创建实例");
-            }
+            item = ObjectExtensions.CreateInstance<TItem>(IsAutoInitializeModelProperty);
         }
-        return item;
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(ErrorMessage, ex);
+        }
+        return item!;
     }
+
+    /// <summary>
+    /// 获得/设置 新建搜索模型回调方法 默认 null 未设置时先 尝试使用 <see cref="CreateItemCallback"/> 回调，再使用默认无参构造函数创建
+    /// </summary>
+    [Parameter]
+    public Func<TItem>? CreateSearchModelCallback { get; set; }
+
+    private TItem CreateSearchModel() => CreateSearchModelCallback?.Invoke() ?? CreateTItem();
 
     /// <summary>
     /// 单选模式下选择行时调用此方法
@@ -361,7 +383,7 @@ public partial class Table<TItem>
     protected Task OnClickRefreshAsync() => QueryAsync();
 
     /// <summary>
-    /// 
+    /// 点击 CardView 按钮回调方法
     /// </summary>
     /// <returns></returns>
     protected void OnClickCardView()
@@ -376,14 +398,15 @@ public partial class Table<TItem>
             TableRenderMode.Table => TableRenderMode.CardView,
             _ => TableRenderMode.Table
         };
+        _viewChanged = true;
         StateHasChanged();
     }
 
-    private async Task QueryAsync(bool shouldRender, int? pageIndex = null)
+    private async Task QueryAsync(bool shouldRender, int? pageIndex = null, bool triggerByPagination = false)
     {
-        if (ScrollMode == ScrollMode.Virtual && VirtualizeElement != null)
+        if (ScrollMode == ScrollMode.Virtual && _virtualizeElement != null)
         {
-            await VirtualizeElement.RefreshDataAsync();
+            await _virtualizeElement.RefreshDataAsync();
         }
         else
         {
@@ -392,7 +415,7 @@ public partial class Table<TItem>
             {
                 PageIndex = pageIndex.Value;
             }
-            await QueryData();
+            await QueryData(triggerByPagination);
             await InternalToggleLoading(false);
         }
 
@@ -438,12 +461,14 @@ public partial class Table<TItem>
     /// <summary>
     /// 调用 OnQuery 回调方法获得数据源
     /// </summary>
-    protected async Task QueryData()
+    protected async Task QueryData(bool triggerByPagination = false)
     {
         // 目前设计使用 Items 参数后不回调 OnQueryAsync 方法
         if (Items == null)
         {
             var queryOption = BuildQueryPageOptions();
+            // 是否为分页查询
+            queryOption.IsTriggerByPagination = triggerByPagination;
             // 设置是否为首次查询
             queryOption.IsFirstQuery = _firstQuery;
 
@@ -459,7 +484,7 @@ public partial class Table<TItem>
         else
         {
             ResetSelectedRows(Items);
-            RowsCache = null;
+            _rowsCache = null;
         }
         return;
 
@@ -488,7 +513,7 @@ public partial class Table<TItem>
             }
 
             // 更新数据后清除缓存防止新数据不显示
-            RowsCache = null;
+            _rowsCache = null;
             return;
 
             void ProcessData()
@@ -607,10 +632,14 @@ public partial class Table<TItem>
     {
         if (SelectedRows.Count > 0)
         {
-            SelectedRows = items.Where(i => SelectedRows.Any(row => Equals(i, row))).ToList();
-            if (SelectedRowsChanged.HasDelegate)
+            var selectedRows = items.Where(i => SelectedRows.Any(row => Equals(i, row))).ToList();
+            if (!selectedRows.SequenceEqual(SelectedRows))
             {
-                _ = SelectedRowsChanged.InvokeAsync(SelectedRows);
+                SelectedRows = selectedRows;
+                if (SelectedRowsChanged.HasDelegate)
+                {
+                    _ = SelectedRowsChanged.InvokeAsync(selectedRows);
+                }
             }
         }
     }

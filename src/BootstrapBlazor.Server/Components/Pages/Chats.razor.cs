@@ -1,8 +1,8 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using Azure.AI.OpenAI;
 using System.Collections.Concurrent;
 
 namespace BootstrapBlazor.Server.Components.Pages;
@@ -28,16 +28,14 @@ public partial class Chats
 
     private List<AzureOpenAIChatMessage> Messages { get; } = [];
 
-    private static string? GetStackClass(ChatRole role) => CssBuilder.Default("msg-stack").AddClass("msg-stack-assistant", role == ChatRole.Assistant).Build();
+    private static string? GetStackClass(ChatRole role) => CssBuilder.Default("msg-stack")
+        .AddClass("msg-stack-assistant", role == ChatRole.Assistant)
+        .Build();
 
-    private static readonly ConcurrentDictionary<string, int> _cache = new();
-
+    private const int TotalCount = 50;
+    private static readonly ConcurrentDictionary<string, int> Cache = new();
     private string? _code;
-
-    private readonly int _totalCount = 50;
-
     private int _currentCount;
-
     private bool _isDisabled;
 
     /// <summary>
@@ -49,7 +47,7 @@ public partial class Chats
         await base.OnInitializedAsync();
 
         _code = await GetFingerCodeAsync();
-        _currentCount = _cache.GetOrAdd(_code, key => _totalCount);
+        _currentCount = Cache.GetOrAdd(_code, key => TotalCount);
         _isDisabled = _currentCount < 1;
     }
 
@@ -110,7 +108,7 @@ public partial class Chats
                 await Task.Delay(100);
                 if (!string.IsNullOrEmpty(_code))
                 {
-                    _currentCount = _cache.AddOrUpdate(_code, key => _totalCount, (key, number) => number - 1);
+                    _currentCount = Cache.AddOrUpdate(_code, key => TotalCount, (key, number) => number - 1);
                     _isDisabled = _currentCount < 1;
                 }
                 else

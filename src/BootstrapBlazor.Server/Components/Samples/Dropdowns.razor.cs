@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -9,10 +10,15 @@ namespace BootstrapBlazor.Server.Components.Samples;
 /// </summary>
 public sealed partial class Dropdowns
 {
+    [Inject, NotNull]
+    private ToastService? ToastService { get; set; }
+
     [NotNull]
     private ConsoleLogger? Logger { get; set; }
 
     private List<SelectedItem> Items { get; set; } = [];
+
+    private List<SelectedItem> ItemTemplateList { get; set; } = [];
 
     /// <summary>
     /// ShowMessage
@@ -31,6 +37,13 @@ public sealed partial class Dropdowns
         base.OnInitialized();
 
         Items =
+        [
+            new SelectedItem() { Text=Localizer["Item1"], Value="0"},
+            new SelectedItem() { Text=Localizer["Item2"], Value="1"},
+            new SelectedItem() { Text=Localizer["Item3"], Value="2"},
+        ];
+
+        ItemTemplateList =
         [
             new SelectedItem() { Text=Localizer["Item1"], Value="0"},
             new SelectedItem() { Text=Localizer["Item2"], Value="1"},
@@ -141,6 +154,15 @@ public sealed partial class Dropdowns
         StateHasChanged();
     }
 
+    private async Task OnIsAsyncClick()
+    {
+        // 模拟异步延时
+        await Task.Delay(1000);
+
+        // 提示任务完成
+        await ToastService.Success("Dropdown IsAsync", "Job done!");
+    }
+
     /// <summary>
     /// GetAttributes
     /// </summary>
@@ -220,6 +242,14 @@ public sealed partial class Dropdowns
         },
         new()
         {
+            Name = "IsAsync",
+            Description = Localizer["AttributeIsAsync"],
+            Type = "boolean",
+            ValueList = " — ",
+            DefaultValue = "false"
+        },
+        new()
+        {
             Name = "Size",
             Description = Localizer["AttributeSize"],
             Type = "Size",
@@ -250,6 +280,18 @@ public sealed partial class Dropdowns
     /// <returns></returns>
     private EventItem[] GetEvents() =>
     [
+        new()
+        {
+            Name = "OnClick",
+            Description = Localizer["EventDesc1"],
+            Type ="EventCallback<MouseEventArgs>"
+        },
+        new()
+        {
+            Name = "OnClickWithoutRender",
+            Description = Localizer["EventDesc2"],
+            Type ="Func<Task>"
+        },
         new EventItem()
         {
             Name = "OnSelectedItemChanged",

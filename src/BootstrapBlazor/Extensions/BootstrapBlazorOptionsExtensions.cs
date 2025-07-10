@@ -1,31 +1,40 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// BootstrapBlazorOptions 配置类扩展方法
+/// BootstrapBlazorOptions configuration class extension methods
 /// </summary>
 public static class BootstrapBlazorOptionsExtensions
 {
     /// <summary>
-    /// 获取步长泛型方法
+    /// Get step size generic method
     /// </summary>
-    /// <typeparam name="TType"></typeparam>
-    /// <param name="options"></param>
-    /// <returns></returns>
+    /// <typeparam name="TType">The type parameter</typeparam>
+    /// <param name="options">The BootstrapBlazorOptions instance</param>
+    /// <returns>The step size as a string</returns>
     public static string? GetStep<TType>(this BootstrapBlazorOptions options) => options.GetStep(typeof(TType));
 
     /// <summary>
-    /// 获取步长方法
+    /// Get step size method
     /// </summary>
-    /// <param name="options">配置实体类实例</param>
-    /// <param name="type">数据类型</param>
-    /// <returns></returns>
+    /// <param name="options">The BootstrapBlazorOptions instance</param>
+    /// <param name="type">The data type</param>
+    /// <returns>The step size as a string</returns>
     public static string? GetStep(this BootstrapBlazorOptions options, Type type)
     {
         var t = Nullable.GetUnderlyingType(type) ?? type;
         return options.StepSettings.GetStep(t);
     }
+
+    /// <summary>
+    /// Get Modal IsFade value
+    /// </summary>
+    /// <param name="options">The BootstrapBlazorOptions instance</param>
+    /// <param name="value">The default value</param>
+    /// <returns>The IsFade value as a boolean</returns>
+    public static bool GetIsFadeValue(this BootstrapBlazorOptions options, bool? value) => value ?? options.ModalSettings.IsFade ?? true;
 }

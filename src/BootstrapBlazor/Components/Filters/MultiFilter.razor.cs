@@ -1,11 +1,12 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 表格过滤菜单组件
+/// 多选过滤器组件
 /// </summary>
 public partial class MultiFilter
 {
@@ -45,24 +46,21 @@ public partial class MultiFilter
     [Parameter]
     public RenderFragment? LoadingTemplate { get; set; }
 
+    /// <summary>
+    /// Gets or sets the string comparison option used for filtering operations. Default is <see cref="StringComparison.OrdinalIgnoreCase"/>
+    /// </summary>
+    [Parameter]
+    public StringComparison StringComparison { get; set; } = StringComparison.OrdinalIgnoreCase;
+
     private string? _searchText;
-
     private List<SelectedItem>? _source;
-
     private List<SelectedItem>? _items;
 
     /// <summary>
-    /// <inheritdoc/>
+    /// Gets or sets the filter candidate items. It is recommended to use static data to avoid performance loss.
     /// </summary>
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        if (TableFilter != null)
-        {
-            TableFilter.ShowMoreButton = false;
-        }
-    }
+    [Parameter]
+    public IEnumerable<SelectedItem>? Items { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
@@ -82,7 +80,7 @@ public partial class MultiFilter
         if (Items != null)
         {
             var selectedItems = _source?.Where(x => x.Active).ToList();
-            _source = Items.ToList();
+            _source = [.. Items];
             ResetActiveItems(_source, selectedItems);
         }
     }
@@ -110,45 +108,13 @@ public partial class MultiFilter
     {
         if (OnGetItemsAsync != null)
         {
-            await InvokeVoidAsync("init", Id, new { Invoker = Interop, Callback = nameof(TriggerGetItemsCallback), AlwaysTrigger = AlwaysTriggerGetItems });
-        }
-    }
-
-    /// <summary>
-    /// 重置过滤条件方法
-    /// </summary>
-    public override void Reset()
-    {
-        _searchText = string.Empty;
-        if (_source != null)
-        {
-            foreach (var item in _source)
+            await InvokeVoidAsync("init", Id, new
             {
-                item.Active = false;
-            }
-        }
-        _items = null;
-        StateHasChanged();
-    }
-
-    /// <summary>
-    /// 生成过滤条件方法
-    /// </summary>
-    /// <returns></returns>
-    public override FilterKeyValueAction GetFilterConditions()
-    {
-        var filter = new FilterKeyValueAction() { Filters = [], FilterLogic = FilterLogic.Or };
-
-        foreach (var item in GetItems().Where(i => i.Active))
-        {
-            filter.Filters.Add(new FilterKeyValueAction()
-            {
-                FieldKey = FieldKey,
-                FieldValue = item.Value,
-                FilterAction = FilterAction.Equal
+                Invoker = Interop,
+                Callback = nameof(TriggerGetItemsCallback),
+                AlwaysTrigger = AlwaysTriggerGetItems
             });
         }
-        return filter;
     }
 
     /// <summary>
@@ -225,7 +191,7 @@ public partial class MultiFilter
         {
             if (!string.IsNullOrEmpty(_searchText))
             {
-                _items = _source.Where(i => i.Text.Contains(_searchText)).ToList();
+                _items = [.. _source.Where(i => i.Text.Contains(_searchText, StringComparison))];
             }
             else
             {
@@ -237,4 +203,63 @@ public partial class MultiFilter
     }
 
     private List<SelectedItem> GetItems() => _items ?? _source ?? [];
+
+    /// <summary>
+    /// 重置过滤条件方法
+    /// </summary>
+    public override void Reset()
+    {
+        _searchText = null;
+        if (_source != null)
+        {
+            foreach (var item in _source)
+            {
+                item.Active = false;
+            }
+        }
+        _items = null;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// 生成过滤条件方法
+    /// </summary>
+    /// <returns></returns>
+    public override FilterKeyValueAction GetFilterConditions()
+    {
+        var filter = new FilterKeyValueAction { FilterLogic = FilterLogic.Or };
+        foreach (var item in GetItems().Where(i => i.Active))
+        {
+            filter.Filters.Add(new FilterKeyValueAction
+            {
+                FieldKey = FieldKey,
+                FieldValue = item.Value,
+                FilterAction = FilterAction.Equal
+            });
+        }
+        return filter;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    public override async Task SetFilterConditionsAsync(FilterKeyValueAction filter)
+    {
+        var items = GetItems();
+        if (items.Count > 0)
+        {
+            foreach (var f in filter.Filters)
+            {
+                var val = f.FieldValue?.ToString();
+                var item = items.Find(i => i.Value == val);
+                if (item != null)
+                {
+                    item.Active = true;
+                }
+            }
+        }
+        await base.SetFilterConditionsAsync(filter);
+    }
 }

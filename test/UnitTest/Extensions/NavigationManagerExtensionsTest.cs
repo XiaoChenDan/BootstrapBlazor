@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Bunit.TestDoubles;
 
@@ -14,5 +15,16 @@ public class NavigationManagerExtensionsTest : BootstrapBlazorTestBase
         var nav = Context.Services.GetRequiredService<FakeNavigationManager>();
         var provider = Context.Services.GetRequiredService<IServiceProvider>();
         nav.NavigateTo(provider, "/Cat", "Cat", "fa-solid fa-font-awesome", false);
+    }
+
+    [Fact]
+    public void ToBaseRelativePathWithoutQueryAndFragment_Ok()
+    {
+        var nav = Context.Services.GetRequiredService<FakeNavigationManager>();
+        nav.NavigateTo("/test?test1=1");
+        Assert.Equal("test", nav.ToBaseRelativePathWithoutQueryAndFragment());
+
+        nav.NavigateTo("/test#1234");
+        Assert.Equal("test", nav.ToBaseRelativePathWithoutQueryAndFragment());
     }
 }

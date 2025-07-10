@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -28,14 +29,10 @@ public partial class SpeechWave : IDisposable
     public Func<Task>? OnTimeout { get; set; }
 
     /// <summary>
-    /// 获得/设置 总时长 默认 60000 毫秒
+    /// 获得/设置 总时长 默认 60 000 毫秒
     /// </summary>
     [Parameter]
-    public int TotalTime { get; set; } = 60000;
-
-    private TimeSpan UsedTimeSpan { get; set; }
-
-    private CancellationTokenSource? Token { get; set; }
+    public int TotalTime { get; set; } = 60 * 1000;
 
     private string? ClassString => CssBuilder.Default("speech-wave")
         .AddClass("invisible", !Show)
@@ -48,41 +45,47 @@ public partial class SpeechWave : IDisposable
 
     private string? TotalTimeSpanString => $"{TimeSpan.FromMilliseconds(TotalTime):mm\\:ss}";
 
-    private string? UsedTimeSpanString => $"{UsedTimeSpan:mm\\:ss}";
+    private string? UsedTimeSpanString => $"{_usedTimeSpan:mm\\:ss}";
+
+    private bool _run;
+    private TimeSpan _usedTimeSpan;
+    private CancellationTokenSource? _token;
 
     /// <summary>
-    /// OnParametersSet 方法
+    /// <inheritdoc/>
     /// </summary>
-    protected override void OnParametersSet()
+    /// <returns></returns>
+    protected override async Task OnParametersSetAsync()
     {
-        base.OnParametersSet();
+
+        await base.OnParametersSetAsync();
 
         if (Show)
         {
-            Run();
+            await Run();
         }
         else
         {
-            Cancel();
+            Stop();
         }
     }
 
-    private bool IsRun { get; set; }
+    private bool IsShow => _token is { IsCancellationRequested: false };
 
-    private void Run() => Task.Run(async () =>
+    private async Task Run()
     {
-        if (!IsRun)
+        if (!_run)
         {
-            IsRun = true;
-            UsedTimeSpan = TimeSpan.Zero;
-            Token ??= new CancellationTokenSource();
+            _run = true;
+            _usedTimeSpan = TimeSpan.Zero;
+            _token ??= new CancellationTokenSource();
             while (IsShow)
             {
                 try
                 {
-                    await Task.Delay(1000, Token.Token);
-                    UsedTimeSpan = UsedTimeSpan.Add(TimeSpan.FromSeconds(1));
-                    if (UsedTimeSpan.TotalMilliseconds >= TotalTime)
+                    await Task.Delay(1000, _token.Token);
+                    _usedTimeSpan = _usedTimeSpan.Add(TimeSpan.FromSeconds(1));
+                    if (_usedTimeSpan.TotalMilliseconds >= TotalTime)
                     {
                         Show = false;
                         if (OnTimeout != null)
@@ -90,28 +93,30 @@ public partial class SpeechWave : IDisposable
                             await OnTimeout();
                         }
                     }
-                    await InvokeAsync(StateHasChanged);
+
+                    if (ShowUsedTime || Show == false)
+                    {
+                        StateHasChanged();
+                    }
                 }
                 catch (TaskCanceledException)
                 {
                     break;
                 }
             }
-            IsRun = false;
-        }
-    });
-
-    private void Cancel()
-    {
-        if (Token != null)
-        {
-            Token.Cancel();
-            Token.Dispose();
-            Token = null;
+            _run = false;
         }
     }
 
-    private bool IsShow => Token != null && !Token.IsCancellationRequested;
+    private void Stop()
+    {
+        if (_token != null)
+        {
+            _token.Cancel();
+            _token.Dispose();
+            _token = null;
+        }
+    }
 
     /// <summary>
     /// Dispose 方法
@@ -121,7 +126,7 @@ public partial class SpeechWave : IDisposable
     {
         if (disposing)
         {
-            Cancel();
+            Stop();
         }
     }
 

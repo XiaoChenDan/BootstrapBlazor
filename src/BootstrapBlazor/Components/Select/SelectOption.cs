@@ -1,52 +1,50 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// SelectOption 组件
+/// SelectOption component
 /// </summary>
 public class SelectOption : ComponentBase
 {
     /// <summary>
-    /// 获得/设置 显示名称
+    /// Gets or sets the display name.
     /// </summary>
     [Parameter]
     public string? Text { get; set; }
 
     /// <summary>
-    /// 获得/设置 选项值
+    /// Gets or sets the option value.
     /// </summary>
     [Parameter]
     public string? Value { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否选中 默认 false
+    /// Gets or sets a value indicating whether the option is selected. Default is <c>false</c>.
     /// </summary>
     [Parameter]
     public bool Active { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否禁用 默认 false
+    /// Gets or sets a value indicating whether the option is disabled. Default is <c>false</c>.
     /// </summary>
     [Parameter]
     public bool IsDisabled { get; set; }
 
     /// <summary>
-    /// 获得/设置 分组名称
+    /// Gets or sets the group name.
     /// </summary>
     [Parameter]
     public string? GroupName { get; set; }
 
-    /// <summary>
-    /// 父组件通过级联参数获得
-    /// </summary>
     [CascadingParameter]
     private ISelect? Container { get; set; }
 
     /// <summary>
-    /// OnInitialized 方法
+    /// <inheritdoc/>
     /// </summary>
     protected override void OnInitialized()
     {
@@ -55,6 +53,10 @@ public class SelectOption : ComponentBase
         Container?.Add(ToSelectedItem());
     }
 
+    /// <summary>
+    /// Converts the current instance to a <see cref="SelectedItem"/>.
+    /// </summary>
+    /// <returns>A <see cref="SelectedItem"/> instance.</returns>
     private SelectedItem ToSelectedItem() => new()
     {
         Active = Active,

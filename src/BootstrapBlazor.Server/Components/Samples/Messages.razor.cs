@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -15,6 +16,8 @@ public sealed partial class Messages
     [NotNull]
     private Message? Message1 { get; set; }
 
+    private readonly MessageOption _option = new();
+
     private async Task ShowMessage()
     {
         Message.SetPlacement(Placement.Top);
@@ -22,6 +25,28 @@ public sealed partial class Messages
         {
             Content = "This is a reminder message"
         });
+    }
+
+    private async Task ShowAsyncMessage()
+    {
+        _option.ForceDelay = true;
+        _option.IsAutoHide = false;
+        _option.Delay = 3000;
+        _option.Content = Localizer["MessagesAsyncDemoStep1Text"];
+        _option.Color = Color.Info;
+        await MessageService.Show(_option);
+
+        await Task.Delay(3000);
+        _option.Content = Localizer["MessagesAsyncDemoStep2Text"];
+        _option.IsAutoHide = true;
+        _option.Color = Color.Info;
+        await MessageService.Show(_option);
+
+        await Task.Delay(2000);
+        _option.Content = Localizer["MessagesAsyncDemoStep3Text"];
+        _option.Color = Color.Success;
+
+        await MessageService.Show(_option);
     }
 
     private async Task ShowIconMessage()

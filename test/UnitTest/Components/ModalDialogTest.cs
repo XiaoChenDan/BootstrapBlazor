@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Web;
 
@@ -74,7 +75,15 @@ public class ModalDialogTest : BootstrapBlazorTestBase
             });
         });
         Assert.Contains("is-draggable", cut.Markup);
+        Assert.Contains("is-draggable-center", cut.Markup);
         Assert.Contains("test_class", cut.Markup);
+
+        var dialog = cut.FindComponent<ModalDialog>();
+        dialog.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.IsCentered, false);
+        });
+        Assert.DoesNotContain("is-draggable-center", cut.Markup);
     }
 
     [Fact]
@@ -157,6 +166,7 @@ public class ModalDialogTest : BootstrapBlazorTestBase
             {
                 pb.AddChildContent<ModalDialog>(pb =>
                 {
+                    pb.Add(d => d.FooterContentTemplate, builder => builder.AddContent(0, "footer-content-template"));
                     pb.Add(d => d.BodyContext, new Foo() { Name = "Test_BodyContext" });
                     pb.Add(d => d.BodyTemplate, BootstrapDynamicComponent.CreateComponent<MockModalDialogContentComponent>().Render());
                 });
@@ -165,6 +175,7 @@ public class ModalDialogTest : BootstrapBlazorTestBase
         var content = cut.FindComponent<MockModalDialogContentComponent>().Instance;
         var f = content.Context as Foo;
         Assert.Equal("Test_BodyContext", f!.Name);
+        cut.Contains("footer-content-template");
     }
 
     [Fact]

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -51,6 +52,11 @@ public partial class Step
     private IIconTheme? IconTheme { get; set; }
 
     private int _currentStepIndex;
+
+    /// <summary>
+    /// 获得当前步骤索引（只读）
+    /// </summary>
+    public int CurrentStepIndex => _currentStepIndex;
 
     /// <summary>
     /// 获得 组件样式字符串
@@ -115,18 +121,19 @@ public partial class Step
     }
 
     /// <summary>
-    /// 上一步
+    /// 移动到上一步方法 返回当前 StepIndex 值
     /// </summary>
-    public void Prev()
+    public int Prev()
     {
         _currentStepIndex = Math.Max(0, _currentStepIndex - 1);
         StateHasChanged();
+        return _currentStepIndex;
     }
 
     /// <summary>
-    /// 下一步
+    /// 移动到下一步方法 返回当前 StepIndex 值
     /// </summary>
-    public async Task Next()
+    public async Task<int> Next()
     {
         _currentStepIndex = Math.Min(Items.Count, _currentStepIndex + 1);
         if (IsFinished && OnFinishedCallback != null)
@@ -134,10 +141,11 @@ public partial class Step
             await OnFinishedCallback();
         }
         StateHasChanged();
+        return _currentStepIndex;
     }
 
     /// <summary>
-    /// 下一步
+    /// 重置步骤方法
     /// </summary>
     public void Reset()
     {

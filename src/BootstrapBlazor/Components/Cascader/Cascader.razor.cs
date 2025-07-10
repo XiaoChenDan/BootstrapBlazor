@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 
@@ -44,9 +45,6 @@ public partial class Cascader<TValue>
     /// </summary>
     [Parameter]
     [NotNull]
-#if NET6_0_OR_GREATER
-    [EditorRequired]
-#endif
     public IEnumerable<CascaderItem>? Items { get; set; }
 
     /// <summary>
@@ -79,6 +77,31 @@ public partial class Cascader<TValue>
     [Parameter]
     public string? SubMenuIcon { get; set; }
 
+    /// <summary>
+    /// 获得/设置 是否可清除 默认 false
+    /// </summary>
+    [Parameter]
+    public bool IsClearable { get; set; }
+
+    /// <summary>
+    /// 获得/设置 右侧清除图标 默认 fa-solid fa-angle-up
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? ClearIcon { get; set; }
+
+    /// <summary>
+    /// 获得/设置 清除文本内容 OnClear 回调方法 默认 null
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnClearAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 失去焦点回调方法 默认 null
+    /// </summary>
+    [Parameter]
+    public Func<TValue, Task>? OnBlurAsync { get; set; }
+
     [Inject]
     [NotNull]
     private IStringLocalizer<Cascader<TValue>>? Localizer { get; set; }
@@ -87,10 +110,16 @@ public partial class Cascader<TValue>
     [NotNull]
     private IIconTheme? IconTheme { get; set; }
 
-    private string _lastVaslue = string.Empty;
+    private string _lastValue = string.Empty;
 
     private string? SubMenuIconString => CssBuilder.Default("nav-link-right")
         .AddClass(SubMenuIcon, !string.IsNullOrEmpty(SubMenuIcon))
+        .Build();
+
+    private string? ClearClassString => CssBuilder.Default("clear-icon")
+        .AddClass($"text-{Color.ToDescriptionString()}", Color != Color.None)
+        .AddClass($"text-success", IsValid.HasValue && IsValid.Value)
+        .AddClass($"text-danger", IsValid.HasValue && !IsValid.Value)
         .Build();
 
     /// <summary>
@@ -102,15 +131,27 @@ public partial class Cascader<TValue>
 
         Icon ??= IconTheme.GetIconByKey(ComponentIcons.CascaderIcon);
         SubMenuIcon ??= IconTheme.GetIconByKey(ComponentIcons.CascaderSubMenuIcon);
+        ClearIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectClearIcon);
 
-        Items ??= Enumerable.Empty<CascaderItem>();
+        Items ??= [];
 
         PlaceHolder ??= Localizer[nameof(PlaceHolder)];
 
-        if (_lastVaslue != CurrentValueAsString)
+        if (_lastValue != CurrentValueAsString)
         {
-            _lastVaslue = CurrentValueAsString;
+            _lastValue = CurrentValueAsString;
             SetDefaultValue(CurrentValueAsString);
+        }
+    }
+
+    /// <summary>
+    /// 失去焦点时回调方法
+    /// </summary>
+    private async Task OnBlur()
+    {
+        if (OnBlurAsync != null)
+        {
+            await OnBlurAsync(Value);
         }
     }
 
@@ -128,7 +169,7 @@ public partial class Cascader<TValue>
         }
         else
         {
-            CurrentValueAsString = Items.FirstOrDefault()?.Value ?? string.Empty;
+            CurrentValueAsString = string.Empty;
         }
         RefreshDisplayText();
     }
@@ -139,7 +180,7 @@ public partial class Cascader<TValue>
     /// <param name="items"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    private CascaderItem? GetNodeByValue(IEnumerable<CascaderItem> items, string value)
+    private static CascaderItem? GetNodeByValue(IEnumerable<CascaderItem> items, string value)
     {
         foreach (var item in items)
         {
@@ -162,6 +203,7 @@ public partial class Cascader<TValue>
 
     private string? ClassString => CssBuilder.Default("select cascade menu dropdown")
         .AddClass("disabled", IsDisabled)
+        .AddClass("cls", IsClearable)
         .AddClass(CssClass).AddClass(ValidCss)
         .Build();
 
@@ -179,6 +221,8 @@ public partial class Cascader<TValue>
     private string? AppendClassName => CssBuilder.Default("form-select-append")
         .AddClass($"text-{Color.ToDescriptionString()}", Color != Color.None && !IsDisabled)
         .Build();
+
+    private bool GetClearable() => IsClearable && !IsDisabled;
 
     /// <summary>
     /// 选择项是否 Active 方法
@@ -211,7 +255,7 @@ public partial class Cascader<TValue>
         CurrentValueAsString = value;
         if (OnSelectedItemChanged != null)
         {
-            await OnSelectedItemChanged(SelectedItems.ToArray());
+            await OnSelectedItemChanged([.. SelectedItems]);
         }
         if (SelectedItems.Count != 1)
         {
@@ -235,5 +279,15 @@ public partial class Cascader<TValue>
             SetSelectedNodeWithParent(item.Parent, list);
             list.Add(item);
         }
+    }
+
+    private async Task OnClearValue()
+    {
+        if (OnClearAsync != null)
+        {
+            await OnClearAsync();
+        }
+
+        CurrentValue = default;
     }
 }

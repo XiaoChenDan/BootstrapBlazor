@@ -1,11 +1,12 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// IValidComponent 接口
+/// IValidateComponent 接口
 /// </summary>
 public interface IValidateComponent
 {
@@ -32,6 +33,5 @@ public interface IValidateComponent
     /// 显示或者隐藏提示信息方法
     /// </summary>
     /// <param name="results"></param>
-    /// <param name="validProperty">是否为模型验证 true 为属性验证 false 为整个模型验证</param>
-    void ToggleMessage(IEnumerable<ValidationResult> results, bool validProperty);
+    Task ToggleMessage(IReadOnlyCollection<ValidationResult> results);
 }

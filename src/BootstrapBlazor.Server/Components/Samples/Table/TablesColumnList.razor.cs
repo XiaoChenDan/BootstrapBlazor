@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples.Table;
 
@@ -25,23 +26,6 @@ public partial class TablesColumnList
 
     [NotNull]
     private Table<Foo>? TableColumnVisible { get; set; }
-
-    /// <summary>
-    /// IntFormatter
-    /// </summary>
-    /// <param name = "d"></param>
-    /// <returns></returns>
-    private static Task<string> IntFormatter(object? d)
-    {
-        var ret = "";
-        if (d is TableColumnContext<Foo, object?> data && data.Value != null)
-        {
-            var val = (int)data.Value;
-            ret = val.ToString("0.00");
-        }
-
-        return Task.FromResult(ret);
-    }
 
     /// <summary>
     /// OnInitialized 方法

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples.Table;
 
@@ -28,24 +29,21 @@ public partial class TablesFilter
     [NotNull]
     private Table<Foo>? TableSetFilter { get; set; }
 
-    private IEnumerable<SelectedItem> _nameMultiFilterItems = default!;
-
     /// <summary>
-    /// OnInitialized 方法
+    /// <inheritdoc/>
     /// </summary>
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
         Items = Foo.GenerateFoo(FooLocalizer);
-        _nameMultiFilterItems = Items.Select(i => new SelectedItem(i.Name!, i.Name!)).DistinctBy(i => i.Value);
     }
 
     private async Task<List<SelectedItem>> OnGetAddressItemsAsync()
     {
         // 模拟数据库延时
         await Task.Delay(500);
-        return Items.Select(i => new SelectedItem(i.Address!, i.Address!)).DistinctBy(i => i.Value).ToList();
+        return [.. Items.Select(i => new SelectedItem(i.Address!, i.Address!)).DistinctBy(i => i.Value)];
     }
 
     private Task<QueryData<Foo>> OnQueryAsync(QueryPageOptions options)
@@ -66,13 +64,7 @@ public partial class TablesFilter
             isSorted = true;
         }
 
-        // 此段代码可不写，组件内部自行处理
-        if (options.SortName == nameof(Foo.DateTime))
-        {
-            items = items.Sort(options.SortList);
-            isSorted = true;
-        }
-        else if (!string.IsNullOrEmpty(options.SortName))
+        if (!string.IsNullOrEmpty(options.SortName))
         {
             // 外部未进行排序，内部自动进行排序处理
             items = items.Sort(options.SortName, options.SortOrder);

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Components;
 
@@ -53,6 +54,33 @@ public class CalendarTest : BootstrapBlazorTestBase
                 builder.CloseElement();
                 builder.CloseElement();
             });
+        });
+    }
+
+    [Fact]
+    public void HeaderTemplate_Ok()
+    {
+        var cut = Context.RenderComponent<Calendar>(builder =>
+        {
+            builder.Add(a => a.ViewMode, CalendarViewMode.Month);
+            builder.Add(a => a.HeaderTemplate, builder =>
+            {
+                builder.AddContent(0, "HeaderTemplate");
+            });
+            builder.Add(a => a.BodyTemplate, context => builder =>
+            {
+                builder.OpenElement(0, "div");
+                builder.AddAttribute(1, "data-bb-value", context.Values.Count);
+                builder.CloseElement();
+            });
+        });
+
+        Assert.Contains("HeaderTemplate", cut.Markup);
+        Assert.Contains("data-bb-value=\"7\"", cut.Markup);
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ViewMode, CalendarViewMode.Week);
         });
     }
 
@@ -204,5 +232,18 @@ public class CalendarTest : BootstrapBlazorTestBase
             buttons[0].Click();
         });
         Assert.NotEqual(v, DateTime.MinValue);
+    }
+
+    [Fact]
+    public void FirstDayOfWeek_Ok()
+    {
+        var cut = Context.RenderComponent<Calendar>(pb =>
+        {
+            pb.Add(a => a.Value, new DateTime(2025, 02, 20));
+            pb.Add(a => a.FirstDayOfWeek, DayOfWeek.Monday);
+        });
+        var labels = cut.FindAll(".calendar-table thead > tr > th");
+        Assert.Equal("一", labels[0].TextContent);
+        Assert.Equal("日", labels[6].TextContent);
     }
 }

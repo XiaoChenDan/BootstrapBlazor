@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="bunit" Version="1.31.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
-    <PackageReference Include="xunit" Version="2.9.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
-      <PrivateAssets>all</PrivateAssets>
+    <PackageReference Include="bunit" Version="1.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.2">
+    <PackageReference Include="coverlet.collector" Version="6.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\src\BootstrapBlazor.Server\Data\CustomTreeItem.cs" Link="Misc\CustomTreeItem.cs" />
     <Compile Include="..\..\src\BootstrapBlazor.Server\Data\Foo.cs" Link="Misc\Foo.cs" />
     <Compile Include="..\..\src\BootstrapBlazor.Server\Data\TreeFoo.cs" Link="Misc\TreeFoo.cs" />
     <Compile Include="..\..\src\BootstrapBlazor.Server\Extensions\IpExtensions.cs" Link="Extensions\IpExtensions.cs" />

@@ -1,16 +1,105 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using AngleSharp.Dom;
 using Bunit.TestDoubles;
+using Microsoft.AspNetCore.Components.Rendering;
 using System.Reflection;
 using UnitTest.Misc;
 
 namespace UnitTest.Components;
 
-public class TabTest : TabTestBase
+public class TabTest : BootstrapBlazorTestBase
 {
+    protected override void ConfigureServices(IServiceCollection services)
+    {
+        services.AddBootstrapBlazor(op => op.ToastDelay = 2000);
+        services.ConfigureTabItemMenuBindOptions(options =>
+        {
+            options.Binders = new()
+            {
+                { "/Binder", new() { Text = "Index_Binder_Test" } }
+            };
+        });
+    }
+
+    [Fact]
+    public async Task ContextMenu_Ok()
+    {
+        var cut = Context.RenderComponent<ContextMenuZone>(pb =>
+        {
+            pb.AddChildContent<Tab>(pb =>
+            {
+                pb.Add(a => a.ShowContextMenu, true);
+                pb.Add(a => a.ShowContextMenuFullScreen, true);
+                pb.AddChildContent<TabItem>(pb =>
+                {
+                    pb.Add(a => a.IsDisabled, true);
+                    pb.Add(a => a.Text, "Tab1");
+                    pb.Add(a => a.Url, "/Index");
+                    pb.Add(a => a.Closable, true);
+                    pb.Add(a => a.Icon, "fa-solid fa-font-awesome");
+                    pb.Add(a => a.ChildContent, "Tab1-Content");
+                });
+            });
+        });
+
+        var menuItem = cut.Find(".tabs-item");
+        await cut.InvokeAsync(() => menuItem.ContextMenu());
+
+        var item = cut.Find(".dropdown-menu .dropdown-item");
+        Assert.NotNull(item);
+    }
+
+    [Fact]
+    public void ToolbarTemplate_Ok()
+    {
+        var cut = Context.RenderComponent<Tab>(pb =>
+        {
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Tab1");
+                pb.Add(a => a.Url, "/Index");
+                pb.Add(a => a.Closable, true);
+                pb.Add(a => a.Icon, "fa-solid fa-font-awesome");
+                pb.Add(a => a.ChildContent, "Tab1-Content");
+            });
+            pb.Add(a => a.ToolbarTemplate, tab => builder => builder.AddContent(0, "test-toolbar-template"));
+        });
+        cut.DoesNotContain("test-toolbar-template");
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ShowToolbar, true);
+        });
+        cut.Contains("test-toolbar-template");
+    }
+
+    [Fact]
+    public void ToolbarTooltipText_Ok()
+    {
+        var cut = Context.RenderComponent<Tab>(pb =>
+        {
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Tab1");
+                pb.Add(a => a.Url, "/Index");
+                pb.Add(a => a.Closable, true);
+                pb.Add(a => a.Icon, "fa-solid fa-font-awesome");
+                pb.Add(a => a.ChildContent, "Tab1-Content");
+            });
+            pb.Add(a => a.ShowToolbar, true);
+            pb.Add(a => a.RefreshToolbarButtonIcon, "test-refresh-icon");
+            pb.Add(a => a.RefreshToolbarTooltipText, "test-refresh-tooltip-text");
+            pb.Add(a => a.FullscreenToolbarButtonIcon, "test-fullscreen-icon");
+            pb.Add(a => a.FullscreenToolbarTooltipText, "test-fullscreen-tooltip-text");
+        });
+        cut.Contains("test-refresh-icon");
+        cut.Contains("test-refresh-tooltip-text");
+    }
+
     [Fact]
     public void TabItem_Ok()
     {
@@ -26,6 +115,15 @@ public class TabTest : TabTestBase
             });
         });
         Assert.Contains("Tab1-Content", cut.Markup);
+    }
+
+    [Fact]
+    public void TabItem_Null()
+    {
+        var cut = Context.RenderComponent<TabItem>(pb =>
+        {
+            pb.Add(a => a.Text, "Test");
+        });
     }
 
     [Fact]
@@ -74,6 +172,42 @@ public class TabTest : TabTestBase
     }
 
     [Fact]
+    public async Task IsLoopSwitchTabItem_Ok()
+    {
+        var cut = Context.RenderComponent<Tab>(pb =>
+        {
+            pb.Add(a => a.ShowExtendButtons, true);
+            pb.Add(a => a.IsLoopSwitchTabItem, false);
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Tab1");
+                pb.Add(a => a.Url, "/Index");
+                pb.Add(a => a.ChildContent, "Tab1-Content");
+            });
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Tab2");
+                pb.Add(a => a.Url, "/");
+                pb.Add(a => a.ChildContent, "Tab2-Content");
+            });
+        });
+        Assert.Equal("Tab2-Content", cut.Find(".tabs-body .tabs-body-content.d-none").InnerHtml);
+
+        // Click Prev
+        var button = cut.Find(".nav-link-bar.left .nav-link-bar-button");
+        await cut.InvokeAsync(() => button.Click());
+        Assert.Equal("Tab2-Content", cut.Find(".tabs-body .tabs-body-content.d-none").InnerHtml);
+
+        // Click Next
+        button = cut.Find(".nav-link-bar.right .nav-link-bar-button");
+        await cut.InvokeAsync(() => button.Click());
+        Assert.Equal("Tab1-Content", cut.Find(".tabs-body .tabs-body-content.d-none").InnerHtml);
+
+        await cut.InvokeAsync(() => button.Click());
+        Assert.Equal("Tab1-Content", cut.Find(".tabs-body .tabs-body-content.d-none").InnerHtml);
+    }
+
+    [Fact]
     public void ClickTab_Ok()
     {
         var clicked = false;
@@ -106,25 +240,25 @@ public class TabTest : TabTestBase
                 pb.Add(a => a.ChildContent, "Tab2-Content");
             });
         });
-        Assert.Equal("Tab2-Content", cut.Find(".tabs-body .d-none").InnerHtml);
+        Assert.Equal("Tab2-Content", cut.Find(".tabs-body .tabs-body-content.d-none").InnerHtml);
 
         // Click TabItem
         cut.Find(".tabs-item").Click();
         Assert.True(clicked);
 
         // Click Prev
-        var button = cut.Find(".nav-link-bar.left");
+        var button = cut.Find(".nav-link-bar.left .nav-link-bar-button");
         button.Click();
         button.Click();
         button.Click();
-        Assert.Equal("Tab1-Content", cut.Find(".tabs-body .d-none").InnerHtml);
+        Assert.Equal("Tab1-Content", cut.Find(".tabs-body .tabs-body-content.d-none").InnerHtml);
 
         // Click Next
-        button = cut.Find(".nav-link-bar.right");
+        button = cut.Find(".nav-link-bar.right .nav-link-bar-button");
         button.Click();
         button.Click();
         button.Click();
-        Assert.Equal("Tab2-Content", cut.Find(".tabs-body .d-none").InnerHtml);
+        Assert.Equal("Tab2-Content", cut.Find(".tabs-body .tabs-body-content.d-none").InnerHtml);
 
         // Close
         Assert.Null(closedItem);
@@ -171,11 +305,11 @@ public class TabTest : TabTestBase
         cut.InvokeAsync(() => cut.Instance.AddTab("/Cat", null!));
 
         // Click Prev
-        var button = cut.Find(".nav-link-bar.left");
+        var button = cut.Find(".nav-link-bar.left .nav-link-bar-button");
         button.Click();
 
         // Click Next
-        button = cut.Find(".nav-link-bar.right");
+        button = cut.Find(".nav-link-bar.right .nav-link-bar-button");
         button.Click();
 
         button = cut.Find(".tabs-item-close");
@@ -240,7 +374,7 @@ public class TabTest : TabTestBase
     }
 
     [Fact]
-    public void AddTabByUrl_Ok()
+    public async Task AddTabByUrl_Ok()
     {
         var navMan = Context.Services.GetRequiredService<FakeNavigationManager>();
         navMan.NavigateTo("/");
@@ -253,35 +387,35 @@ public class TabTest : TabTestBase
         navMan.NavigateTo("/");
         cut.SetParametersAndRender(pb =>
         {
-            pb.Add(a => a.ExcludeUrls, new String[] { "/" });
+            pb.Add(a => a.ExcludeUrls, ["/"]);
         });
 
         navMan.NavigateTo("/");
         cut.SetParametersAndRender(pb =>
         {
-            pb.Add(a => a.ExcludeUrls, new String[] { "" });
+            pb.Add(a => a.ExcludeUrls, [""]);
         });
 
         navMan.NavigateTo("/Cat");
         cut.SetParametersAndRender(pb =>
         {
-            pb.Add(a => a.ExcludeUrls, new String[] { "/", "Cat" });
+            pb.Add(a => a.ExcludeUrls, ["/", "Cat"]);
         });
 
         navMan.NavigateTo("/");
-        cut.InvokeAsync(() => cut.Instance.AddTab(new Dictionary<string, object?>
+        await cut.InvokeAsync(() => cut.Instance.AddTab(new Dictionary<string, object?>
         {
             ["Text"] = "Cat",
             ["Url"] = "Cat"
         }));
         cut.SetParametersAndRender(pb =>
         {
-            pb.Add(a => a.ExcludeUrls, new String[] { "/Test" });
+            pb.Add(a => a.ExcludeUrls, ["/Test"]);
         });
-        cut.InvokeAsync(() => cut.Instance.CloseCurrentTab());
+        await cut.InvokeAsync(() => cut.Instance.CloseCurrentTab());
 
         // AddTab
-        cut.InvokeAsync(() => cut.Instance.AddTab(new Dictionary<string, object?>
+        await cut.InvokeAsync(() => cut.Instance.AddTab(new Dictionary<string, object?>
         {
             ["Text"] = "Cat",
             ["Url"] = null,
@@ -293,14 +427,16 @@ public class TabTest : TabTestBase
         Assert.NotNull(item);
         Assert.Equal("", item.Url);
 
-        cut.InvokeAsync(() => cut.Instance.RemoveTab(item!));
+        await cut.InvokeAsync(() => cut.Instance.RemoveTab(item!));
         item = cut.Instance.GetActiveTab();
         Assert.NotNull(item);
         Assert.Equal("Cat", item.Url);
 
-        cut.InvokeAsync(() => cut.Instance.RemoveTab(item!));
+        await cut.InvokeAsync(() => cut.Instance.RemoveTab(item!));
         item = cut.Instance.GetActiveTab();
         Assert.Null(item);
+
+        await cut.InvokeAsync(() => cut.Instance.CloseCurrentTab());
     }
 
     [Fact]
@@ -328,7 +464,7 @@ public class TabTest : TabTestBase
         });
         var nav = cut.Services.GetRequiredService<FakeNavigationManager>();
         nav.NavigateTo("/Binder");
-        cut.Contains("<div class=\"tabs-body-content\">Binder</div>");
+        cut.Contains("Binder");
 
         var items = cut.Instance.Items;
         Assert.Equal(2, items.Count());
@@ -357,8 +493,113 @@ public class TabTest : TabTestBase
         {
             var instance = cut.Instance;
             var mi = instance.GetType().GetMethod("GetMenuItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            mi.Invoke(instance, new object[] { "/" });
+            mi.Invoke(instance, ["/"]);
         });
+    }
+
+    [Fact]
+    public async Task IsDisabled_Ok()
+    {
+        var cut = Context.RenderComponent<Tab>(pb =>
+        {
+            pb.Add(a => a.ClickTabToNavigation, false);
+
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Text1");
+                pb.Add(a => a.ChildContent, builder => builder.AddContent(0, "Test1"));
+                pb.Add(a => a.Icon, "fa fa-fa");
+                pb.Add(a => a.IsDisabled, true);
+            });
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Text2");
+                pb.AddChildContent<DisableTabItemButton>();
+            });
+        });
+        var tabItems = cut.FindAll(".tabs-item");
+        Assert.Contains("tabs-item disabled", tabItems[0].OuterHtml);
+        Assert.DoesNotContain("tabs-item disabled", tabItems[1].OuterHtml);
+
+        var button = cut.FindComponent<DisableTabItemButton>();
+        Assert.NotNull(button);
+
+        await cut.InvokeAsync(() => button.Instance.OnDisabledTabItem());
+        tabItems = cut.FindAll(".tabs-item");
+        Assert.Contains("tabs-item disabled", tabItems[1].OuterHtml);
+    }
+
+    [Fact]
+    public void SetDisabled_Ok()
+    {
+        var cut = Context.RenderComponent<TabItem>();
+        cut.Instance.SetDisabled(true);
+    }
+
+    [Fact]
+    public async Task TabStyle_Chrome_Ok()
+    {
+        var clicked = false;
+        var cut = Context.RenderComponent<Tab>(pb =>
+        {
+            pb.Add(a => a.TabStyle, TabStyle.Chrome);
+            pb.Add(a => a.OnClickTabItemAsync, item =>
+            {
+                clicked = true;
+                return Task.CompletedTask;
+            });
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Text1");
+                pb.Add(a => a.ChildContent, builder => builder.AddContent(0, "Test1"));
+                pb.Add(a => a.Icon, "fa fa-fa");
+            });
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.IsActive, true);
+                pb.Add(a => a.Text, "Text2");
+                pb.AddChildContent<DisableTabItemButton>();
+            });
+        });
+        cut.Contains("tabs tabs-top tabs-chrome");
+        cut.Contains("tabs-item-wrap active");
+        cut.Contains("<i class=\"tab-corner tab-corner-left\"></i>");
+        cut.Contains("<i class=\"tab-corner tab-corner-right\"></i>");
+
+        var button = cut.FindComponent<DisableTabItemButton>();
+        Assert.NotNull(button);
+        await cut.InvokeAsync(() => button.Instance.OnDisabledTabItem());
+
+        // trigger click
+        var link = cut.Find("a");
+        await cut.InvokeAsync(() => link.Click());
+        Assert.True(clicked);
+
+        // placement top and chrome style
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.Placement, Placement.Left);
+        });
+        Assert.Equal(TabStyle.Default, cut.Instance.TabStyle);
+    }
+
+    [Fact]
+    public void TabStyle_Capsule_Ok()
+    {
+        var cut = Context.RenderComponent<Tab>(pb =>
+        {
+            pb.Add(a => a.TabStyle, TabStyle.Capsule);
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Text1");
+                pb.Add(a => a.ChildContent, builder => builder.AddContent(0, "Test1"));
+                pb.Add(a => a.Icon, "fa fa-fa");
+            });
+        });
+        cut.Contains("tabs tabs-top tabs-capsule");
+        cut.Contains("tabs-item-wrap active");
+        cut.DoesNotContain("<i class=\"tab-corner tab-corner-left\"></i>");
+        cut.DoesNotContain("<i class=\"tab-corner tab-corner-right\"></i>");
     }
 
     [Fact]
@@ -375,7 +616,7 @@ public class TabTest : TabTestBase
         {
             var instance = cut.Instance;
             var mi = instance.GetType().GetMethod("GetMenuItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            mi.Invoke(instance, new object[] { "/" });
+            mi.Invoke(instance, ["/"]);
         });
     }
 
@@ -414,10 +655,9 @@ public class TabTest : TabTestBase
         });
         Assert.Contains("Tab1-Content", cut.Markup);
         Assert.DoesNotContain("Tab2-Content", cut.Markup);
-        Assert.DoesNotContain("tabs-body-content", cut.Markup);
 
         // 提高代码覆盖率
-        cut.InvokeAsync(() => cut.Instance.CloseOtherTabs());
+        cut.InvokeAsync(cut.Instance.CloseOtherTabs);
     }
 
     [Fact]
@@ -473,13 +713,15 @@ public class TabTest : TabTestBase
         cut.DoesNotContain("Tab2-Content");
 
         // 点击第二个 TabItem
-        var item = cut.FindAll(".tabs-item").Last();
+        var items = cut.FindAll(".tabs-item");
+        var item = items[items.Count - 1];
         cut.InvokeAsync(() => item.Click());
         cut.Contains("Tab1-Content");
         cut.Contains("Tab2-Content");
 
         // 再点击第一个 TabItem
-        item = cut.FindAll(".tabs-item").First();
+        items = cut.FindAll(".tabs-item");
+        item = items[0];
         cut.InvokeAsync(() => item.Click());
         cut.Contains("Tab1-Content");
         cut.Contains("Tab2-Content");
@@ -511,26 +753,24 @@ public class TabTest : TabTestBase
     }
 
     [Fact]
-    public void ActiveTab_Ok()
+    public async Task ActiveTab_Ok()
     {
         var cut = Context.RenderComponent<Tab>(pb =>
         {
             pb.Add(a => a.AdditionalAssemblies, new Assembly[] { GetType().Assembly });
             pb.Add(a => a.DefaultUrl, "/");
         });
-        cut.InvokeAsync(() => cut.Instance.ActiveTab(0));
+        await cut.InvokeAsync(() => cut.Instance.ActiveTab(0));
+
         var item = cut.Instance.GetActiveTab();
         Assert.NotNull(item);
-        cut.InvokeAsync(() =>
-        {
-            if (item != null)
-            {
-                cut.Instance.ActiveTab(item);
-            }
-        });
-        cut.InvokeAsync(() => cut.Instance.RemoveTab(item!));
+
+        await cut.InvokeAsync(() => cut.Instance.ActiveTab(item));
+
+        // 移除标签导航到默认标签
+        await cut.InvokeAsync(() => cut.Instance.RemoveTab(item!));
         item = cut.Instance.GetActiveTab();
-        Assert.Null(item);
+        Assert.NotNull(item);
     }
 
     [Fact]
@@ -561,12 +801,59 @@ public class TabTest : TabTestBase
         var cut = Context.RenderComponent<Tab>(pb =>
         {
             pb.Add(a => a.ShowExtendButtons, true);
-            pb.Add(a => a.ButtonTemplate, new RenderFragment(builder =>
+            pb.Add(a => a.ButtonTemplate, tab => builder =>
             {
                 builder.AddContent(0, new MarkupString("<div>test-button</div>"));
-            }));
+            });
         });
         cut.Contains("<div>test-button</div>");
+    }
+
+    [Fact]
+    public void ShowNavigatorButtons_Ok()
+    {
+        var cut = Context.RenderComponent<Tab>(pb =>
+        {
+            pb.Add(a => a.AdditionalAssemblies, new Assembly[] { GetType().Assembly });
+            pb.Add(a => a.ShowNavigatorButtons, true);
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Tab1");
+                pb.Add(a => a.Url, "/Cat");
+            });
+        });
+
+        var links = cut.FindAll(".nav-link-bar");
+        Assert.Equal(2, links.Count);
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ShowNavigatorButtons, false);
+        });
+        links = cut.FindAll(".nav-link-bar");
+        Assert.Empty(links);
+    }
+
+    [Fact]
+    public void ShowActiveBar_Ok()
+    {
+        var cut = Context.RenderComponent<Tab>(pb =>
+        {
+            pb.Add(a => a.AdditionalAssemblies, new Assembly[] { GetType().Assembly });
+            pb.Add(a => a.ShowActiveBar, true);
+            pb.AddChildContent<TabItem>(pb =>
+            {
+                pb.Add(a => a.Text, "Tab1");
+                pb.Add(a => a.Url, "/Cat");
+            });
+        });
+        cut.Contains("<div class=\"tabs-active-bar\"></div>");
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ShowActiveBar, false);
+        });
+        cut.DoesNotContain("<div class=\"tabs-active-bar\"></div>");
     }
 
     [Fact]
@@ -767,5 +1054,146 @@ public class TabTest : TabTestBase
 
         var button = cut.Find(".btn-fs");
         await cut.InvokeAsync(() => button.Click());
+
+        var tab = cut.FindComponent<Tab>();
+        tab.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ShowFullScreen, false);
+        });
+        cut.DoesNotContain("btn btn-fs");
+    }
+
+    [Fact]
+    public void BeforeNavigatorTemplate_Ok()
+    {
+        var cut = Context.RenderComponent<BootstrapBlazorRoot>(pb =>
+        {
+            pb.AddChildContent<Tab>(pb =>
+            {
+                pb.Add(a => a.BeforeNavigatorTemplate, tab => builder => builder.AddContent(0, "before-navigator-template"));
+                pb.Add(a => a.AfterNavigatorTemplate, tab => builder => builder.AddContent(0, "after-navigator-template"));
+                pb.AddChildContent<TabItem>(pb =>
+                {
+                    pb.Add(a => a.ShowFullScreen, true);
+                    pb.Add(a => a.Text, "Text1");
+                    pb.Add(a => a.ChildContent, builder => builder.AddContent(0, "Test1"));
+                });
+            });
+        });
+        cut.Contains("before-navigator-template");
+        cut.Contains("after-navigator-template");
+    }
+
+    [Fact]
+    public async Task ShowToolbar_Ok()
+    {
+        var clicked = false;
+        var cut = Context.RenderComponent<BootstrapBlazorRoot>(pb =>
+        {
+            pb.AddChildContent<Tab>(pb =>
+            {
+                pb.Add(a => a.ShowToolbar, false);
+                pb.AddChildContent<TabItem>(pb =>
+                {
+                    pb.Add(a => a.ShowFullScreen, true);
+                    pb.Add(a => a.Text, "Text1");
+                    pb.Add(a => a.ChildContent, builder => builder.AddContent(0, "Test1"));
+                });
+                pb.Add(a => a.OnToolbarRefreshCallback, () =>
+                {
+                    clicked = true;
+                    return Task.CompletedTask;
+                });
+            });
+        });
+        cut.DoesNotContain("tabs-nav-toolbar");
+
+        var tab = cut.FindComponent<Tab>();
+        tab.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ShowToolbar, true);
+        });
+        cut.Contains("tabs-nav-toolbar");
+        cut.Contains("tabs-nav-toolbar-refresh");
+        cut.Contains("tabs-nav-toolbar-fs");
+
+        // 点击刷新按钮
+        var button = cut.Find(".tabs-nav-toolbar-refresh");
+        await cut.InvokeAsync(() => button.Click());
+        Assert.True(clicked);
+
+        clicked = false;
+        var item = cut.FindComponent<TabItem>();
+        await cut.InvokeAsync(() => tab.Instance.Refresh(item.Instance));
+        Assert.True(clicked);
+
+        tab.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ShowRefreshToolbarButton, false);
+        });
+        cut.DoesNotContain("tabs-nav-toolbar-refresh");
+
+        tab.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ShowFullscreenToolbarButton, false);
+        });
+        cut.DoesNotContain("tabs-nav-toolbar-fs");
+    }
+
+    [Fact]
+    public void TabHeader_Ok()
+    {
+        var cut = Context.RenderComponent<BootstrapBlazorRoot>(pb =>
+        {
+            pb.AddChildContent<MockTabHeader>();
+            pb.AddChildContent<Tab>(pb =>
+            {
+                pb.Add(a => a.ShowToolbar, false);
+                pb.AddChildContent<TabItem>(pb =>
+                {
+                    pb.Add(a => a.ShowFullScreen, true);
+                    pb.Add(a => a.Text, "Text1");
+                    pb.Add(a => a.ChildContent, builder => builder.AddContent(0, "Test1"));
+                });
+            });
+        });
+        var header = cut.FindComponent<MockTabHeader>();
+        var tab = cut.FindComponent<Tab>();
+        var headerElement = cut.Find(".tabs-header");
+        Assert.NotNull(headerElement);
+
+        tab.Instance.SetTabHeader(header.Instance);
+        tab.SetParametersAndRender();
+        tab.DoesNotContain("tabs-header");
+    }
+
+    class DisableTabItemButton : ComponentBase
+    {
+        [CascadingParameter, NotNull]
+        private TabItem? TabItem { get; set; }
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenComponent<Button>(0);
+            builder.AddAttribute(1, nameof(Button.OnClickWithoutRender), OnDisabledTabItem);
+            builder.CloseComponent();
+        }
+
+        public Task OnDisabledTabItem()
+        {
+            TabItem.SetDisabled(true);
+            return Task.CompletedTask;
+        }
+    }
+
+    class MockTabHeader : ComponentBase, ITabHeader
+    {
+        public string GetId() => "MockTabHeader";
+
+        private RenderFragment? _renderFragment;
+
+        public void Render(RenderFragment renderFragment) => _renderFragment = renderFragment;
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder) => builder.AddContent(0, _renderFragment);
     }
 }

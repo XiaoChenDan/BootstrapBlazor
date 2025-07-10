@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Configuration;
 
@@ -28,6 +29,7 @@ public class BootstrapBlazorTestBase : TestBase, IDisposable
             op.IgnoreLocalizerMissing = false;
         });
         services.AddSingleton<ILookupService, FooLookupService>();
+        services.AddKeyedSingleton<ILookupService, FooLookupServiceAsync>("FooLookupAsync");
     }
 
     protected virtual void ConfigureConfiguration(IServiceCollection services)
@@ -50,11 +52,33 @@ public class BootstrapBlazorTestBase : TestBase, IDisposable
 
             if (key == "FooLookup")
             {
-                ret = new SelectedItem[]
-                {
-                    new("v1", "LookupService-Test-1"),
-                    new("v2", "LookupService-Test-2")
-                };
+                ret =
+                [
+                    new SelectedItem("v1", "LookupService-Test-1"),
+                    new SelectedItem("v2", "LookupService-Test-2")
+                ];
+            }
+            return ret;
+        }
+    }
+
+    class FooLookupServiceAsync : LookupServiceBase
+    {
+        public override IEnumerable<SelectedItem>? GetItemsByKey(string? key, object? data) => null;
+
+        public override async Task<IEnumerable<SelectedItem>?> GetItemsByKeyAsync(string? key, object? data)
+        {
+            await Task.Delay(300);
+
+            IEnumerable<SelectedItem>? ret = null;
+
+            if (key == "FooLookup")
+            {
+                ret =
+                [
+                    new SelectedItem("v1", "LookupService-Test-1-async"),
+                    new SelectedItem("v2", "LookupService-Test-2-async")
+                ];
             }
             return ret;
         }

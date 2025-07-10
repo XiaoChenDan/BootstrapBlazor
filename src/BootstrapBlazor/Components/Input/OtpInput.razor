@@ -1,0 +1,11 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits ValidateBase<string>
+
+<div @attributes="AdditionalAttributes" id="@Id" class="@ClassString">
+    @for (var index = 0; index < Digits; index++)
+    {
+        <input type="@TypeString" class="@InputClassString"
+               maxlength="@MaxLengthString" inputmode="@TypeModeString" placeholder="@PlaceHolder"
+               value="@GetValueString(index)" readonly="@ReadonlyString" disabled="@DisabledString" />
+    }
+</div>

@@ -1,15 +1,10 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
-/// <summary>
-/// 构造函数
-/// </summary>
-/// <param name="fieldName">字段名称</param>
-/// <param name="fieldType">字段类型</param>
-/// <param name="fieldText">显示文字</param>
 class InternalTableColumn(string fieldName, Type fieldType, string? fieldText = null) : ITableColumn
 {
     private string FieldName { get; } = fieldName;
@@ -73,22 +68,57 @@ class InternalTableColumn(string fieldName, Type fieldType, string? fieldText = 
     public bool? IsVisibleWhenEdit { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 是否显示标签 Tooltip 多用于标签文字过长导致裁减时使用 默认 null
+    /// <inheritdoc/>
+    /// </summary>
+    public bool? Required { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public bool? IsRequiredWhenAdd { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public bool? IsRequiredWhenEdit { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public string? RequiredErrorMessage { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
     /// </summary>
     public bool? ShowLabelTooltip { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public string? CssClass { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public BreakPoint ShownWithBreakPoint { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public RenderFragment<object>? Template { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public RenderFragment<object>? SearchTemplate { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public RenderFragment? FilterTemplate { get; set; }
 
     /// <summary>
-    /// 获得/设置 表头模板
+    /// <inheritdoc/>
     /// </summary>
     public RenderFragment<ITableColumn>? HeaderTemplate { get; set; }
 
@@ -97,66 +127,111 @@ class InternalTableColumn(string fieldName, Type fieldType, string? fieldText = 
     /// </summary>
     public RenderFragment<ITableColumn>? ToolboxTemplate { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public IFilter? Filter { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public string? FormatString { get; set; }
 
     /// <summary>
-    /// 获得/设置 placeholder 文本 默认为 null
+    /// <inheritdoc/>
     /// </summary>
     public string? PlaceHolder { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public Func<object?, Task<string?>>? Formatter { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public Alignment? Align { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public bool? ShowTips { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public Func<object?, Task<string?>>? GetTooltipTextCallback { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public Type PropertyType { get; } = fieldType;
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     [ExcludeFromCodeCoverage]
     public bool Editable { get; set; } = true;
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public string? Step { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public int Rows { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public int Cols { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     [NotNull]
     public string? Text { get; set; } = fieldText;
 
     public RenderFragment<object>? EditTemplate { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件类型 默认为 null
+    /// <inheritdoc/>
     /// </summary>
     public Type? ComponentType { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件自定义类型参数集合 默认为 null
+    /// <inheritdoc/>
     /// </summary>
     public IEnumerable<KeyValuePair<string, object>>? ComponentParameters { get; set; }
 
     /// <summary>
-    /// 获得/设置 额外数据源一般用于下拉框或者 CheckboxList 这种需要额外配置数据源组件使用
+    /// <inheritdoc/>
     /// </summary>
     public IEnumerable<SelectedItem>? Items { get; set; }
 
     /// <summary>
-    /// 获得/设置 显示顺序
+    /// <inheritdoc/>
     /// </summary>
     public int Order { get; set; }
 
     /// <summary>
-    /// 获得/设置 字典数据源 常用于外键自动转换为名称操作
+    /// <inheritdoc/>
     /// </summary>
     public IEnumerable<SelectedItem>? Lookup { get; set; }
 
     /// <summary>
-    /// 获得/设置 字段数据源下拉框是否显示搜索栏 默认 false 不显示
+    /// <inheritdoc/>
     /// </summary>
     public bool ShowSearchWhenSelect { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    [Obsolete("已弃用，请删除；Deprecated, please delete")]
+    [ExcludeFromCodeCoverage]
+    public bool IsFixedSearchWhenSelect { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
@@ -179,22 +254,27 @@ class InternalTableColumn(string fieldName, Type fieldType, string? fieldText = 
     public object? LookupServiceData { get; set; }
 
     /// <summary>
-    /// 获得/设置 单元格回调方法
+    /// <inheritdoc/>
+    /// </summary>
+    public ILookupService? LookupService { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
     /// </summary>
     public Action<TableCellArgs>? OnCellRender { get; set; }
 
     /// <summary>
-    /// 获得/设置 自定义验证集合
+    /// <inheritdoc/>
     /// </summary>
     public List<IValidator>? ValidateRules { get; set; }
 
     /// <summary>
-    /// 获得/设置 当前属性分组
+    /// <inheritdoc/>
     /// </summary>
     public string? GroupName { get; set; }
 
     /// <summary>
-    /// 获得/设置 当前属性分组排序 默认 0
+    /// <inheritdoc/>
     /// </summary>
     public int GroupOrder { get; set; }
 
@@ -228,12 +308,23 @@ class InternalTableColumn(string fieldName, Type fieldType, string? fieldText = 
     /// </summary>
     public bool IsMarkupString { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public string GetDisplayName() => Text;
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public string GetFieldName() => FieldName;
 
     /// <summary>
-    /// 自定义实现搜索方法
+    /// <inheritdoc/>
     /// </summary>
     public Func<ITableColumn, string?, SearchFilterAction>? CustomSearch { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public bool? IgnoreWhenExport { get; set; }
 }

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -28,6 +29,9 @@ public sealed partial class Cascaders
 
     [NotNull]
     private ConsoleLogger? NormalLogger { get; set; }
+
+    [NotNull]
+    private ValidateForm? ValidateForm1 { get; set; }
 
     private List<CascaderItem> _items = [];
 
@@ -83,6 +87,11 @@ public sealed partial class Cascaders
             Type ="Func<CascaderItem[], Task>"
         }
     ];
+
+    private void OnValidate()
+    {
+        ValidateForm1.Validate();
+    }
 
     /// <summary>
     /// 获得属性方法

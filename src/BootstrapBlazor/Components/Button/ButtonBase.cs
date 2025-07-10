@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Web;
 
@@ -40,11 +41,6 @@ public abstract class ButtonBase : TooltipWrapperBase
     /// 获得 按钮 tab index 属性
     /// </summary>
     protected string? Tab => IsDisabled ? "-1" : null;
-
-    /// <summary>
-    /// 获得/设置 实际按钮渲染图标
-    /// </summary>
-    protected string? ButtonIcon { get; set; }
 
     /// <summary>
     /// 获得/设置 按钮风格枚举
@@ -172,8 +168,6 @@ public abstract class ButtonBase : TooltipWrapperBase
     {
         base.OnInitialized();
 
-        ButtonIcon = Icon;
-
         if (IsAsync && ValidateForm != null)
         {
             // 开启异步操作时与 ValidateForm 联动
@@ -189,11 +183,6 @@ public abstract class ButtonBase : TooltipWrapperBase
         base.OnParametersSet();
 
         LoadingIcon ??= IconTheme.GetIconByKey(ComponentIcons.ButtonLoadingIcon);
-
-        if (!IsAsyncLoading)
-        {
-            ButtonIcon = Icon;
-        }
 
         if (Tooltip != null && !string.IsNullOrEmpty(TooltipText))
         {
@@ -259,7 +248,6 @@ public abstract class ButtonBase : TooltipWrapperBase
     internal void TriggerAsync(bool loading)
     {
         IsAsyncLoading = loading;
-        ButtonIcon = loading ? LoadingIcon : Icon;
         SetDisable(loading);
     }
 

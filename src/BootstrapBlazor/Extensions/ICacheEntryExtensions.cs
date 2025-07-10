@@ -1,39 +1,56 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Caching.Memory;
+using System.Reflection;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// ICacheEntry 扩展类
+/// <see cref="ICacheEntry"/> 扩展方法
 /// </summary>
-[ExcludeFromCodeCoverage]
-internal static class ICacheEntryExtensions
+public static class ICacheEntryExtensions
 {
     /// <summary>
-    /// 设置滑动过期时间
+    /// 获得缓存项 <see cref="ICacheEntry"/> 最后访问时间
     /// </summary>
     /// <param name="entry"></param>
-    /// <param name="offset">默认 null 内部设置为 10 秒</param>
+    /// <param name="force"></param>
     /// <returns></returns>
-    public static ICacheEntry SetSlidingExpirationForDynamicAssembly(this ICacheEntry entry, TimeSpan? offset = null)
+    public static DateTime? GetLastAccessed(this ICacheEntry entry, bool force = false)
     {
-        entry.SlidingExpiration = offset ?? TimeSpan.FromSeconds(10);
-        return entry;
+        if (force)
+        {
+            _lastAccessedProperty = null;
+        }
+        _lastAccessedProperty ??= entry.GetType().GetProperty("LastAccessed", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        DateTime? ret = null;
+        if (_lastAccessedProperty != null)
+        {
+            var v = _lastAccessedProperty.GetValue(entry);
+            if (v is DateTime val)
+            {
+                ret = val;
+            }
+        }
+        return ret;
     }
 
+    private static PropertyInfo? _lastAccessedProperty = null;
+
     /// <summary>
-    /// 设置 动态程序集滑动过期时间 10 秒
+    /// Sets default sliding expiration if no expiration is configured
     /// </summary>
-    /// <param name="entry"></param>
-    /// <param name="type"></param>
-    public static void SetDynamicAssemblyPolicy(this ICacheEntry entry, Type? type)
+    internal static void SetDefaultSlidingExpiration(this ICacheEntry entry, TimeSpan offset)
     {
-        if (type?.Assembly.IsDynamic ?? false)
+        if (entry.SlidingExpiration == null && entry.AbsoluteExpiration == null
+            && entry.AbsoluteExpirationRelativeToNow == null
+            && entry.Priority != CacheItemPriority.NeverRemove)
         {
-            entry.SetSlidingExpiration(TimeSpan.FromSeconds(10));
+            entry.SetSlidingExpiration(offset);
         }
     }
 }

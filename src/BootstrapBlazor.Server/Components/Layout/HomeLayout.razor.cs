@@ -1,8 +1,8 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace BootstrapBlazor.Server.Components.Layout;
@@ -17,17 +17,7 @@ public partial class HomeLayout
     [NotNull]
     private string? OS { get; set; }
 
-    private string? Runtime { get; set; }
-
     private string SelectedCulture { get; set; } = CultureInfo.CurrentUICulture.Name;
-
-    private CancellationTokenSource DisposeTokenSource { get; } = new();
-
-    [Inject]
-    [NotNull]
-    private IOptions<BootstrapBlazorOptions>? BootstrapBlazorOptions { get; set; }
-
-    private ConnectionHubOptions _options = default!;
 
     /// <summary>
     /// <inheritdoc />
@@ -50,45 +40,6 @@ public partial class HomeLayout
         {
             OS = "Unknown";
         }
-
-        _options = BootstrapBlazorOptions.Value.ConnectionHubOptions;
-        UpdateRuntime();
-    }
-
-    /// <summary>
-    /// <inheritdoc />
-    /// </summary>
-    /// <param name="firstRender"></param>
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _ = Task.Run(async () =>
-            {
-                while (!DisposeTokenSource.IsCancellationRequested)
-                {
-                    try
-                    {
-                        await Task.Delay(1000, DisposeTokenSource.Token);
-                    }
-                    catch (TaskCanceledException)
-                    {
-
-                    }
-                    if (!DisposeTokenSource.IsCancellationRequested)
-                    {
-                        UpdateRuntime();
-                        await InvokeAsync(StateHasChanged);
-                    }
-                }
-            });
-        }
-    }
-
-    private void UpdateRuntime()
-    {
-        var ts = DateTimeOffset.Now - Cache.GetStartTime();
-        Runtime = ts.ToString("dd\\.hh\\:mm\\:ss");
     }
 
     private Task SetLang(string cultureName)
@@ -96,7 +47,7 @@ public partial class HomeLayout
         // 使用 api 方式 适用于 Server-Side 模式
         if (SelectedCulture != cultureName)
         {
-            var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+            var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.SafeUnescaped);
             var query = $"?culture={Uri.EscapeDataString(cultureName)}&redirectUri={Uri.EscapeDataString(uri)}";
 
             // use a path that matches your culture redirect controller from the previous steps
@@ -104,23 +55,5 @@ public partial class HomeLayout
         }
 
         return Task.CompletedTask;
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            DisposeTokenSource.Cancel();
-            DisposeTokenSource.Dispose();
-        }
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
     }
 }

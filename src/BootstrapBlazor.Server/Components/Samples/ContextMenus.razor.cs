@@ -1,4 +1,9 @@
-﻿namespace BootstrapBlazor.Server.Components.Samples;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
+
+namespace BootstrapBlazor.Server.Components.Samples;
 
 /// <summary>
 /// ContextMenu 组件示例
@@ -36,15 +41,22 @@ public partial class ContextMenus
         Items = Foo.GenerateFoo(LocalizerFoo);
     }
 
+    TreeFoo? SelectModel = default;
     private Task OnBeforeShowCallback(object? item)
     {
         if (item is TreeFoo foo)
         {
             _callbackLogger.Log($"{foo.Text} trigger");
+            SelectModel = foo;
         }
         return Task.CompletedTask;
     }
 
+
+    Task OnCopySub(ContextMenuItem item, object value)
+    {
+        return Task.CompletedTask;
+    }
     private bool OnDisabledCallback(ContextMenuItem item, object? context)
     {
         var ret = false;

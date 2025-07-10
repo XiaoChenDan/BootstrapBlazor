@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Options;
 
@@ -30,15 +31,12 @@ public partial class Header
     private string? IntroductionText { get; set; }
 
     [NotNull]
-    private string? ComponentsText { get; set; }
-
-    [NotNull]
     private string? DownloadText { get; set; }
 
     [NotNull]
     private string? TutorialsText { get; set; }
 
-    private string DownloadUrl => $"{WebsiteOption.CurrentValue.GiteeRepositoryUrl}/repository/archive/main.zip";
+    private const string DownloadUrl = "https://github.com/dotnetcore/BootstrapBlazor/releases?wt.mc_id=DT-MVP-5004174";
 
     private string _versionString = "";
 
@@ -52,10 +50,7 @@ public partial class Header
         DownloadText ??= Localizer[nameof(DownloadText)];
         HomeText ??= Localizer[nameof(HomeText)];
         IntroductionText ??= Localizer[nameof(IntroductionText)];
-        ComponentsText ??= Localizer[nameof(ComponentsText)];
         TutorialsText ??= Localizer[nameof(TutorialsText)];
         _versionString = $"v{PackageVersionService.Version}";
     }
-
-    private Task OnThemeChangedAsync(string themeName) => InvokeVoidAsync("updateTheme", themeName);
 }

@@ -1,10 +1,9 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using Microsoft.Extensions.Localization;
 using System.Collections;
-using System.Reflection;
 
 namespace BootstrapBlazor.Components;
 
@@ -97,9 +96,11 @@ public partial class CheckboxList<TValue> : ValidateBase<TValue>
     [Parameter]
     public Func<Task>? OnMaxSelectedCountExceed { get; set; }
 
-    [Inject]
-    [NotNull]
-    private IStringLocalizerFactory? LocalizerFactory { get; set; }
+    /// <summary>
+    /// 获得/设置 项模板
+    /// </summary>
+    [Parameter]
+    public RenderFragment<SelectedItem>? ItemTemplate { get; set; }
 
     /// <summary>
     /// 获得 当前选项是否被禁用
@@ -120,23 +121,7 @@ public partial class CheckboxList<TValue> : ValidateBase<TValue>
         EnsureParameterValid();
 
         // 处理 Required 标签
-        if (EditContext != null && FieldIdentifier != null)
-        {
-            var pi = FieldIdentifier.Value.Model.GetType().GetPropertyByName(FieldIdentifier.Value.FieldName);
-            if (pi != null)
-            {
-                var required = pi.GetCustomAttribute<RequiredAttribute>(true);
-                if (required != null)
-                {
-                    Rules.Add(new RequiredValidator()
-                    {
-                        LocalizerFactory = LocalizerFactory,
-                        ErrorMessage = required.ErrorMessage,
-                        AllowEmptyString = required.AllowEmptyStrings
-                    });
-                }
-            }
-        }
+        AddRequiredValidator();
     }
 
     /// <summary>
@@ -187,7 +172,7 @@ public partial class CheckboxList<TValue> : ValidateBase<TValue>
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    protected override string? FormatValueAsString(TValue value)
+    protected override string? FormatValueAsString(TValue? value)
     {
         string? ret = null;
         if (ValueType == typeof(string))
@@ -314,4 +299,8 @@ public partial class CheckboxList<TValue> : ValidateBase<TValue>
             throw new NotSupportedException();
         }
     }
+
+    private RenderFragment? GetChildContent(SelectedItem item) => ItemTemplate == null
+        ? null
+        : ItemTemplate(item);
 }

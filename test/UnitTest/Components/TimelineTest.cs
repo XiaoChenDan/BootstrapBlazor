@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Components;
 
@@ -60,5 +61,32 @@ public class TimelineTest : BootstrapBlazorTestBase
         Assert.Contains("fa-solid fa-house", html);
         Assert.Contains("card-body", html);
         Assert.Matches("bg-dark(.*?)text-danger", html.Replace("\r", "").Replace("\n", ""));
+    }
+
+    [Fact]
+    public void ItemDescriptionTemplate_Ok()
+    {
+        var items = new List<TimelineItem>()
+        {
+            new()
+            {
+                Color = Color.Danger, Content = "first item", Icon = "fa-solid fa-house", DescriptionTemplate = pb =>
+                {
+                    pb.OpenElement(0, "div");
+                    pb.AddContent(1, "first description template");
+                    pb.CloseElement();
+                }
+            },
+            new()
+            {
+                Color = Color.None, Content = "no color item", Description = "first description", Icon = "fa-solid fa-house"
+            }
+        };
+
+        var cut = Context.RenderComponent<Timeline>(pb =>
+        {
+            pb.Add(x => x.Items, items);
+        });
+        Assert.Contains("first description template", cut.Markup);
     }
 }

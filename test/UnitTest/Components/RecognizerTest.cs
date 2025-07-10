@@ -1,6 +1,9 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
+
+using System.Runtime.CompilerServices;
 
 namespace UnitTest.Components;
 
@@ -78,8 +81,10 @@ public class RecognizerTest : SpeechTestBase
         cut.SetParametersAndRender(pb =>
         {
             pb.Add(a => a.Show, true);
+            pb.Add(a => a.ShowUsedTime, false);
         });
-        await Task.Delay(500);
+        await Task.Delay(1200);
+
         cut.SetParametersAndRender(pb =>
         {
             pb.Add(a => a.Show, false);
@@ -87,20 +92,24 @@ public class RecognizerTest : SpeechTestBase
     }
 
     [Fact]
-    public void IsCancelled_Ok()
+    public void Token_Ok()
     {
-        var cut = Context.RenderComponent<SpeechWave>();
-        var pi = cut.Instance.GetType().GetProperty("IsShow", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-        var tokenPi = cut.Instance.GetType().GetProperty("Token", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        var cut = Context.RenderComponent<SpeechWave>(pb =>
+        {
+            pb.Add(a => a.Show, true);
+        });
+        var token = GetToken(cut.Instance);
+        var shown = GetShow(cut.Instance);
+        Assert.True(shown);
 
-        Assert.False((bool?)pi?.GetValue(cut.Instance));
-
-        var token = new CancellationTokenSource();
-        tokenPi?.SetValue(cut.Instance, token);
-        Assert.True((bool?)pi?.GetValue(cut.Instance));
-
-        token.Cancel();
-        Assert.False((bool?)pi?.GetValue(cut.Instance));
-        Context.DisposeComponents();
+        GetToken(cut.Instance) = null;
+        shown = GetShow(cut.Instance);
+        Assert.False(shown);
     }
+
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_token")]
+    static extern ref CancellationTokenSource? GetToken(SpeechWave @this);
+
+    [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "get_IsShow")]
+    static extern bool GetShow(SpeechWave @this);
 }

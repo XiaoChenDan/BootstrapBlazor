@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.JSInterop;
 
@@ -14,8 +15,6 @@ public class JSModuleTest
         var js = new MockJSObjectReference();
         var module = new JSModule(js);
         Assert.NotNull(module);
-
-        Assert.Throws<ArgumentNullException>(() => new JSModule(null));
     }
 
     [Fact]
@@ -101,6 +100,14 @@ public class JSModuleTest
         var module = new JSModule(js);
         await module.InvokeVoidAsync("test");
         await module.InvokeAsync<int>("test");
+    }
+
+    [Fact]
+    public async Task JSModule_SetMemorial()
+    {
+        var js = new MockTaskCanceledObjectReference();
+        var module = new JSModule(js);
+        await module.SetMemorialModeAsync(true);
     }
 
     private class MockErrorJSObjectReference : MockJSObjectReference

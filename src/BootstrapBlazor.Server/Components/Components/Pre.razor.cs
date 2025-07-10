@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Text.RegularExpressions;
 
@@ -113,7 +114,7 @@ public partial class Pre
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, CopiedText);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, CopiedText, WebsiteOption.CurrentValue.AssetRootPath);
 
     private async Task GetCodeAsync()
     {
@@ -148,7 +149,7 @@ public partial class Pre
         {
             var regex = new Regex($"<DemoBlock [\\s\\S]*? Name=\"{BlockName}\">([\\s\\S]*?)</DemoBlock>");
             var match = regex.Match(content);
-            if (match.Success && match.Groups.Count == 2)
+            if (match is { Success: true, Groups.Count: 2 })
             {
                 content = match.Groups[1].Value.Replace("\r\n", "\n").Replace("\n    ", "\n").TrimStart('\n');
             }
@@ -180,12 +181,12 @@ public partial class Pre
         return content.TrimEnd('\n');
     }
 
-    [GeneratedRegex("<section ignore[ \\s\\S]*?>[\\s\\S]*?</section>")]
+    [GeneratedRegex(@"<section ignore[ \s\S]*?>[\s\S]*?</section>")]
     private static partial Regex IgnoreRegex();
 
-    [GeneratedRegex("<ConsoleLogger [\\s\\S]* />")]
+    [GeneratedRegex(@"<ConsoleLogger [\s\S]* />")]
     private static partial Regex ConsoleLoggerRegex();
 
-    [GeneratedRegex("<Tips[\\s\\S]*>[\\s\\S]*?</Tips>")]
+    [GeneratedRegex(@"<Tips[\s\S]*>[\s\S]*?</Tips>")]
     private static partial Regex TipsRegex();
 }

@@ -1,14 +1,36 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
+
+using Microsoft.AspNetCore.Components.Rendering;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// DialogService 扩展方法
+/// DialogService extensions method
 /// </summary>
 public static class DialogServiceExtensions
 {
+    /// <summary>
+    /// Show dialog with generic type.
+    /// </summary>
+    /// <param name="service">DialogService 服务实例</param>
+    /// <param name="title">对话框标题，优先级高于 <see cref="DialogOption.Title"/></param>
+    /// <param name="parameters">TComponent 组件所需要的参数集合</param>
+    /// <param name="dialog">指定弹窗组件 默认为 null 使用 <see cref="BootstrapBlazorRoot"/> 组件内置弹窗组件</param>
+    public static Task Show<TComponent>(this DialogService service, string title, IDictionary<string, object?>? parameters = null, Dialog? dialog = null) where TComponent : IComponent
+    {
+        var option = new DialogOption();
+        if (!string.IsNullOrEmpty(title))
+        {
+            option.Title = title;
+        }
+        option.ShowFooter = false;
+        option.Component = BootstrapDynamicComponent.CreateComponent<TComponent>(parameters);
+        return service.Show(option, dialog);
+    }
+
     /// <summary>
     /// 弹出搜索对话框
     /// </summary>
@@ -70,21 +92,23 @@ public static class DialogServiceExtensions
     public static async Task<DialogResult> ShowModal<TDialog>(this DialogService service, ResultDialogOption option, Dialog? dialog = null)
         where TDialog : IComponent, IResultDialog
     {
-        IResultDialog? resultDialog = null;
-        option.GetDialog = () => resultDialog;
-        option.BodyTemplate = builder =>
+        if (option.BodyTemplate == null)
         {
-            var index = 0;
-            builder.OpenComponent(index++, typeof(TDialog));
-            if (option.ComponentParameters != null)
+            IResultDialog? resultDialog = null;
+            option.GetDialog = () => resultDialog;
+            option.BodyTemplate = builder =>
             {
-                builder.AddMultipleAttributes(1, option.ComponentParameters);
-            }
-            builder.AddComponentReferenceCapture(index++, com => resultDialog = (IResultDialog)com);
-            builder.CloseComponent();
-        };
+                builder.OpenComponent(0, typeof(TDialog));
+                if (option.ComponentParameters != null)
+                {
+                    builder.AddMultipleAttributes(10, option.ComponentParameters);
+                }
+                builder.AddComponentReferenceCapture(30, com => resultDialog = (IResultDialog)com);
+                builder.CloseComponent();
+            };
+        }
 
-        option.FooterTemplate = BootstrapDynamicComponent.CreateComponent<ResultDialogFooter>(new Dictionary<string, object?>
+        option.FooterTemplate ??= BootstrapDynamicComponent.CreateComponent<ResultDialogFooter>(new Dictionary<string, object?>
         {
             [nameof(ResultDialogFooter.ButtonNoText)] = option.ButtonNoText,
             [nameof(ResultDialogFooter.ButtonYesText)] = option.ButtonYesText,
@@ -102,6 +126,52 @@ public static class DialogServiceExtensions
         }
         await service.Show(option, dialog);
         return await option.ResultTask.Task;
+    }
+
+    /// <summary>
+    /// 弹出带结果的对话框
+    /// </summary>
+    /// <param name="service">DialogService 服务实例</param>
+    /// <param name="title">对话框标题，优先级高于 <see cref="DialogOption.Title"/></param>
+    /// <param name="content">对话框 <see cref="MarkupString"/> 文本参数</param>
+    /// <param name="option"><see cref="ResultDialogOption"/> 对话框参数实例</param>
+    /// <param name="dialog">指定弹窗组件 默认为 null 使用 <see cref="BootstrapBlazorRoot"/> 组件内置弹窗组件</param>
+    public static Task<DialogResult> ShowModal(this DialogService service, string title, string content, ResultDialogOption? option = null, Dialog? dialog = null)
+    {
+        option ??= new();
+        if (!string.IsNullOrEmpty(title))
+        {
+            option.Title = title;
+        }
+        if (!string.IsNullOrEmpty(content))
+        {
+            IResultDialog? resultDialog = null;
+            option.GetDialog = () => resultDialog;
+            option.BodyTemplate = builder =>
+            {
+                builder.OpenComponent(0, typeof(ResultDialog));
+                builder.AddAttribute(20, nameof(ResultDialog.Content), content);
+                builder.AddComponentReferenceCapture(30, com => resultDialog = (IResultDialog)com);
+                builder.CloseComponent();
+            };
+        }
+        return ShowModal<ResultDialog>(service, option, dialog);
+    }
+
+    private class ResultDialog : ComponentBase, IResultDialog
+    {
+        [Parameter]
+        public string? Content { get; set; }
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.AddMarkupContent(0, Content);
+        }
+
+        public Task OnClose(DialogResult result)
+        {
+            return Task.CompletedTask;
+        }
     }
 
     /// <summary>
@@ -174,5 +244,42 @@ public static class DialogServiceExtensions
         option.Component = BootstrapDynamicComponent.CreateComponent<TComponent>(parameters);
         configureOption?.Invoke(option);
         await service.Show(option, dialog);
+    }
+
+    /// <summary>
+    /// 显示异常信息对话框扩展方法
+    /// </summary>
+    /// <param name="service"></param>
+    /// <param name="fragment"></param>
+    /// <param name="dialog"></param>
+    /// <returns></returns>
+    public static async Task ShowErrorHandlerDialog(this DialogService service, RenderFragment fragment, Dialog? dialog = null)
+    {
+        var option = new DialogOption
+        {
+            Title = "Error",
+            IsScrolling = true,
+            BodyTemplate = fragment
+        };
+        await service.Show(option, dialog);
+    }
+
+    /// <summary>
+    /// 显示异常信息对话框扩展方法
+    /// </summary>
+    /// <param name="service"></param>
+    /// <param name="exception"></param>
+    /// <param name="dialog"></param>
+    /// <returns></returns>
+    public static async Task ShowExceptionDialog(this DialogService service, Exception exception, Dialog? dialog = null)
+    {
+        RenderFragment fragment = builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(10, "class", "error-stack");
+            builder.AddContent(20, new MarkupString(exception.Message));
+            builder.CloseElement();
+        };
+        await ShowErrorHandlerDialog(service, fragment, dialog);
     }
 }

@@ -10,17 +10,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
 
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Build
-      env: 
+      env:
         NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
         Bundle: True
       run: |
@@ -32,6 +32,14 @@ jobs:
         dotnet test test/UnitTest --collect:"XPlat Code Coverage"
 
     - name: Upload to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Check Router
+      run: |
+        dotnet test test/UnitTestDocs
+
+    - name: Check Localizer
+      run: |
+        dotnet test test/UnitTest.Localization

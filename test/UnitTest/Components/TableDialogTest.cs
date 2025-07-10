@@ -1,10 +1,12 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using AngleSharp.Dom;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 using System.Reflection;
 
 namespace UnitTest.Components;
@@ -14,6 +16,8 @@ public class TableDialogTest : TableDialogTestBase
     [Fact]
     public async Task EditAsync_Ok()
     {
+        var options = Context.Services.GetRequiredService<IOptionsMonitor<BootstrapBlazorOptions>>();
+        options.CurrentValue.ToastDelay = 0;
         var localizer = Context.Services.GetRequiredService<IStringLocalizer<Foo>>();
         var items = Foo.GenerateFoo(localizer, 2);
         var cut = Context.RenderComponent<BootstrapBlazorRoot>(pb =>
@@ -61,8 +65,8 @@ public class TableDialogTest : TableDialogTestBase
 
         var table = cut.FindComponent<Table<Foo>>();
         // 选一个
-        var input = cut.Find("tbody tr input");
-        await cut.InvokeAsync(() => input.Click());
+        var checkbox = cut.FindComponents<Checkbox<Foo>>()[1];
+        await cut.InvokeAsync(checkbox.Instance.OnToggleClick);
         await cut.InvokeAsync(() => table.Instance.EditAsync());
 
         cut.Contains("test-save");
@@ -86,6 +90,7 @@ public class TableDialogTest : TableDialogTestBase
         table.SetParametersAndRender(pb =>
         {
             pb.Add(a => a.DataService, new MockEFCoreDataService(localizer));
+            pb.Add(a => a.BeforeShowEditDialogCallback, new Action<ITableEditDialogOption<Foo>>(o => o.DisableAutoSubmitFormByEnter = true));
         });
         await cut.InvokeAsync(() => table.Instance.EditAsync());
         await cut.InvokeAsync(() => modal.Instance.CloseCallback());
@@ -126,7 +131,7 @@ public class TableDialogTest : TableDialogTestBase
         await cut.InvokeAsync(() => table.Instance.AddAsync());
 
         // 编辑弹窗逻辑
-        input = cut.Find(".modal-body form input.form-control");
+        var input = cut.Find(".modal-body form input.form-control");
         await cut.InvokeAsync(() => input.Change("Test_Name"));
 
         form = cut.Find(".modal-body form");
@@ -320,7 +325,52 @@ public class TableDialogTest : TableDialogTestBase
         // 检查 dialog 是否显示
         var editDialog = cut.FindComponents<Dialog>().FirstOrDefault(i => i.Instance == dialog);
         Assert.NotNull(editDialog);
-        Assert.Contains("新建窗口", editDialog.Markup);
+    }
+
+    [Fact]
+    public async Task Required_Ok()
+    {
+        var localizer = Context.Services.GetRequiredService<IStringLocalizer<Foo>>();
+        var items = Foo.GenerateFoo(localizer, 2);
+        var cut = Context.RenderComponent<BootstrapBlazorRoot>(pb =>
+        {
+            pb.AddChildContent<Table<Foo>>(pb =>
+            {
+                pb.Add(a => a.RenderMode, TableRenderMode.Table);
+                pb.Add(a => a.Items, items);
+                pb.Add(a => a.IsMultipleSelect, true);
+                pb.Add(a => a.ShowToolbar, true);
+                pb.Add(a => a.TableColumns, foo => builder =>
+                {
+                    builder.OpenComponent<TableColumn<Foo, string>>(0);
+                    builder.AddAttribute(1, "Field", "Name");
+                    builder.AddAttribute(2, "FieldExpression", Utility.GenerateValueExpression(foo, "Name", typeof(string)));
+                    builder.AddAttribute(3, "Required", true);
+                    builder.CloseComponent();
+
+                    builder.OpenComponent<TableColumn<Foo, string>>(0);
+                    builder.AddAttribute(1, "Field", "Address");
+                    builder.AddAttribute(2, "FieldExpression", Utility.GenerateValueExpression(foo, "Address", typeof(string)));
+                    builder.AddAttribute(3, "IsRequiredWhenAdd", true);
+                    builder.AddAttribute(4, "IsRequiredWhenEdit", true);
+                    builder.AddAttribute(4, "RequiredErrorMessage", "test error message");
+                    builder.CloseComponent();
+                });
+                pb.Add(a => a.OnSaveAsync, (foo, itemType) => Task.FromResult(true));
+            });
+        });
+
+        var table = cut.FindComponent<Table<Foo>>();
+        var modal = cut.FindComponent<Modal>();
+
+        // 选一个
+        var item = cut.FindComponent<Checkbox<Foo>>();
+        await cut.InvokeAsync(item.Instance.OnToggleClick);
+        await cut.InvokeAsync(() => table.Instance.AddAsync());
+
+        var form = cut.Find(".modal-body form");
+        await cut.InvokeAsync(() => form.Submit());
+        await cut.InvokeAsync(() => modal.Instance.CloseCallback());
     }
 
     private static Task ShowDialog(DialogService dialogService, List<Foo> items, Dialog dialog) => dialogService.Show(new DialogOption()

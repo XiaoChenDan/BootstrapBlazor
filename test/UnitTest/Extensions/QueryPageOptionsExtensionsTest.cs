@@ -1,10 +1,13 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
+
+using System.Text.Json;
 
 namespace UnitTest.Extensions;
 
-public class QueryPageOptionsExtensionsTest
+public class QueryPageOptionsExtensionsTest : BootstrapBlazorTestBase
 {
     private readonly Foo[] _foos;
 
@@ -124,10 +127,12 @@ public class QueryPageOptionsExtensionsTest
     [Fact]
     public void Set_Ok()
     {
-        var filter = new SearchFilterAction("", "", FilterAction.Equal);
-        filter.Name = "test";
-        filter.Value = "test";
-        filter.Action = FilterAction.GreaterThan;
+        var filter = new SearchFilterAction("", "", FilterAction.Equal)
+        {
+            Name = "test",
+            Value = "test",
+            Action = FilterAction.GreaterThan
+        };
         Assert.Equal("test", filter.Name);
         Assert.Equal("test", filter.Value);
         Assert.Equal(FilterAction.GreaterThan, filter.Action);
@@ -144,5 +149,52 @@ public class QueryPageOptionsExtensionsTest
 
         filter.Filters.Add(new FilterKeyValueAction());
         Assert.True(filter.HasFilters());
+    }
+
+    [Fact]
+    public void Serialize_Ok()
+    {
+        var model = new QueryPageOptions
+        {
+            SearchText = "SearchText",
+            SortName = "Name1",
+            StartIndex = 3,
+            PageIndex = 4,
+            PageItems = 5,
+            SortOrder = SortOrder.Asc,
+            IsFirstQuery = true,
+            IsTriggerByPagination = true,
+            IsPage = true,
+            IsVirtualScroll = true,
+            SearchModel = new { Name = "Test1", Count = 2 }
+        };
+        model.Searches.Add(new SearchFilterAction("Name2", "Argo2"));
+        model.AdvanceSearches.Add(new SearchFilterAction("Name3", "Argo3"));
+        model.CustomerSearches.Add(new SearchFilterAction("Name4", "Argo4"));
+        model.Filters.Add(new SearchFilterAction("Name5", "Argo5"));
+        model.SortList.AddRange(["Name6", "Count6"]);
+        model.AdvancedSortList.AddRange(["Name7", "Count7"]);
+
+        var payload = JsonSerializer.Serialize(model);
+        var expacted = JsonSerializer.Deserialize<QueryPageOptions>(payload);
+        Assert.NotNull(expacted);
+        Assert.Equal("SearchText", expacted.SearchText);
+        Assert.Equal("Name1", expacted.SortName);
+        Assert.Equal(3, expacted.StartIndex);
+        Assert.Equal(4, expacted.PageIndex);
+        Assert.Equal(5, expacted.PageItems);
+        Assert.Equal(SortOrder.Asc, expacted.SortOrder);
+        Assert.True(expacted.IsFirstQuery);
+        Assert.True(expacted.IsTriggerByPagination);
+        Assert.True(expacted.IsPage);
+        Assert.True(expacted.IsVirtualScroll);
+        Assert.NotNull(expacted.SearchModel);
+
+        Assert.Single(expacted.Searches);
+        Assert.Single(expacted.AdvanceSearches);
+        Assert.Single(expacted.CustomerSearches);
+        Assert.Single(expacted.Filters);
+        Assert.Equal(2, expacted.SortList.Count);
+        Assert.Equal(2, expacted.AdvancedSortList.Count);
     }
 }

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -25,6 +26,12 @@ public partial class Table<TItem>
     public bool IsKeepSelectedRows { get; set; }
 
     /// <summary>
+    /// 获得/设置 新建数据是否保持原选择行，默认为 false 不保持
+    /// </summary>
+    [Parameter]
+    public bool IsKeepSelectedRowAfterAdd { get; set; }
+
+    /// <summary>
     /// 获得 表头行是否选中状态
     /// </summary>
     /// <returns></returns>
@@ -35,13 +42,13 @@ public partial class Table<TItem>
         var filterRows = ShowRowCheckboxCallback == null ? Rows : Rows.Where(ShowRowCheckboxCallback);
         if (filterRows.Any())
         {
-            if (filterRows.All(AnyRow))
+            if (!filterRows.Except(SelectedRows).Any())
             {
                 // 所有行被选中
                 // all rows are selected
                 ret = CheckboxState.Checked;
             }
-            else if (filterRows.Any(AnyRow))
+            else if (filterRows.Any(row => SelectedRows.Any(i => Equals(i, row))))
             {
                 // 任意一行被选中
                 // any one row is selected
@@ -49,8 +56,6 @@ public partial class Table<TItem>
             }
         }
         return ret;
-
-        bool AnyRow(TItem row) => SelectedRows.Any(i => Equals(i, row));
     }
 
     /// <summary>
@@ -97,7 +102,7 @@ public partial class Table<TItem>
     /// <param name="val"></param>
     protected virtual async Task OnHeaderCheck(CheckboxState state, TItem val)
     {
-        SelectedRows.RemoveAll(x => Rows.Any(a => Equals(a, x)));
+        SelectedRows.RemoveAll(Rows.Intersect(SelectedRows).Contains);
         if (state == CheckboxState.Checked)
         {
             SelectedRows.AddRange(ShowRowCheckboxCallback == null ? Rows : Rows.Where(ShowRowCheckboxCallback));

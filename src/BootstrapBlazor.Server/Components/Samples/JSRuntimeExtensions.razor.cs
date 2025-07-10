@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.JSInterop;
 
@@ -39,7 +40,7 @@ public partial class JSRuntimeExtensions : IAsyncDisposable
 
     private async Task OpenUrl_Self() => await Module.OpenUrl(Url, "_self");
 
-    private bool IsMobile { get; set; }
+    private bool? IsMobile { get; set; }
 
     private async Task GetIsMobile() => IsMobile = await Module.IsMobile();
 
@@ -49,9 +50,9 @@ public partial class JSRuntimeExtensions : IAsyncDisposable
         `当前URL: ${currentUrl}`;
         """;
 
-    private string evalResult { get; set; } = string.Empty;
+    private string? evalResult { get; set; }
 
-    private async Task RunEval() => evalResult = await Module.Eval<string>(evalContent);
+    private async Task RunEval() => evalResult = await Module.Eval<string?>(evalContent);
 
     private string functionContent = """
         const currentUrl = window.location.href;
@@ -59,9 +60,9 @@ public partial class JSRuntimeExtensions : IAsyncDisposable
         return `当前URL: ${currentUrl}`;
         """;
 
-    private string functionResult { get; set; } = string.Empty;
+    private string? functionResult { get; set; }
 
-    private async Task RunFunction() => functionResult = await Module.Function<string>(functionContent);
+    private async Task RunFunction() => functionResult = await Module.Function<string?>(functionContent);
 
     private MethodItem[] GetMethods() =>
     [

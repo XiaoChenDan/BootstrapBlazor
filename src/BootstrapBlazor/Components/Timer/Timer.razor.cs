@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 
@@ -41,8 +42,6 @@ public partial class Timer
     private string? AlertTime { get; set; }
 
     private CancellationTokenSource CancelTokenSource { get; set; } = new();
-
-    private AutoResetEvent ResetEvent { get; } = new(false);
 
     private bool Vibrate { get; set; }
 
@@ -167,7 +166,7 @@ public partial class Timer
         }
     }
 
-    private Task OnStart(TimeSpan val)
+    private async Task OnStart(TimeSpan val)
     {
         Value = val;
         IsPause = false;
@@ -175,73 +174,53 @@ public partial class Timer
         AlertTime = DateTime.Now.Add(CurrentTimespan).ToString("HH:mm:ss");
 
         StateHasChanged();
+        await Task.Yield();
 
-        _ = Task.Run(async () =>
+        // 点击 Cancel 后重新设置再点击 Star
+        if (CancelTokenSource.IsCancellationRequested)
         {
-            // 点击 Cancel 后重新设置再点击 Star
-            if (CancelTokenSource.IsCancellationRequested)
-            {
-                CancelTokenSource.Dispose();
-                CancelTokenSource = new CancellationTokenSource();
-            }
+            CancelTokenSource.Dispose();
+            CancelTokenSource = new CancellationTokenSource();
+        }
 
-            while (!CancelTokenSource.IsCancellationRequested && CurrentTimespan > TimeSpan.Zero)
+        while (CancelTokenSource is { IsCancellationRequested: false } && CurrentTimespan > TimeSpan.Zero)
+        {
+            try
             {
-                try
-                {
-                    await Task.Delay(1000, CancelTokenSource.Token);
-                }
-                catch (TaskCanceledException) { }
-
-                if (!CancelTokenSource.IsCancellationRequested)
-                {
-                    CurrentTimespan = CurrentTimespan.Subtract(TimeSpan.FromSeconds(1));
-                    await InvokeAsync(StateHasChanged);
-                }
+                await Task.Delay(1000, CancelTokenSource.Token);
 
                 if (IsPause)
                 {
-                    ResetEvent.WaitOne();
                     AlertTime = DateTime.Now.Add(CurrentTimespan).ToString("HH:mm:ss");
-
-                    // 重建 CancelToken
-                    CancelTokenSource.Dispose();
-                    CancelTokenSource = new CancellationTokenSource();
                 }
-            }
-
-            if (CurrentTimespan == TimeSpan.Zero)
-            {
-                await Task.Delay(500, CancelTokenSource.Token);
-                if (!CancelTokenSource.IsCancellationRequested)
+                else
                 {
-                    Value = TimeSpan.Zero;
-                    await InvokeAsync(async () =>
-                    {
-                        Vibrate = IsVibrate;
-                        StateHasChanged();
-                        if (OnTimeout != null)
-                        {
-                            await OnTimeout();
-                        }
-                    });
+                    CurrentTimespan = CurrentTimespan.Subtract(TimeSpan.FromSeconds(1));
+                    StateHasChanged();
                 }
             }
-        });
-        return Task.CompletedTask;
+            catch (TaskCanceledException) { }
+        }
+
+        if (CurrentTimespan == TimeSpan.Zero)
+        {
+            await Task.Delay(500, CancelTokenSource.Token);
+            if (!CancelTokenSource.IsCancellationRequested)
+            {
+                Value = TimeSpan.Zero;
+                Vibrate = IsVibrate;
+                StateHasChanged();
+                if (OnTimeout != null)
+                {
+                    await OnTimeout();
+                }
+            }
+        }
     }
 
     private void OnClickPause()
     {
         IsPause = !IsPause;
-        if (!IsPause)
-        {
-            ResetEvent.Set();
-        }
-        else
-        {
-            CancelTokenSource.Cancel();
-        }
     }
 
     private string GetPauseText() => IsPause ? ResumeText : PauseText;
@@ -267,7 +246,6 @@ public partial class Timer
             CancelTokenSource.Cancel();
             CancelTokenSource.Dispose();
 
-            ResetEvent.Dispose();
             if (Module != null)
             {
                 await Module.DisposeAsync();

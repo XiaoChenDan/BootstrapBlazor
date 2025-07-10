@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples.Table;
 
@@ -124,10 +125,10 @@ public partial class TablesTree
             ParentId = parentId,
             Name = localizer["Foo.Name", $"{id + i:d4}"],
             DateTime = System.DateTime.Now.AddDays(i - 1),
-            Address = localizer["Foo.Address", $"{Random.Next(1000, 2000)}"],
-            Count = Random.Next(1, 100),
-            Complete = Random.Next(1, 100) > 50,
-            Education = Random.Next(1, 100) > 50 ? EnumEducation.Primary : EnumEducation.Middle
+            Address = localizer["Foo.Address", $"{Random.Shared.Next(1000, 2000)}"],
+            Count = Random.Shared.Next(1, 100),
+            Complete = Random.Shared.Next(1, 100) > 50,
+            Education = Random.Shared.Next(1, 100) > 50 ? EnumEducation.Primary : EnumEducation.Middle
         }).ToList();
     }
 }

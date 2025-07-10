@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Attributes;
 
@@ -58,6 +59,7 @@ public class AutoGenerateClassTest
             ComponentType = typeof(Select<string>),
             Step = "1",
             Rows = 1,
+            Cols = 6,
             LookupStringComparison = StringComparison.Ordinal,
             LookupServiceKey = "test-lookup",
             LookupServiceData = true,
@@ -67,7 +69,10 @@ public class AutoGenerateClassTest
             HeaderTextTooltip = "test header tooltip",
             HeaderTextEllipsis = true,
             HeaderTextWrap = true,
-            IsMarkupString = true
+            IsMarkupString = true,
+
+            RequiredErrorMessage = "test",
+            IgnoreWhenExport = true
         };
         Assert.Equal(1, attr.Order);
         Assert.True(attr.Ignore);
@@ -90,6 +95,7 @@ public class AutoGenerateClassTest
         Assert.Equal(typeof(Select<string>), attr.ComponentType);
         Assert.Equal("1", attr.Step);
         Assert.Equal(1, attr.Rows);
+        Assert.Equal(6, attr.Cols);
         Assert.Equal(StringComparison.Ordinal, attr.LookupStringComparison);
         Assert.Equal("Test", attr.GroupName);
         Assert.Equal(1, attr.GroupOrder);
@@ -100,6 +106,7 @@ public class AutoGenerateClassTest
         Assert.True(attr.HeaderTextEllipsis);
         Assert.Equal("test header tooltip", attr.HeaderTextTooltip);
         Assert.True(attr.IsMarkupString);
+        Assert.True(attr.IgnoreWhenExport);
 
         var attrInterface = (ITableColumn)attr;
         attrInterface.ShowLabelTooltip = true;
@@ -128,6 +135,9 @@ public class AutoGenerateClassTest
 
         attrInterface.Width = null;
         Assert.Equal(0, attr.Width);
+
+        attrInterface.IgnoreWhenExport = null;
+        Assert.False(attrInterface.IgnoreWhenExport);
 
         attrInterface.Width = -10;
         Assert.Equal(-10, attr.Width);
@@ -195,6 +205,11 @@ public class AutoGenerateClassTest
         attrInterface.ToolboxTemplate = col => builder => builder.AddContent(0, "test");
         Assert.NotNull(attrInterface.ToolboxTemplate);
 
+        attrInterface.IsRequiredWhenAdd = true;
+        Assert.True(attrInterface.IsRequiredWhenAdd);
+        attrInterface.IsRequiredWhenEdit = true;
+        Assert.True(attrInterface.IsRequiredWhenEdit);
+
         var attrEditor = (IEditorItem)attr;
         attrEditor.Items = null;
         Assert.Null(attrEditor.Items);
@@ -217,8 +232,21 @@ public class AutoGenerateClassTest
         attrEditor.IsPopover = true;
         Assert.True(attrEditor.IsPopover);
 
+        attrEditor.LookupService = new LookupService();
+        Assert.NotNull(attrEditor.LookupService);
+
+        attrEditor.Required = true;
+        Assert.True(attrEditor.Required);
+
         // 增加 GetDisplay 单元覆盖率
         attr.Text = null;
         Assert.Equal(string.Empty, attr.GetDisplayName());
+
+        Assert.Equal("test", attr.RequiredErrorMessage);
+    }
+
+    class LookupService : LookupServiceBase
+    {
+        public override IEnumerable<SelectedItem>? GetItemsByKey(string? key, object? data) => null;
     }
 }

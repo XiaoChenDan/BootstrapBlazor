@@ -1,10 +1,11 @@
 ﻿@page "/install-wasm"
 @inject IStringLocalizer<Install_wasm> Localizer
+@inject IOptionsMonitor<WebsiteOptions> WebsiteOption
 
 <InstallContent Title="@Localizer["Install_wasmHeading"]">
     <ChooseTemplate>
         <p class="code-label">4. @((MarkupString)Localizer["Install_wasmDescription"].Value)</p>
-        <img src="./images/choose-project-template.png" style="width: 800px; border-radius: 6px;" class="d-none d-sm-block" />
+        <img src="@WebsiteOption.CurrentValue.GetAssetUrl("images/choose-project-template.png")" style="width: 800px; border-radius: 6px;" class="d-none d-sm-block" />
     </ChooseTemplate>
     <SheetTemplate>
         <p><code>wwwroot/index.html</code></p>
@@ -43,4 +44,15 @@ static async Task SetCultureAsync(WebAssemblyHost host)
 }
 </Pre>
     </ServicesTemplate>
+    <RootTemplate>
+        <ul class="ul-demo">
+            <li><code>App.razor</code> <b>NET6/NET7/NET8/NET9</b></li>
+        </ul>
+
+        <Pre>// NET6/NET7
+&lt;BootstrapBlazorRoot&gt;
+    &lt;Router&gt;&lt;Router&gt;
+&lt;/BootstrapBlazorRoot&gt;
+</Pre>
+    </RootTemplate>
 </InstallContent>

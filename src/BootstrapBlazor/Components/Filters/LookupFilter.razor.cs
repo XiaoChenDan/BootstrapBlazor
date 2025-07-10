@@ -1,92 +1,46 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
-
-using Microsoft.Extensions.Localization;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 枚举类型过滤组件
+/// Lookup 过滤器
 /// </summary>
 public partial class LookupFilter
 {
-    private string? Value { get; set; }
-
-    /// <summary>
-    /// 获得/设置 相关枚举类型
-    /// </summary>
-#if NET6_0_OR_GREATER
-    [EditorRequired]
-#endif
-    [Parameter]
-    [NotNull]
-    public IEnumerable<SelectedItem>? Lookup { get; set; }
-
-    /// <summary>
-    /// 获得/设置 字典数据源字符串比较规则 默认 StringComparison.OrdinalIgnoreCase 大小写不敏感 
-    /// </summary>
-    [Parameter]
-    public StringComparison LookupStringComparison { get; set; } = StringComparison.OrdinalIgnoreCase;
-
-    /// <summary>
-    /// 获得/设置 相关枚举类型
-    /// </summary>
-#if NET6_0_OR_GREATER
-    [EditorRequired]
-#endif
-    [Parameter]
-    [NotNull]
-    public Type? Type { get; set; }
-
-    /// <summary>
-    /// 获得 是否为 ShowSearch 呈现模式 默认为 false
-    /// </summary>
-    [Parameter]
-    public bool IsShowSearch { get; set; }
-
-    [Inject]
-    [NotNull]
-    private IStringLocalizer<TableFilter>? Localizer { get; set; }
+    private Type _type = null!;
+    private string? _value;
+    private bool _isShowSearch;
+    private ILookup _lookup = null!;
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    protected override void OnInitialized()
+    protected override async Task OnParametersSetAsync()
     {
-        base.OnInitialized();
+        await base.OnParametersSetAsync();
 
-        if (Lookup == null)
+        if (TableColumnFilter != null)
         {
-            throw new InvalidOperationException("the Parameter Lookup must be set.");
-        }
+            var column = TableColumnFilter.Column;
+            _isShowSearch = column.ShowSearchWhenSelect;
+            _type = column.PropertyType;
+            _lookup = column;
 
-        if (Type == null)
-        {
-            throw new InvalidOperationException("the Parameter Type must be set.");
-        }
-
-        if (TableFilter != null)
-        {
-            TableFilter.ShowMoreButton = false;
-        }
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (Items == null)
-        {
-            var items = new List<SelectedItem>
+            if (string.IsNullOrEmpty(_value))
             {
-                new("", Localizer["EnumFilter.AllText"].Value)
-            };
-            items.AddRange(Lookup);
-            Items = items;
+                var service = _lookup.LookupService;
+                if (service != null)
+                {
+                    var items = await _lookup.GetItemsAsync(service, _lookup.LookupServiceKey, _lookup.LookupServiceData);
+                    if(items != null)
+                    {
+                        _value = items.FirstOrDefault()?.Value;
+                    }
+                }
+            }
         }
     }
 
@@ -95,7 +49,7 @@ public partial class LookupFilter
     /// </summary>
     public override void Reset()
     {
-        Value = "";
+        _value = null;
         StateHasChanged();
     }
 
@@ -105,12 +59,12 @@ public partial class LookupFilter
     /// <returns></returns>
     public override FilterKeyValueAction GetFilterConditions()
     {
-        var filter = new FilterKeyValueAction() { Filters = [] };
-        if (!string.IsNullOrEmpty(Value))
+        var filter = new FilterKeyValueAction();
+        if (!string.IsNullOrEmpty(_value))
         {
-            var type = Nullable.GetUnderlyingType(Type) ?? Type;
-            var val = Convert.ChangeType(Value, type);
-            filter.Filters.Add(new FilterKeyValueAction()
+            var type = Nullable.GetUnderlyingType(_type) ?? _type;
+            var val = Convert.ChangeType(_value, type);
+            filter.Filters.Add(new FilterKeyValueAction
             {
                 FieldKey = FieldKey,
                 FieldValue = val,
@@ -125,15 +79,15 @@ public partial class LookupFilter
     /// </summary>
     public override async Task SetFilterConditionsAsync(FilterKeyValueAction filter)
     {
-        var first = filter.Filters?.FirstOrDefault() ?? filter;
-        var type = Nullable.GetUnderlyingType(Type) ?? Type;
+        var first = filter.Filters.FirstOrDefault() ?? filter;
+        var type = Nullable.GetUnderlyingType(_type) ?? _type;
         if (first.FieldValue != null && first.FieldValue.GetType() == type)
         {
-            Value = first.FieldValue.ToString();
+            _value = first.FieldValue.ToString();
         }
         else
         {
-            Value = "";
+            _value = null;
         }
         await base.SetFilterConditionsAsync(filter);
     }

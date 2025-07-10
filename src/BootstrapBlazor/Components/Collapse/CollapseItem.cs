@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -16,7 +17,7 @@ public class CollapseItem : BootstrapComponentBase, IDisposable
     public string? Text { get; set; }
 
     /// <summary>
-    /// 获得/设置 当前状态是否激活 默认 true
+    /// 获得/设置 当前状态是否收缩 默认 true
     /// </summary>
     [Parameter]
     public bool IsCollapsed { get; set; } = true;
@@ -46,10 +47,22 @@ public class CollapseItem : BootstrapComponentBase, IDisposable
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
+    /// 获得/设置 Header CSS 样式名称 默认 null
+    /// </summary>
+    [Parameter]
+    public string? HeaderClass { get; set; }
+
+    /// <summary>
+    /// 获得/设置 组件 Header 模板
+    /// </summary>
+    [Parameter]
+    public RenderFragment? HeaderTemplate { get; set; }
+
+    /// <summary>
     /// 获得/设置 所属 Collapse 实例
     /// </summary>
     [CascadingParameter]
-    protected Collapse? Collpase { get; set; }
+    protected Collapse? Collapse { get; set; }
 
     /// <summary>
     /// OnInitialized 方法
@@ -58,7 +71,7 @@ public class CollapseItem : BootstrapComponentBase, IDisposable
     {
         base.OnInitialized();
 
-        Collpase?.AddItem(this);
+        Collapse?.AddItem(this);
     }
 
     /// <summary>
@@ -70,7 +83,7 @@ public class CollapseItem : BootstrapComponentBase, IDisposable
     private bool disposedValue;
 
     /// <summary>
-    /// 
+    /// 资源销毁
     /// </summary>
     /// <param name="disposing"></param>
     protected virtual void Dispose(bool disposing)
@@ -81,13 +94,13 @@ public class CollapseItem : BootstrapComponentBase, IDisposable
 
             if (disposing)
             {
-                Collpase?.RemoveItem(this);
+                Collapse?.RemoveItem(this);
             }
         }
     }
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     public void Dispose()
     {

@@ -1,8 +1,8 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using BootstrapBlazor.Localization.Json;
 using BootstrapBlazor.Server.Extensions;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Globalization;
+using System.Net;
 using System.Reflection;
 using UnitTest.Components;
 
@@ -114,7 +115,7 @@ public class UtilityTest : BootstrapBlazorTestBase
     [Fact]
     public void GetPlaceHolder_Ok()
     {
-        var ph = Utility.GetPlaceHolder(typeof(Foo), "Name");
+        var ph = Utility.GetPlaceHolder<Foo>("Name");
         Assert.Equal("不可为空", ph);
 
         // 动态类型
@@ -254,9 +255,9 @@ public class UtilityTest : BootstrapBlazorTestBase
     public void CreateComponentByFieldType_Ok()
     {
         var editor = new MockNullDisplayNameColumn("Name", typeof(string)) { Readonly = true };
-        var fragment = new RenderFragment(builder => builder.CreateComponentByFieldType(new BootstrapBlazorRoot(), editor, new Foo() { Name = "Test-Component" }));
+        var fragment = new RenderFragment(builder => builder.CreateComponentByFieldType(new BootstrapBlazorRoot(), editor, new Foo() { Name = "Test-Component" }, skipValidate: true));
         var cut = Context.Render(builder => builder.AddContent(0, fragment));
-        Assert.Contains("class=\"form-control\" disabled=\"disabled\" value=\"Test-Component\"", cut.Markup);
+        Assert.Contains("value=\"Test-Component\"", cut.Markup);
     }
 
     [Fact]
@@ -353,7 +354,7 @@ public class UtilityTest : BootstrapBlazorTestBase
         dn = Utility.GetDisplayName<TestEnum>(nameof(TestEnum.Address));
         Assert.Equal("Test-Enum-Address", dn);
 
-        dn = Utility.GetDisplayName(typeof(Nullable<TestEnum>), nameof(TestEnum.Name));
+        dn = Utility.GetDisplayName<TestEnum?>(nameof(TestEnum.Name));
         Assert.Equal("Test-Enum-Name", dn);
     }
 
@@ -372,11 +373,42 @@ public class UtilityTest : BootstrapBlazorTestBase
     {
         // improve code coverage
         var option = Context.Services.GetRequiredService<IOptions<JsonLocalizationOptions>>().Value;
-        Utility.GetJsonStringByTypeName(option, this.GetType().Assembly, "UnitTest.Utils.UtilityTest+Cat", null, true);
+        Assert.Empty(Utility.GetJsonStringByTypeName(option, this.GetType().Assembly, "UnitTest.Utils.UtilityTest+Cat1", null, true));
 
         // dynamic
         var dynamicType = EmitHelper.CreateTypeByName("test_type", new InternalTableColumn[] { new("Name", typeof(string)) });
-        Utility.GetJsonStringByTypeName(option, dynamicType!.Assembly, "Test");
+        Assert.Empty(Utility.GetJsonStringByTypeName(option, dynamicType!.Assembly, "Test"));
+
+        // empty cultureName
+        Assert.Empty(Utility.GetJsonStringByTypeName(option, this.GetType().Assembly, "UnitTest.Utils.UtilityTest+Cat1", "", false));
+    }
+
+    [Fact]
+    public void GetJsonStringByTypeName_UseKeyWhenValueIsNull()
+    {
+        // improve code coverage
+        var option = Context.Services.GetRequiredService<IOptions<JsonLocalizationOptions>>().Value;
+        option.UseKeyWhenValueIsNull = true;
+        var items = Utility.GetJsonStringByTypeName(option, this.GetType().Assembly, "UnitTest.Utils.UtilityTest", "en-US", true);
+
+        var test1 = items.FirstOrDefault(i => i.Name == "Test-Null");
+        Assert.NotNull(test1);
+        Assert.Equal("", test1.Value);
+
+        var test2 = items.FirstOrDefault(i => i.Name == "Test-Key");
+        Assert.NotNull(test2);
+        Assert.Equal("Test-Key", test2.Value);
+
+        option.UseKeyWhenValueIsNull = false;
+        items = Utility.GetJsonStringByTypeName(option, this.GetType().Assembly, "UnitTest.Utils.UtilityTest", "en-US", true);
+
+        test1 = items.FirstOrDefault(i => i.Name == "Test-Null");
+        Assert.NotNull(test1);
+        Assert.Equal("", test1.Value);
+
+        test2 = items.FirstOrDefault(i => i.Name == "Test-Key");
+        Assert.NotNull(test2);
+        Assert.Equal("", test2.Value);
     }
 
     private class MockDynamicObject : IDynamicObject
@@ -550,12 +582,13 @@ public class UtilityTest : BootstrapBlazorTestBase
     {
         var cols = Utility.GetTableColumns<Cat>(new InternalTableColumn[]
         {
-            new(nameof(Cat.Name), typeof(string)) { Text = "test-Name", LookupServiceData = true, IsVisibleWhenAdd = false, IsVisibleWhenEdit = false }
+            new(nameof(Cat.Name), typeof(string)) { Text = "test-Name", LookupServiceData = true, IsVisibleWhenAdd = false, IsVisibleWhenEdit = false, IgnoreWhenExport = true }
         });
         Assert.Equal(2, cols.Count());
         Assert.Equal(true, cols.First().LookupServiceData);
         Assert.False(cols.First().IsVisibleWhenAdd);
         Assert.False(cols.First().IsVisibleWhenEdit);
+        Assert.True(cols.First().IgnoreWhenExport);
     }
 
     [Fact]
@@ -638,16 +671,6 @@ public class UtilityTest : BootstrapBlazorTestBase
     }
 
     [Fact]
-    public void ReloadOnChange_Ok()
-    {
-        var option = new JsonLocalizationOptions
-        {
-            ReloadOnChange = true
-        };
-        Assert.True(option.ReloadOnChange);
-    }
-
-    [Fact]
     public void GetJsonStringConfig_Fallback()
     {
         // 回落默认语言为 en 测试用例为 zh 找不到资源文件
@@ -696,8 +719,12 @@ public class UtilityTest : BootstrapBlazorTestBase
     [Fact]
     public void GetTableColumns_Ok()
     {
-        var cols = Utility.GetTableColumns<Dog>().ToList();
-        Assert.Equal(2, cols.Count);
+        var columns = new InternalTableColumn[]
+        {
+            new("Name3", typeof(string)),
+        };
+        var cols = Utility.GetTableColumns<Dog>(columns).ToList();
+        Assert.Equal(3, cols.Count);
     }
 
     [Fact]
@@ -714,6 +741,27 @@ public class UtilityTest : BootstrapBlazorTestBase
     {
         var result = "192.168.1.192".MaskIpString();
         Assert.Equal("192.168.1.###", result);
+    }
+
+    [Fact]
+    public void ConvertToIPAddress_Ok()
+    {
+        var ex = Assert.Throws<ArgumentNullException>(() => Utility.ConvertToIPAddress(""));
+        Assert.NotNull(ex);
+
+        var address = Utility.ConvertToIPAddress("any");
+        Assert.Equal(IPAddress.Any, address);
+    }
+
+    [Fact]
+    public void ConvertToIpEndPoint_Ok()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => Utility.ConvertToIpEndPoint("localhost", 88990));
+        Assert.NotNull(ex);
+
+        ex = null;
+        ex = Assert.Throws<ArgumentOutOfRangeException>(() => Utility.ConvertToIpEndPoint("localhost", -1000));
+        Assert.NotNull(ex);
     }
 
     [AutoGenerateClass(Align = Alignment.Center)]

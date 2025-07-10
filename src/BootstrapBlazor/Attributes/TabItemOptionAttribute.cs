@@ -1,27 +1,28 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// TabItem 标签页配置属性类
+/// TabItem configuration attribute class
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
 public class TabItemOptionAttribute : Attribute
 {
     /// <summary>
-    /// 获得/设置 文本文字
+    /// Gets or sets the text of the tab item.
     /// </summary>
     public string? Text { get; set; }
 
     /// <summary>
-    /// 获得/设置 当前 TabItem 是否可关闭 默认为 true 可关闭
+    /// Gets or sets whether the current TabItem is closable. Default is true.
     /// </summary>
     public bool Closable { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 图标字符串
+    /// Gets or sets the icon string.
     /// </summary>
     public string? Icon { get; set; }
 }

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -48,21 +49,19 @@ public partial class Toast
     /// <summary>
     /// 获得/设置 弹出框自动关闭时长
     /// </summary>
-    protected string? DelayString => Options.IsAutoHide ? Convert.ToString(Options.Delay) : null;
+    private string? DelayString => Options.IsAutoHide ? Options.Delay.ToString() : null;
 
     /// <summary>
-    /// 获得/设置 是否开启动画效果 
+    /// 获得/设置 是否开启动画效果
     /// </summary>
-    protected string? AnimationString => Options.Animation ? null : "false";
+    private string? AnimationString => Options.Animation ? null : "false";
 
     /// <summary>
     /// 获得/设置 ToastOption 实例
     /// </summary>
     [Parameter]
     [NotNull]
-#if NET6_0_OR_GREATER
     [EditorRequired]
-#endif
     public ToastOption? Options { get; set; }
 
     /// <summary>
@@ -70,7 +69,7 @@ public partial class Toast
     /// </summary>
     /// <value></value>
     [CascadingParameter]
-    protected ToastContainer? ToastContainer { get; set; }
+    private ToastContainer? ToastContainer { get; set; }
 
     [Inject]
     [NotNull]
@@ -97,6 +96,19 @@ public partial class Toast
         Options.InformationIcon ??= IconTheme.GetIconByKey(ComponentIcons.ToastInformationIcon);
         Options.WarningIcon ??= IconTheme.GetIconByKey(ComponentIcons.ToastWarningIcon);
         Options.ErrorIcon ??= IconTheme.GetIconByKey(ComponentIcons.ToastErrorIcon);
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+        {
+            await InvokeVoidAsync("update", Id);
+        }
     }
 
     /// <summary>

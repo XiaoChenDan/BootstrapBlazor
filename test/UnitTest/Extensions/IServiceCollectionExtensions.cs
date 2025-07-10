@@ -1,8 +1,11 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -22,5 +25,22 @@ internal static class IServiceCollectionExtensions
         var config = builder.Build();
         services.AddSingleton<IConfiguration>(config);
         return services;
+    }
+
+    public static IServiceCollection AddMockEnvironment(this IServiceCollection services)
+    {
+        services.AddSingleton<IHostEnvironment, MockEnvironment>();
+        return services;
+    }
+
+    class MockEnvironment : IHostEnvironment
+    {
+        public string EnvironmentName { get; set; } = "Development";
+
+        public string ApplicationName { get; set; } = "Test";
+
+        public string ContentRootPath { get; set; } = "UnitTest";
+
+        public IFileProvider ContentRootFileProvider { get; set; } = null!;
     }
 }

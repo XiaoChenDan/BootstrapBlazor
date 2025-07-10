@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Components;
 
@@ -69,6 +70,42 @@ public class InputTest : BootstrapBlazorTestBase
     }
 
     [Fact]
+    public void Clearable_Ok()
+    {
+        var cut = Context.RenderComponent<BootstrapInput<string>>(builder => builder.Add(a => a.IsClearable, false));
+        cut.DoesNotContain("bb-clearable-input");
+
+        cut.SetParametersAndRender(pb => pb.Add(a => a.IsClearable, true));
+        cut.Contains("bb-clearable-input");
+        cut.Contains("form-control-clear-icon");
+
+        cut.SetParametersAndRender(pb => pb.Add(a => a.Readonly, true));
+        cut.DoesNotContain("form-control-clear-icon");
+
+        cut.SetParametersAndRender(pb => pb.Add(a => a.Readonly, false));
+        cut.SetParametersAndRender(pb => pb.Add(a => a.IsDisabled, true));
+        cut.DoesNotContain("form-control-clear-icon");
+    }
+
+    [Fact]
+    public async Task OnClear_Ok()
+    {
+        var clicked = false;
+        var cut = Context.RenderComponent<BootstrapInput<string>>(builder =>
+        {
+            builder.Add(a => a.IsClearable, true);
+            builder.Add(a => a.OnClear, v =>
+            {
+                clicked = true;
+                return Task.CompletedTask;
+            });
+        });
+        var icon = cut.Find(".form-control-clear-icon");
+        await cut.InvokeAsync(() => icon.Click());
+        Assert.True(clicked);
+    }
+
+    [Fact]
     public async Task OnInput_Ok()
     {
         var foo = new Foo() { Name = "Test" };
@@ -76,7 +113,7 @@ public class InputTest : BootstrapBlazorTestBase
         {
             builder.Add(a => a.Value, foo.Name);
             builder.Add(a => a.UseInputEvent, true);
-            builder.Add(a => a.ValueChanged, EventCallback.Factory.Create<string>(this, v =>
+            builder.Add(a => a.ValueChanged, EventCallback.Factory.Create<string?>(this, v =>
             {
                 foo.Name = v;
             }));
@@ -154,8 +191,8 @@ public class InputTest : BootstrapBlazorTestBase
             builder.Add(a => a.OnEnterAsync, v => { val = v; return Task.CompletedTask; });
             builder.Add(a => a.Value, "test");
         });
-        await cut.Instance.EnterCallback("Test1");
-        Assert.Equal("Test1", val);
+        await cut.Instance.EnterCallback();
+        Assert.Equal("test", val);
     }
 
     [Fact]
@@ -236,6 +273,13 @@ public class InputTest : BootstrapBlazorTestBase
         });
 
         Assert.Contains("DisplayText", cut.Markup);
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.ChildContent, builder => builder.AddContent(0, "test-child-content"));
+        });
+        cut.Contains("test-child-content");
+        cut.DoesNotContain("DisplayText");
     }
 
     [Fact]
@@ -277,7 +321,23 @@ public class InputTest : BootstrapBlazorTestBase
             }));
         });
 
-        cut.MarkupMatches("<div class=\"input-group\"><div class=\"input-group-text\" required=\"true\" style=\"--bb-input-group-label-width: 120px;\"><span>BootstrapInputGroup</span></div></div>");
+        cut.MarkupMatches("<div class=\"input-group\"><div class=\"input-group-text\" style=\"--bb-input-group-label-width: 120px;\" required=\"true\">BootstrapInputGroup</div></div>");
+    }
+
+    [Fact]
+    public void InputGroup_ChildContent()
+    {
+        var cut = Context.RenderComponent<BootstrapInputGroup>(builder =>
+        {
+            builder.Add(s => s.ChildContent, new RenderFragment(builder =>
+            {
+                builder.OpenComponent<BootstrapInputGroupLabel>(0);
+                builder.AddAttribute(1, nameof(BootstrapInputGroupLabel.ChildContent), new RenderFragment(builder => builder.AddContent(0, "child-content")));
+                builder.CloseComponent();
+            }));
+        });
+
+        cut.Contains("child-content");
     }
 
     [Theory]
@@ -302,11 +362,14 @@ public class InputTest : BootstrapBlazorTestBase
     [Fact]
     public void Focus_Ok()
     {
-        var cut = Context.RenderComponent<Modal>(pb =>
+        var cut = Context.RenderComponent<BootstrapBlazorRoot>(pb =>
         {
-            pb.AddChildContent<BootstrapInput<string>>(pb =>
+            pb.AddChildContent<Modal>(pb =>
             {
-                pb.Add(a => a.IsAutoFocus, true);
+                pb.AddChildContent<BootstrapInput<string>>(pb =>
+                {
+                    pb.Add(a => a.IsAutoFocus, true);
+                });
             });
         });
     }
@@ -335,7 +398,7 @@ public class InputTest : BootstrapBlazorTestBase
         var cut = Context.RenderComponent<BootstrapInput<string>>(builder =>
         {
             builder.Add(a => a.Value, foo.Name);
-            builder.Add(a => a.ValueChanged, EventCallback.Factory.Create<string>(this, v =>
+            builder.Add(a => a.ValueChanged, EventCallback.Factory.Create<string?>(this, v =>
             {
                 foo.Name = v;
             }));
@@ -354,5 +417,22 @@ public class InputTest : BootstrapBlazorTestBase
             Assert.Equal("Test_Test", foo.Name);
             Assert.Equal("Test_Test-Test_Test", val);
         });
+    }
+
+    [Fact]
+    public async Task OnBlurAsync_Ok()
+    {
+        var blur = false;
+        var cut = Context.RenderComponent<BootstrapInput<string>>(builder =>
+        {
+            builder.Add(a => a.OnBlurAsync, v =>
+            {
+                blur = true;
+                return Task.CompletedTask;
+            });
+        });
+        var input = cut.Find("input");
+        await cut.InvokeAsync(() => { input.Blur(); });
+        Assert.True(blur);
     }
 }

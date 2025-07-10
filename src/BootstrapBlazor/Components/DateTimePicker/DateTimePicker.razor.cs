@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 using System.Globalization;
@@ -8,7 +9,7 @@ using System.Globalization;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// DateTimePicker 组件基类
+/// DateTimePicker 组件
 /// </summary>
 public partial class DateTimePicker<TValue>
 {
@@ -26,6 +27,7 @@ public partial class DateTimePicker<TValue>
     /// </summary>
     private string? InputClassName => CssBuilder.Default("dropdown-toggle form-control datetime-picker-input")
         .AddClass("has-icon", ShowIcon)
+        .AddClass($"border-{Color.ToDescriptionString()}", Color != Color.None && !IsDisabled && !IsValid.HasValue)
         .AddClass(ValidCss)
         .Build();
 
@@ -86,6 +88,12 @@ public partial class DateTimePicker<TValue>
     public string? TimeFormat { get; set; }
 
     /// <summary>
+    /// 获得/设置 星期第一天 默认 <see cref="DayOfWeek.Sunday"/>
+    /// </summary>
+    [Parameter]
+    public DayOfWeek FirstDayOfWeek { get; set; } = DayOfWeek.Sunday;
+
+    /// <summary>
     /// 获得/设置 组件图标 默认 fa-regular fa-calendar-days
     /// </summary>
     [Parameter]
@@ -97,6 +105,12 @@ public partial class DateTimePicker<TValue>
     /// </summary>
     [Parameter]
     public bool ShowIcon { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置  控件边框颜色样式 默认为 None 显示
+    /// </summary>
+    [Parameter]
+    public Color Color { get; set; } = Color.None;
 
     /// <summary>
     /// 获得/设置 组件显示模式 默认为显示年月日模式
@@ -209,6 +223,30 @@ public partial class DateTimePicker<TValue>
     [Parameter]
     public bool ShowHolidays { get; set; }
 
+    /// <summary>
+    /// 获取/设置 获得自定义禁用日期回调方法，默认 null 内部默认启用数据缓存 可通过 <see cref="EnableDisabledDaysCache"/> 参数关闭
+    /// </summary>
+    [Parameter]
+    public Func<DateTime, DateTime, Task<List<DateTime>>>? OnGetDisabledDaysCallback { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否启用获得年自定义禁用日期缓存
+    /// </summary>
+    [Parameter]
+    public bool EnableDisabledDaysCache { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 是否将禁用日期显示为空字符串 默认 false 开启后组件会频繁调用 <see cref="OnGetDisabledDaysCallback"/> 方法，建议外部使用缓存提高性能
+    /// </summary>
+    [Parameter]
+    public bool DisplayDisabledDayAsEmpty { get; set; }
+
+    /// <summary>
+    /// 获得/设置 失去焦点回调方法 默认 null
+    /// </summary>
+    [Parameter]
+    public Func<TValue, Task>? OnBlurAsync { get; set; }
+
     [Inject]
     [NotNull]
     private IStringLocalizer<DateTimePicker<DateTime>>? Localizer { get; set; }
@@ -221,6 +259,8 @@ public partial class DateTimePicker<TValue>
     private string? GenericTypeErrorMessage { get; set; }
 
     private DateTime SelectedValue { get; set; }
+
+    private DatePickerBody _pickerBody = default!;
 
     /// <summary>
     /// <inheritdoc/>
@@ -257,23 +297,29 @@ public partial class DateTimePicker<TValue>
             throw new InvalidOperationException(GenericTypeErrorMessage);
         }
 
-        // Value 为 MinValue 时 设置 Value 默认值
-        if (Value == null)
-        {
-            SelectedValue = DateTime.MinValue;
-        }
-        else if (Value is DateTimeOffset v1)
+        if (Value is DateTimeOffset v1)
         {
             SelectedValue = v1.DateTime;
         }
         else
         {
-            SelectedValue = (DateTime)(object)Value;
+            SelectedValue = Value == null ? DateTime.MinValue : (DateTime)(object)Value;
+        }
+
+        if (MinValue > SelectedValue)
+        {
+            SelectedValue = ViewMode == DatePickerViewMode.DateTime ? MinValue.Value : MinValue.Value.Date;
+            Value = GetValue();
+        }
+        else if (MaxValue < SelectedValue)
+        {
+            SelectedValue = ViewMode == DatePickerViewMode.DateTime ? MaxValue.Value : MaxValue.Value.Date;
+            Value = GetValue();
         }
 
         if (MinValueToEmpty(SelectedValue))
         {
-            SelectedValue = DateTime.Today;
+            SelectedValue = ViewMode == DatePickerViewMode.DateTime ? DateTime.Now : DateTime.Today;
             Value = default;
         }
         else if (MinValueToToday(SelectedValue))
@@ -283,44 +329,86 @@ public partial class DateTimePicker<TValue>
         }
     }
 
+    private List<DateTime> _disabledDaysList = [];
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (OnGetDisabledDaysCallback != null && DisplayDisabledDayAsEmpty)
+        {
+            DateTime d = Value switch
+            {
+                DateTime v1 => v1,
+                DateTimeOffset v2 => v2.DateTime,
+                _ => DateTime.MinValue
+            };
+
+            if (d != DateTime.MinValue)
+            {
+                _render = false;
+                _disabledDaysList = await OnGetDisabledDaysCallback(d, d);
+                _render = true;
+            }
+        }
+    }
+
+    private bool _render = true;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override bool ShouldRender() => _render;
+
     /// <summary>
     /// 格式化数值方法
     /// </summary>
-    protected override string FormatValueAsString(TValue value)
+    protected override string FormatValueAsString(TValue? value)
     {
         var ret = "";
-        DateTime? d = null;
-        if (value is DateTime v1)
+        DateTime? d = value switch
         {
-            d = v1;
-        }
-        else if (value is DateTimeOffset v2)
-        {
-            d = v2.DateTime;
-        }
+            DateTime v1 => v1,
+            DateTimeOffset v2 => v2.DateTime,
+            _ => null
+        };
 
-        if (d.HasValue && MinValueToToday(d.Value))
-        {
-            d = DateTime.Today;
-        }
-
-        if (d.HasValue && !MinValueToEmpty(d.Value))
+        if (d.HasValue && !_disabledDaysList.Contains(d.Value))
         {
             ret = d.Value.ToString(ViewMode == DatePickerViewMode.DateTime ? DateTimeFormat : DateFormat);
         }
         return ret;
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        TriggerHideCallback = nameof(TriggerHideCallback)
+    });
+
     private bool MinValueToEmpty(DateTime val) => val == DateTime.MinValue && AllowNull && DisplayMinValueAsEmpty;
 
     private bool MinValueToToday(DateTime val) => val == DateTime.MinValue && !AllowNull && AutoToday;
+
+    /// <summary>
+    /// 清除内部缓存方法
+    /// </summary>
+    public void ClearDisabledDays() => _pickerBody.ClearDisabledDays();
 
     /// <summary>
     /// 确认按钮点击时回调此方法
     /// </summary>
     private async Task OnConfirm()
     {
-        CurrentValue = GetValue();
+        CurrentValue = GetValue()!;
 
         if (AutoClose)
         {
@@ -331,7 +419,7 @@ public partial class DateTimePicker<TValue>
     private async Task OnClear()
     {
         // 允许为空时才会触发 OnClear 方法
-        CurrentValue = default;
+        CurrentValue = default!;
         SelectedValue = DateTime.Today;
 
         if (AutoClose)
@@ -377,4 +465,26 @@ public partial class DateTimePicker<TValue>
     }
 
     private string? ReadonlyString => IsEditable ? null : "readonly";
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected virtual async Task OnBlur()
+    {
+        if (OnBlurAsync != null)
+        {
+            await OnBlurAsync(Value);
+        }
+    }
+
+    /// <summary>
+    /// 客户端弹窗关闭后由 Javascript 调用此方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public Task TriggerHideCallback()
+    {
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
 }

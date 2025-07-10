@@ -129,7 +129,8 @@
     "ReverseSelectText": "反选",
     "ClearText": "清除",
     "MinErrorMessage": "最少请选择 {0} 项",
-    "MaxErrorMessage": "最多可以选择 {0} 项"
+    "MaxErrorMessage": "最多可以选择 {0} 项",
+    "NoSearchDataText": "无数据"
   },
   "BootstrapBlazor.Components.Pagination": {
     "GotoNavigatorLabelText": "导航到"
@@ -146,7 +147,8 @@
     "EmptyText": "无数据"
   },
   "BootstrapBlazor.Components.Search": {
-    "SearchButtonText": "搜索"
+    "SearchButtonText": "搜索",
+    "NoDataTip": "无数据"
   },
   "BootstrapBlazor.Components.Select": {
     "PlaceHolder": "请选择 ...",
@@ -171,11 +173,17 @@
     "CloseCurrentTabText": "关闭当前标签",
     "CloseOtherTabsText": "关闭其他标签",
     "CloseAllTabsText": "关闭所有标签",
-    "NotFoundTabText": "未找到"
-  },
-  "BootstrapBlazor.Components.MultiFilter": {
-    "MultiFilterSearchPlaceHolderText": "请输入 ...",
-    "MultiFilterSelectAllText": "全选"
+    "NotFoundTabText": "未找到",
+    "RefreshToolbarTooltipText": "刷新",
+    "FullscreenToolbarTooltipText": "全屏",
+    "PrevTabNavLinkTooltipText": "上一个标签",
+    "NextTabNavLinkTooltipText": "下一个标签",
+    "CloseTabNavLinkTooltipText": "关闭",
+    "ContextRefresh": "刷新",
+    "ContextClose": "关闭",
+    "ContextCloseOther": "关闭其他",
+    "ContextCloseAll": "关闭全部",
+    "ContextFullScreen": "全屏"
   },
   "BootstrapBlazor.Components.Table": {
     "AddButtonText": "新建",
@@ -251,7 +259,7 @@
     "CloseButtonText": "关闭",
     "SaveButtonText": "保存"
   },
-  "BootstrapBlazor.Components.TableFilter": {
+  "BootstrapBlazor.Components.TableColumnFilter": {
     "ClearButtonText": "重置",
     "FilterButtonText": "确认",
     "BoolFilter.AllText": "全部",
@@ -266,7 +274,9 @@
     "Contains": "包含",
     "NotContains": "不包含",
     "EnumFilter.AllText": "全选",
-    "NotSupportedMessage": "不支持的类型，请使用 FilterTemplate 自定义过滤组件"
+    "NotSupportedColumnFilterMessage": "<p>不支持的类型，请使用 <code>FilterTemplate</code> 自定义过滤组件</p><div>请参考文档 <a href=\"https://www.blazor.zone/table/filter#CustomFilter\" target=\"_blank\">CustomFilter</a></div>",
+    "MultiFilterSearchPlaceHolderText": "请输入 ...",
+    "MultiFilterSelectAllText": "全选"
   },
   "BootstrapBlazor.Components.FilterLogicItem": {
     "And": "并且",
@@ -304,13 +314,16 @@
     "NotSetOnTreeExpandErrorMessage": "未设置 OnExpandNodeAsync 回调委托方法"
   },
   "BootstrapBlazor.Components.TreeView": {
-    "NotSetOnTreeExpandErrorMessage": "未设置 OnExpandNodeAsync 回调委托方法"
+    "NotSetOnTreeExpandErrorMessage": "未设置 OnExpandNodeAsync 回调委托方法",
+    "ToolbarEditTitle": "节点名称编辑",
+    "ToolbarEditLabelText": "更改为"
   },
   "BootstrapBlazor.Components.UploadBase": {
     "DeleteButtonText": "删除",
     "BrowserButtonText": "浏览",
     "FileExtensions": "文件扩展名必须为以下几种格式: {0}",
-    "FileSizeValidation": "文件太大，文件限制大小为 {0}"
+    "FileSizeValidation": "文件太大，文件限制大小为 {0}",
+    "DropUploadText": "拖拽文件到此处或者<em>点击上传</em>"
   },
   "BootstrapBlazor.Components.Handwritten": {
     "SaveButtonText": "保存",
@@ -373,5 +386,8 @@
     "AutoModeText": "自动",
     "DarkModeText": "暗黑",
     "LightModeText": "明亮"
+  },
+  "BootstrapBlazor.Components.ValidateBase": {
+    "DefaultRequiredErrorMessage": "{0}是必填项"
   }
 }

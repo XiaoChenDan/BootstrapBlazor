@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Collections.Concurrent;
 
@@ -228,7 +229,7 @@ public partial class Table<TItem>
 
     private bool IsNotFixedColumn() => !(FixedExtendButtonsColumn && IsExtendButtonsInRowHeader) && !(GetVisibleColumns().FirstOrDefault()?.Fixed ?? false);
 
-    private ConcurrentDictionary<ITableColumn, bool> LastFixedColumnCache { get; } = new();
+    private ConcurrentDictionary<ITableColumn, bool> LastFixedColumnCache { get; } = new(ReferenceEqualityComparer.Instance);
 
     private bool IsLastColumn(ITableColumn col) => LastFixedColumnCache.GetOrAdd(col, col =>
     {
@@ -243,7 +244,7 @@ public partial class Table<TItem>
 
     private bool IsLastExtendButtonColumn() => IsExtendButtonsInRowHeader && !GetVisibleColumns().Any(i => i.Fixed);
 
-    private ConcurrentDictionary<ITableColumn, bool> FirstFixedColumnCache { get; } = new();
+    private ConcurrentDictionary<ITableColumn, bool> FirstFixedColumnCache { get; } = new(ReferenceEqualityComparer.Instance);
 
     private bool IsFirstColumn(ITableColumn col) => FirstFixedColumnCache.GetOrAdd(col, col =>
     {
@@ -280,8 +281,9 @@ public partial class Table<TItem>
         return width;
     }
 
-    private int CalcMargin(int margin)
+    private int CalcMargin()
     {
+        var margin = 0;
         if (ShowDetails())
         {
             margin += DetailColumnWidth;
@@ -338,10 +340,11 @@ public partial class Table<TItem>
 
     private string? GetLeftStyle(ITableColumn col)
     {
+        var columns = GetVisibleColumns().ToList();
         var defaultWidth = 200;
         var width = 0;
         var start = 0;
-        var index = Columns.IndexOf(col);
+        var index = columns.IndexOf(col);
         if (GetFixedDetailRowHeaderColumn)
         {
             width += DetailColumnWidth;
@@ -356,29 +359,24 @@ public partial class Table<TItem>
         }
         while (index > start)
         {
-            var column = Columns[start++];
-            if (IsVisible(column))
-            {
-                width += column.Width ?? defaultWidth;
-            }
+            var column = columns[start++];
+            width += column.Width ?? defaultWidth;
         }
         return $"left: {width}px;";
     }
 
     private string? GetRightStyle(ITableColumn col, int margin)
     {
+        var columns = GetVisibleColumns().ToList();
         var defaultWidth = 200;
         var width = 0;
-        var index = Columns.IndexOf(col);
+        var index = columns.IndexOf(col);
 
         // after
-        while (index + 1 < Columns.Count)
+        while (index + 1 < columns.Count)
         {
-            var column = Columns[index++];
-            if (IsVisible(column))
-            {
-                width += column.Width ?? defaultWidth;
-            }
+            var column = columns[index++];
+            width += column.Width ?? defaultWidth;
         }
         if (ShowExtendButtons && FixedExtendButtonsColumn)
         {
@@ -386,14 +384,12 @@ public partial class Table<TItem>
         }
 
         // 如果是固定表头时增加滚动条位置
-        if (IsFixedHeader && (index + 1) == Columns.Count)
+        if (IsFixedHeader && (index + 1) == columns.Count)
         {
             width += margin;
         }
         return $"right: {width}px;";
     }
-
-    private bool IsVisible(ITableColumn col) => VisibleColumns.Find(i => i.Name == col.GetFieldName()) is { Visible: true };
 
     /// <summary>
     /// 获取指定列头样式字符串

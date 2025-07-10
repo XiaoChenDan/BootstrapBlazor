@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples.Table;
 
@@ -37,14 +38,14 @@ public partial class TablesWrap
         return Task.FromResult(new QueryData<Foo>() { Items = items, TotalCount = total, IsSorted = true, IsFiltered = true, IsSearch = true });
     }
 
-    private async Task<string?> GetTooltipTextCallback(object? v)
+    private static async Task<string?> GetTooltipTextCallback(object? v)
     {
-        await Task.Delay(0);
+        await Task.Delay(5);
 
         var ret = string.Empty;
         if (v is Foo foo)
         {
-            ret = $"{foo.Name}-{DateTime.Now}";
+            ret = $"{foo.Name}-{foo.Address}";
         }
         return ret;
     }

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Bunit.TestDoubles;
 
@@ -14,6 +15,11 @@ public class RibbonTabAnchorTest : BootstrapBlazorTestBase
     [Fact]
     public void IsSupportAnchor_Ok()
     {
+        var item1 = new RibbonTabItem() { Text = "test1" };
+        item1.Items.Add(new RibbonTabItem() { Text = "Item" });
+        var item2 = new RibbonTabItem() { Text = "test2" };
+        item2.Items.Add(new RibbonTabItem() { Text = "Item" });
+
         var cut = Context.RenderComponent<RibbonTab>(pb =>
         {
             pb.Add(a => a.IsSupportAnchor, true);
@@ -22,31 +28,7 @@ public class RibbonTabAnchorTest : BootstrapBlazorTestBase
                 return $"{url}#{text}-anchor";
             });
             pb.Add(a => a.DecodeAnchorCallback, url => url.Split('#').LastOrDefault()?.Split('-').FirstOrDefault());
-            pb.Add(a => a.Items, new RibbonTabItem[]
-            {
-                new()
-                {
-                    Text = "test1",
-                    Items = new RibbonTabItem[]
-                    {
-                        new()
-                        {
-                            Text = "Item"
-                        }
-                    }
-                },
-                new()
-                {
-                    Text = "test2",
-                    Items = new RibbonTabItem[]
-                    {
-                        new()
-                        {
-                            Text = "Item"
-                        }
-                    }
-                }
-            });
+            pb.Add(a => a.Items, [item1, item2]);
         });
 
         cut.InvokeAsync(() =>

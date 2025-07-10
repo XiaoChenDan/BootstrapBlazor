@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Globalization;
 
@@ -49,8 +50,10 @@ public static class IEditItemExtensions
         if (source.LookupStringComparison != StringComparison.OrdinalIgnoreCase) dest.LookupStringComparison = source.LookupStringComparison;
         if (source.LookupServiceKey != null) dest.LookupServiceKey = source.LookupServiceKey;
         if (source.LookupServiceData != null) dest.LookupServiceData = source.LookupServiceData;
+        if (source.LookupService != null) dest.LookupService = source.LookupService;
         if (source.Readonly.HasValue) dest.Readonly = source.Readonly;
         if (source.Rows > 0) dest.Rows = source.Rows;
+        if (source.Cols > 0) dest.Cols = source.Cols;
         if (source.SkipValidate) dest.SkipValidate = source.SkipValidate;
         if (!string.IsNullOrEmpty(source.Text)) dest.Text = source.Text;
         if (source.ValidateRules != null) dest.ValidateRules = source.ValidateRules;
@@ -60,6 +63,8 @@ public static class IEditItemExtensions
         if (!string.IsNullOrEmpty(source.PlaceHolder)) dest.PlaceHolder = source.PlaceHolder;
         if (!string.IsNullOrEmpty(source.Step)) dest.Step = source.Step;
         if (source.Order != 0) dest.Order = source.Order;
+        if (source.Required.HasValue) dest.Required = source.Required;
+        if (!string.IsNullOrEmpty(source.RequiredErrorMessage)) dest.RequiredErrorMessage = source.RequiredErrorMessage;
 
         if (source is ITableColumn col)
         {
@@ -104,6 +109,9 @@ public static class IEditItemExtensions
         if (col.GetTooltipTextCallback != null) dest.GetTooltipTextCallback = col.GetTooltipTextCallback;
         if (col.CustomSearch != null) dest.CustomSearch = col.CustomSearch;
         if (col.ToolboxTemplate != null) dest.ToolboxTemplate = col.ToolboxTemplate;
+        if (col.IsRequiredWhenAdd.HasValue) dest.IsRequiredWhenAdd = col.IsRequiredWhenAdd;
+        if (col.IsRequiredWhenEdit.HasValue) dest.IsRequiredWhenEdit = col.IsRequiredWhenEdit;
+        if (col.IgnoreWhenExport.HasValue) dest.IgnoreWhenExport = col.IgnoreWhenExport;
     }
 
     /// <summary>
@@ -166,17 +174,19 @@ public static class IEditItemExtensions
         return searches;
     }
 
-    internal static RenderFragment RenderValue<TItem>(this ITableColumn col, TItem item) => async builder =>
+    /// <summary>
+    /// 当前单元格方法
+    /// </summary>
+    /// <typeparam name="TItem"></typeparam>
+    /// <param name="col"></param>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public static RenderFragment RenderValue<TItem>(this ITableColumn col, TItem item) => builder =>
     {
         var val = col.GetItemValue(item);
-        if (col.Lookup != null && val != null)
+        if (col.IsLookup() && val != null)
         {
-            // 转化 Lookup 数据源
-            var lookupVal = col.Lookup.FirstOrDefault(l => l.Value.Equals(val.ToString(), col.LookupStringComparison));
-            if (lookupVal != null)
-            {
-                builder.AddContent(10, col.RenderTooltip(lookupVal.Text, item));
-            }
+            builder.AddContent(10, col.RenderLookupContent(val.ToString(), item));
         }
         else if (val is bool v1)
         {
@@ -188,27 +198,32 @@ public static class IEditItemExtensions
             if (col.Formatter != null)
             {
                 // 格式化回调委托
-                content = await col.Formatter(new TableColumnContext<TItem, object?>(item, val));
-            }
-            else if (!string.IsNullOrEmpty(col.FormatString))
-            {
-                // 格式化字符串
-                content = Utility.Format(val, col.FormatString);
-            }
-            else if (col.PropertyType.IsDateTime())
-            {
-                content = Utility.Format(val, CultureInfo.CurrentUICulture.DateTimeFormat);
-            }
-            else if (val is IEnumerable<object> v)
-            {
-                content = string.Join(",", v);
+                builder.OpenComponent<TableFormatContent>(40);
+                builder.AddAttribute(45, nameof(TableFormatContent.Formatter), col.Formatter);
+                builder.AddAttribute(46, nameof(TableFormatContent.Item), new TableColumnContext<TItem, object?>(item, val));
+                builder.CloseComponent();
             }
             else
             {
-                content = val?.ToString();
+                if (!string.IsNullOrEmpty(col.FormatString))
+                {
+                    // 格式化字符串
+                    content = Utility.Format(val, col.FormatString);
+                }
+                else if (col.PropertyType.IsDateTime())
+                {
+                    content = Utility.Format(val, CultureInfo.CurrentUICulture.DateTimeFormat);
+                }
+                else if (val is IEnumerable<object> v)
+                {
+                    content = string.Join(",", v);
+                }
+                else
+                {
+                    content = val?.ToString();
+                }
+                builder.AddContent(30, col.RenderLookupContent(content, item));
             }
-
-            builder.AddContent(30, col.RenderTooltip(content, item));
         }
     };
 
@@ -232,36 +247,59 @@ public static class IEditItemExtensions
         builder.CloseElement();
     };
 
-    private static RenderFragment RenderTooltip<TItem>(this ITableColumn col, string? text, TItem item) => async pb =>
+    private static RenderFragment RenderLookupContent<TItem>(this ITableColumn col, string? text, TItem item) => pb =>
     {
         if (col.GetShowTips())
         {
-            var tooltipText = text;
-            if (col.GetTooltipTextCallback != null)
-            {
-                tooltipText = await col.GetTooltipTextCallback(item);
-            }
-            pb.OpenComponent<Tooltip>(0);
-            pb.AddAttribute(1, nameof(Tooltip.Title), tooltipText);
-            pb.AddAttribute(2, "class", "text-truncate d-block");
-            if (col.IsMarkupString)
-            {
-                pb.AddAttribute(3, nameof(Tooltip.ChildContent), new RenderFragment(builder => builder.AddMarkupContent(0, text)));
-                pb.AddAttribute(4, nameof(Tooltip.IsHtml), true);
-            }
-            else
-            {
-                pb.AddAttribute(3, nameof(Tooltip.ChildContent), new RenderFragment(builder => builder.AddContent(0, text)));
-            }
+            pb.AddContent(10, col.RenderTooltip(text, item));
+        }
+        else
+        {
+            pb.AddContent(20, col.RenderContent(text));
+        }
+    };
+
+    private static RenderFragment RenderTooltip<TItem>(this ITableColumn col, string? text, TItem item) => pb =>
+    {
+        pb.OpenComponent<Tooltip>(0);
+        pb.SetKey(item);
+        if (col.GetTooltipTextCallback != null)
+        {
+            pb.AddAttribute(10, nameof(Tooltip.GetTitleCallback), new Func<Task<string?>>(() => col.GetTooltipTextCallback(item)));
+        }
+        else
+        {
+            pb.AddAttribute(11, nameof(Tooltip.Title), text);
+        }
+        if (col.IsMarkupString)
+        {
+            pb.AddAttribute(12, nameof(Tooltip.IsHtml), true);
+        }
+        pb.AddAttribute(13, "class", "text-truncate d-block");
+        pb.AddAttribute(14, nameof(Tooltip.ChildContent), col.RenderContent(text));
+        pb.CloseComponent();
+    };
+
+    private static RenderFragment RenderContent(this ITableColumn col, string? text) => pb =>
+    {
+        if (col.IsLookup())
+        {
+            pb.OpenComponent<LookupContent>(100);
+            pb.AddAttribute(101, nameof(LookupContent.LookupService), col.LookupService);
+            pb.AddAttribute(102, nameof(LookupContent.LookupServiceKey), col.LookupServiceKey);
+            pb.AddAttribute(103, nameof(LookupContent.LookupServiceData), col.LookupServiceData);
+            pb.AddAttribute(104, nameof(LookupContent.LookupStringComparison), col.LookupStringComparison);
+            pb.AddAttribute(105, nameof(LookupContent.Lookup), col.Lookup);
+            pb.AddAttribute(106, nameof(LookupContent.Value), text);
             pb.CloseComponent();
         }
         else if (col.IsMarkupString)
         {
-            pb.AddMarkupContent(3, text);
+            pb.AddMarkupContent(110, text);
         }
         else
         {
-            pb.AddContent(4, text);
+            pb.AddContent(120, text);
         }
     };
 
@@ -311,4 +349,6 @@ public static class IEditItemExtensions
     internal static bool GetShowTips(this ITableColumn col) => col.ShowTips ?? false;
 
     internal static Alignment GetAlign(this ITableColumn col) => col.Align ?? Alignment.None;
+
+    internal static int? GetColumnFixedWidth(this ITableColumn col, int width) => col.Fixed ? col.Width ?? width : col.Width;
 }

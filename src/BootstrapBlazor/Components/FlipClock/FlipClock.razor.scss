@@ -1,4 +1,4 @@
-.bb-flip-clock {
+﻿.bb-flip-clock {
     --bb-flip-clock-height: #{$bb-flip-clock-height};
     --bb-flip-clock-bg: #{$bb-flip-clock-bg};
     --bb-flip-clock-font-size: #{$bb-flip-clock-font-size};
@@ -25,12 +25,13 @@
     position: relative;
     width: 100%;
     flex-shrink: 0;
+    overflow: auto;
 
     .bb-flip-clock-list {
         display: flex;
 
         &:not(:last-child) {
-            margin-right: var(--bb-flip-clock-list-margin-right);
+            margin-inline-end: var(--bb-flip-clock-list-margin-right);
         }
     }
 }

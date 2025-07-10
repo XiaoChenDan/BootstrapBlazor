@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -51,6 +52,14 @@ public sealed partial class Drawers
     private bool IsShowBackdropOpen { get; set; }
 
     private void OpenNoBackdropDrawer() => IsShowBackdropOpen = true;
+
+    private bool IsKeyboardOpen { get; set; }
+
+    private void OpenKeyboardDrawer() => IsKeyboardOpen = true;
+
+    private bool IsBodyScrollOpen { get; set; }
+
+    private void OpenBodyScrollDrawer() => IsBodyScrollOpen = true;
 
     private async Task DrawerServiceShow() => await DrawerService.Show(new DrawerOption()
     {
@@ -133,9 +142,25 @@ public sealed partial class Drawers
         },
         new()
         {
+            Name = "BodyScroll",
+            Description = "Where the enable body scrolling when drawer is shown",
+            Type = "bool",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        },
+        new()
+        {
             Name = "ChildContent",
             Description = "Subassembly",
             Type = "RenderFragment",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name = "ZIndex",
+            Description = "sets the z-order",
+            Type = "int?",
             ValueList = " — ",
             DefaultValue = " — "
         },

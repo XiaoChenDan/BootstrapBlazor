@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 
@@ -69,13 +70,29 @@ public partial class ThemeProvider
     /// 获得/设置 主题切换回调方法
     /// </summary>
     [Parameter]
-    public Func<string, Task>? OnThemeChangedAsync { get; set; }
+    public Func<ThemeValue, Task>? OnThemeChangedAsync { get; set; }
+
+    /// <summary>
+    /// 主题类型
+    /// </summary>
+    [Parameter]
+    public ThemeValue ThemeValue { get; set; } = ThemeValue.UseLocalStorage;
+
+    /// <summary>
+    /// 主题类型改变回调方法
+    /// </summary>
+    [Parameter]
+    public EventCallback<ThemeValue> ThemeValueChanged { get; set; }
 
     [Inject, NotNull]
     private IIconTheme? IconTheme { get; set; }
 
     [Inject, NotNull]
     private IStringLocalizer<ThemeProvider>? Localizer { get; set; }
+
+    [Inject]
+    [NotNull]
+    private IThemeProvider? ThemeProviderService { get; set; }
 
     private string? ClassString => CssBuilder.Default("dropdown bb-theme-mode")
         .AddClassFromAttributes(AdditionalAttributes)
@@ -107,7 +124,7 @@ public partial class ThemeProvider
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, OnThemeChangedAsync != null ? nameof(OnThemeChanged) : null);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, ThemeValue, nameof(OnThemeChanged));
 
     /// <summary>
     /// JavaScript 回调方法
@@ -115,11 +132,18 @@ public partial class ThemeProvider
     /// <param name="name"></param>
     /// <returns></returns>
     [JSInvokable]
-    public async Task OnThemeChanged(string name)
+    public async Task OnThemeChanged(ThemeValue name)
     {
+        if (ThemeValueChanged.HasDelegate)
+        {
+            await ThemeValueChanged.InvokeAsync(name);
+        }
+
         if (OnThemeChangedAsync != null)
         {
             await OnThemeChangedAsync(name);
         }
+
+        ThemeProviderService.TriggerThemeChanged(name.ToDescriptionString());
     }
 }

@@ -1,11 +1,30 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Components;
 
 public class DialogTest : BootstrapBlazorTestBase
 {
+    [Fact]
+    public async Task ShowModal_Ok()
+    {
+        var cut = Context.RenderComponent<BootstrapBlazorRoot>(pb =>
+        {
+            pb.Add(a => a.EnableErrorLogger, false);
+            pb.AddChildContent<MockDialogTest>();
+        });
+        var modal = cut.FindComponent<Modal>();
+        var dialog = cut.FindComponent<MockDialogTest>().Instance.DialogService;
+        _ = cut.InvokeAsync(() => dialog.ShowModal("title", "<span class=\"text-danger\">test-content</span>"));
+        cut.WaitForState(() => cut.Markup.Contains("btn-primary"));
+
+        var closeButton = cut.Find(".btn-primary");
+        await cut.InvokeAsync(() => closeButton.Click());
+        await cut.InvokeAsync(() => modal.Instance.CloseCallback());
+    }
+
     [Fact]
     public async Task Show_Ok()
     {
@@ -39,13 +58,19 @@ public class DialogTest : BootstrapBlazorTestBase
             ShowExportPdfButton = true,
             ShowExportPdfButtonInHeader = true,
             ExportPdfButtonOptions = new(),
+            IsFade = false,
             OnCloseAsync = () =>
             {
                 closed = true;
                 return Task.CompletedTask;
             }
         }));
-        Assert.Contains("<svg", cut.Markup);
+
+        // 由于设置了 IsFade=false Modal 不应该渲染 fade 样式
+        Assert.DoesNotContain("modal fade", modal.Markup);
+
+        // 由于设置了 ShowMaximizeButton 导致 ShowResize 参数失效
+        Assert.DoesNotContain("<svg", cut.Markup);
         Assert.Contains("data-bs-backdrop=\"static\"", cut.Markup);
 
         // 全屏按钮
@@ -191,9 +216,11 @@ public class DialogTest : BootstrapBlazorTestBase
             return Task.CompletedTask;
         };
         await cut.InvokeAsync(() => dialog.ShowEditDialog(editOption));
+
         // 点击关闭按钮
         button = cut.FindComponents<Button>().First(b => b.Instance.Text == "关闭");
-        await cut.InvokeAsync(() => button.Instance.OnClickWithoutRender!.Invoke());
+        // 关闭按钮未设置 OnClickWithoutRender 事件
+        Assert.Null(button.Instance.OnClickWithoutRender);
         await cut.InvokeAsync(() => modal.Instance.CloseCallback());
         Assert.True(closed);
 
@@ -303,6 +330,7 @@ public class DialogTest : BootstrapBlazorTestBase
 
         // 点击的是 No 按钮
         result = true;
+        resultOption.BodyTemplate = null;
         _ = cut.InvokeAsync(() => dialog.ShowModal<MockModalDialog>(resultOption));
         cut.WaitForState(() => cut.Markup.Contains("btn-danger"));
 
@@ -313,6 +341,7 @@ public class DialogTest : BootstrapBlazorTestBase
 
         // 点击的是 Close 按钮
         result = true;
+        resultOption.BodyTemplate = null;
         _ = cut.InvokeAsync(() => dialog.ShowModal<MockModalDialog>(resultOption));
         cut.WaitForState(() => cut.Markup.Contains("btn-secondary"));
 
@@ -340,6 +369,7 @@ public class DialogTest : BootstrapBlazorTestBase
         await cut.InvokeAsync(() => modal.Instance.CloseCallback());
 
         // 点击右上角关闭按钮
+        resultOption.BodyTemplate = null;
         _ = cut.InvokeAsync(() => dialog.ShowModal<MockModalDialog>(resultOption));
         cut.WaitForState(() => cut.Markup.Contains("btn-close"));
 
@@ -348,10 +378,19 @@ public class DialogTest : BootstrapBlazorTestBase
         await cut.InvokeAsync(() => modal.Instance.CloseCallback());
 
         // 点击 FooterTemplate 中的 关闭 按钮
+        resultOption.BodyTemplate = null;
         _ = cut.InvokeAsync(() => dialog.ShowModal<MockModalDialogClosingFalse>(resultOption));
         cut.WaitForState(() => cut.Markup.Contains("btn-secondary"));
 
         closeButton = cut.Find(".btn-secondary");
+        await cut.InvokeAsync(() => closeButton.Click());
+        await cut.InvokeAsync(() => modal.Instance.CloseCallback());
+
+        // 测试 Markup 扩展模式弹窗
+        _ = cut.InvokeAsync(() => dialog.ShowModal("title", "<span class=\"text-danger\">test-content</span>"));
+        cut.WaitForState(() => cut.Markup.Contains("btn-primary"));
+
+        closeButton = cut.Find(".btn-primary");
         await cut.InvokeAsync(() => closeButton.Click());
         await cut.InvokeAsync(() => modal.Instance.CloseCallback());
         #endregion
@@ -359,6 +398,7 @@ public class DialogTest : BootstrapBlazorTestBase
         #region 弹窗中的弹窗测试
         await cut.InvokeAsync(() => dialog.Show(new DialogOption()
         {
+            IsHidePreviousDialog = true,
             // 弹窗中按钮
             BodyTemplate = BootstrapDynamicComponent.CreateComponent<Button>(new Dictionary<string, object?>()
             {
@@ -375,10 +415,12 @@ public class DialogTest : BootstrapBlazorTestBase
                 }
             }).Render()
         }));
+        Assert.DoesNotContain("modal-multiple", cut.Markup);
 
         // 弹出第二个弹窗
         var buttonInDialog = cut.Find(".btn-primary");
         buttonInDialog.Click();
+        Assert.Contains("class=\"modal fade modal-multiple show\"", cut.Markup);
         Assert.Equal(2, cut.FindComponents<ModalDialog>().Count);
 
         // 关闭第二个弹窗
@@ -529,6 +571,16 @@ public class DialogTest : BootstrapBlazorTestBase
         {
             parameter.Add("Class", "test");
         }));
+        await cut.InvokeAsync(() => modal.Instance.CloseCallback());
+        #endregion
+
+        #region Show Extensions Method
+        await cut.InvokeAsync(() => dialog.Show<MockValidateFormDialog>("Test Title"));
+        await cut.InvokeAsync(() => modal.Instance.CloseCallback());
+        #endregion
+
+        #region ShowExceptionDialog Method
+        await cut.InvokeAsync(() => dialog.ShowExceptionDialog(new Exception("Test")));
         await cut.InvokeAsync(() => modal.Instance.CloseCallback());
         #endregion
     }

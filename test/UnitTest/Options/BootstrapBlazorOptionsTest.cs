@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Options;
 
@@ -12,6 +13,7 @@ public class BootstrapBlazorOptionsTest
         var options = new BootstrapBlazorOptions()
         {
             EnableErrorLogger = true,
+            ShowErrorLoggerToast = true,
             EnableFallbackCulture = true,
             JSModuleVersion = "1.0",
             TableSettings = new()
@@ -94,12 +96,42 @@ public class BootstrapBlazorOptionsTest
         exportOptions.AutoMergeArray = false;
         exportOptions.ArrayDelimiter = ",";
         exportOptions.UseEnumDescription = false;
+        exportOptions.EnableAutoFilter = false;
+        exportOptions.EnableAutoWidth = false;
 
         Assert.False(exportOptions.EnableLookup);
         Assert.False(exportOptions.EnableFormat);
         Assert.False(exportOptions.AutoMergeArray);
         Assert.False(exportOptions.UseEnumDescription);
+        Assert.False(exportOptions.EnableAutoFilter);
+        Assert.False(exportOptions.EnableAutoWidth);
 
         Assert.Equal(",", exportOptions.ArrayDelimiter);
+    }
+
+    [Fact]
+    public void CacheManagerOptions_Ok()
+    {
+        var options = new BootstrapBlazorOptions();
+        Assert.NotNull(options.CacheManagerOptions);
+
+        options.CacheManagerOptions.Enable = true;
+        options.CacheManagerOptions.SlidingExpiration = TimeSpan.FromSeconds(1);
+        options.CacheManagerOptions.AbsoluteExpiration = TimeSpan.FromSeconds(1);
+
+        Assert.Equal(TimeSpan.FromSeconds(1), options.CacheManagerOptions.AbsoluteExpiration);
+        Assert.Equal(TimeSpan.FromSeconds(1), options.CacheManagerOptions.SlidingExpiration);
+        Assert.True(options.CacheManagerOptions.Enable);
+    }
+
+    [Fact]
+    public void ModalSettings_Ok()
+    {
+        var options = new BootstrapBlazorOptions();
+        Assert.NotNull(options.ModalSettings);
+
+        options.ModalSettings.IsFade = true;
+
+        Assert.True(options.ModalSettings.IsFade);
     }
 }

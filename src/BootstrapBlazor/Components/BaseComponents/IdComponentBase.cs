@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -14,10 +15,10 @@ public abstract class IdComponentBase : BootstrapComponentBase
     /// </summary>
     [Parameter]
     [NotNull]
-    public virtual string? Id { get; set; }
+    public string? Id { get; set; }
 
     /// <summary>
-    /// 获得 IComponentIdGenerator 实例
+    /// 获得 <see cref="IComponentIdGenerator"/> 实例
     /// </summary>
     [Inject]
     [NotNull]
@@ -34,16 +35,6 @@ public abstract class IdComponentBase : BootstrapComponentBase
     protected override void OnInitialized()
     {
         base.OnInitialized();
-
-        Id ??= ComponentIdGenerator.Generate(this);
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
 
         Id ??= ComponentIdGenerator.Generate(this);
     }

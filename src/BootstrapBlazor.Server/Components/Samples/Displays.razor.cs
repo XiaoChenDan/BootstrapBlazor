@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -9,15 +10,15 @@ namespace BootstrapBlazor.Server.Components.Samples;
 /// </summary>
 public partial class Displays
 {
-    private IEnumerable<int> IntValue { get; set; } = new[] { 1, 2, 3 };
+    private IEnumerable<int> IntValue { get; } = [1, 2, 3];
 
     private static string DisplayValue => "Text1; Text2; Text3; Text4; Text5;";
 
-    private SelectedItem[] IntValueSource { get; set; } =
+    private SelectedItem[] IntValueSource { get; } =
     [
-        new SelectedItem("1", "Text1"),
-        new SelectedItem("2", "Text2"),
-        new SelectedItem("3", "Text3")
+        new("1", "Text1"),
+        new("2", "Text2"),
+        new("3", "Text3")
     ];
 
     private static Task<string> DateTimeFormatter(DateTime source) => Task.FromResult(source.ToString("yyyy-MM-dd"));

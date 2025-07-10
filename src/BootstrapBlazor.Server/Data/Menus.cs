@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Data;
 
@@ -189,11 +190,10 @@ internal static class MenusDataGenerator
         })
     });
 
-    public static async Task<IEnumerable<MenuItem>> GetIconSideMenuItemsAsync(IStringLocalizer localizer)
+    public static async Task<List<MenuItem>> GetIconSideMenuItemsAsync(IStringLocalizer localizer)
     {
         await Task.Delay(1);
-        return new List<MenuItem>
-        {
+        return [
             new(localizer["System"].Value, icon: "fa-solid fa-gears")
             {
                 IsActive = true,
@@ -203,6 +203,7 @@ internal static class MenusDataGenerator
                     new(localizer["Task"].Value, icon: "fa-solid fa-bars-progress")
                 }
             },
+
             new(localizer["Authorize"].Value, icon: "fa-solid fa-users")
             {
                 Items = new List<MenuItem>
@@ -212,6 +213,7 @@ internal static class MenusDataGenerator
                     new(localizer["Role"].Value, icon: "fa-solid fa-sitemap")
                 }
             },
+
             new(localizer["Log"].Value, icon: "fa-solid fa-database")
             {
                 Items = new List<MenuItem>
@@ -221,7 +223,7 @@ internal static class MenusDataGenerator
                     new(localizer["Operation"].Value, icon: "fa-solid fa-pen")
                 }
             }
-        };
+        ];
     }
 
     public static async Task<IEnumerable<MenuItem>> GetWidgetIconSideMenuItemsAsync(IStringLocalizer localizer)

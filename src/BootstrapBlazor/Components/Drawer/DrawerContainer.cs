@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Rendering;
 
@@ -64,6 +65,8 @@ public class DrawerContainer : ComponentBase, IDisposable
         var parameters = new Dictionary<string, object>()
         {
             [nameof(Drawer.IsOpen)] = true,
+            [nameof(Drawer.IsKeyboard)] = option.IsKeyboard,
+            [nameof(Drawer.BodyScroll)] = option.BodyScroll,
             [nameof(Drawer.IsBackdrop)] = option.IsBackdrop,
             [nameof(Drawer.ShowBackdrop)] = option.ShowBackdrop,
             [nameof(Drawer.Placement)] = option.Placement,
@@ -78,13 +81,22 @@ public class DrawerContainer : ComponentBase, IDisposable
         {
             parameters.Add(nameof(Drawer.Height), option.Height);
         }
-        if (option.ChildContent != null)
+        if (option.ZIndex.HasValue)
         {
-            parameters.Add(nameof(Drawer.ChildContent), option.ChildContent);
+            parameters.Add(nameof(Drawer.ZIndex), option.ZIndex);
+        }
+        var content = option.GetContent();
+        if (content != null)
+        {
+            parameters.Add(nameof(Drawer.ChildContent), content);
         }
         if (option.OnClickBackdrop != null)
         {
             parameters.Add(nameof(Drawer.OnClickBackdrop), option.OnClickBackdrop);
+        }
+        if (option.BodyContext != null)
+        {
+            parameters.Add(nameof(Drawer.BodyContext), option.BodyContext);
         }
         return parameters;
     }
@@ -104,7 +116,7 @@ public class DrawerContainer : ComponentBase, IDisposable
     /// Dispose 方法
     /// </summary>
     /// <param name="disposing"></param>
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (disposing)
         {

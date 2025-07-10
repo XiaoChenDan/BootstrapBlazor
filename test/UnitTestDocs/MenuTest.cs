@@ -1,8 +1,8 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using BootstrapBlazor.Localization.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -13,9 +13,9 @@ namespace UnitTestDocs;
 
 public partial class MenuTest
 {
-    private ITestOutputHelper _logger;
-    private IServiceProvider _serviceProvider;
-    private IEnumerable<Type> _routerTable;
+    private readonly ITestOutputHelper _logger;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IEnumerable<Type> _routerTable;
 
     public MenuTest(ITestOutputHelper logger)
     {
@@ -129,7 +129,7 @@ public partial class MenuTest
         var target = configEn.GetChildren().SelectMany(section => section.GetChildren().Select(i => $"{section.Key} - {i.Key}")).ToList();
 
         var result = new List<string>();
-        source.Where(i => !target.Contains(i)).ToList().ForEach(i =>
+        source.Except(target).ToList().ForEach(i =>
         {
             result.Add(i);
             _logger.WriteLine(i);
@@ -149,7 +149,7 @@ public partial class MenuTest
 
     static string RemoveBlockStatement(string payload, string removeString)
     {
-        var index = payload.IndexOf(removeString);
+        var index = payload.IndexOf(removeString, StringComparison.Ordinal);
         if (index > -1)
         {
             var end = payload.IndexOf("\n", index, StringComparison.OrdinalIgnoreCase);

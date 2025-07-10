@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -27,7 +28,6 @@ public partial class Table<TItem>
     /// <summary>
     /// 获得/设置 树形数据集合
     /// </summary>
-    [NotNull]
     private List<TableTreeNode<TItem>> TreeRows { get; } = new(100);
 
     /// <summary>
@@ -106,7 +106,7 @@ public partial class Table<TItem>
                 IsLoadChildren = false;
 
                 // 清除缓存
-                RowsCache = null;
+                _rowsCache = null;
 
                 // 更新 UI
                 StateHasChanged();
@@ -120,6 +120,7 @@ public partial class Table<TItem>
         {
             throw new InvalidOperationException(NotSetOnTreeExpandErrorMessage);
         }
+
         return await OnTreeExpand(node.Value);
     }
 }

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Bunit.Rendering;
 
@@ -21,8 +22,14 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
                 pb.Add(a => a.ConfirmButtonColor, Color.Danger);
                 pb.Add(a => a.Icon, "fa-solid fa-font-awesome");
                 pb.Add(a => a.Text, "Test_Text");
+                pb.Add(a => a.CloseButtonIcon, "fa-solid fa-xmark");
+                pb.Add(a => a.ConfirmButtonIcon, "fa-solid fa-check");
             });
         });
+
+        cut.Contains("fa-solid fa-xmark");
+        cut.Contains("fa-solid fa-check");
+        cut.DoesNotContain("data-bb-close=\"true\"");
 
         // Show
         var button = cut.Find("div");
@@ -32,7 +39,7 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
         });
 
         // Close
-        var buttons = cut.FindAll(".popover-confirm-buttons div");
+        var buttons = cut.FindAll(".popover-confirm-buttons button");
         await cut.InvokeAsync(() =>
         {
             buttons[0].Click();
@@ -44,7 +51,7 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
         {
             button.Click();
         });
-        buttons = cut.FindAll(".popover-confirm-buttons div");
+        buttons = cut.FindAll(".popover-confirm-buttons button");
         await cut.InvokeAsync(() =>
         {
             buttons[1].Click();
@@ -78,8 +85,13 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
                 return Task.FromResult(true);
             });
         });
+        cut.Contains("data-bb-close=\"true\"");
         // 默认设置增加 shadow 样式
         Assert.Contains("data-bs-custom-class=\"test-custom-class shadow\"", cut.Markup);
+
+        close = false;
+        await cut.InvokeAsync(() => popButton.Instance.TriggerCloseCallback());
+        Assert.True(close);
 
         // 移除 shadow 样式
         popButton.SetParametersAndRender(pb =>
@@ -96,7 +108,8 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
         });
 
         // Close
-        buttons = cut.FindAll(".popover-confirm-buttons div");
+        close = false;
+        buttons = cut.FindAll(".popover-confirm-buttons button");
         await cut.InvokeAsync(() =>
         {
             buttons[0].Click();
@@ -110,7 +123,7 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
         {
             button.Click();
         });
-        buttons = cut.FindAll(".popover-confirm-buttons div");
+        buttons = cut.FindAll(".popover-confirm-buttons button");
         await cut.InvokeAsync(() =>
         {
             buttons[1].Click();
@@ -131,7 +144,7 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
         });
 
         // Confirm
-        buttons = cut.FindAll(".popover-confirm-buttons div");
+        buttons = cut.FindAll(".popover-confirm-buttons button");
         await cut.InvokeAsync(() =>
         {
             buttons[1].Click();
@@ -157,7 +170,7 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
         });
 
         // async confirm
-        buttons = cut.FindAll(".popover-confirm-buttons div");
+        buttons = cut.FindAll(".popover-confirm-buttons button");
         _ = cut.InvokeAsync(() =>
         {
             buttons[1].Click();
@@ -177,7 +190,7 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
         });
 
         // async confirm
-        buttons = cut.FindAll(".popover-confirm-buttons div");
+        buttons = cut.FindAll(".popover-confirm-buttons button");
         await cut.InvokeAsync(() =>
         {
             buttons[1].Click();
@@ -247,10 +260,12 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
     }
 
     [Fact]
-    public void ConfirmIcon_Ok()
+    public void Icon_Ok()
     {
         var cut = Context.RenderComponent<PopConfirmButtonContent>();
         cut.Contains("text-info fa-solid fa-circle-exclamation");
+        cut.Contains("fa-solid fa-xmark");
+        cut.Contains("fa-solid fa-check");
     }
 
     [Fact]
@@ -287,6 +302,46 @@ public class PopConfirmButtonTest : BootstrapBlazorTestBase
             });
         });
         cut.Contains("data-bs-original-title=\"pop-tooltip\"");
+    }
+
+    [Fact]
+    public void Placement_Ok()
+    {
+        var cut = Context.RenderComponent<PopConfirmButton>(pb =>
+        {
+            pb.Add(a => a.Placement, Placement.LeftStart);
+        });
+        cut.DoesNotContain("data-bs-placement");
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.Placement, Placement.Auto);
+        });
+        cut.DoesNotContain("data-bs-placement");
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.Placement, Placement.Top);
+        });
+        cut.Contains("data-bs-placement=\"top\"");
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.Placement, Placement.Right);
+        });
+        cut.Contains("data-bs-placement=\"right\"");
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.Placement, Placement.Bottom);
+        });
+        cut.Contains("data-bs-placement=\"bottom\"");
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.Placement, Placement.Left);
+        });
+        cut.Contains("data-bs-placement=\"left\"");
     }
 
     public class MockContent : ComponentBase

@@ -1,15 +1,14 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
-
-using Microsoft.Extensions.Logging;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
 /// Web Speech 服务
 /// </summary>
-public class WebSpeechService(IJSRuntime runtime, IComponentIdGenerator ComponentIdGenerator, ILogger<WebSpeechService> logger)
+public class WebSpeechService(IJSRuntime runtime, IComponentIdGenerator ComponentIdGenerator)
 {
     private JSModule? SynthesisModule { get; set; }
 
@@ -23,9 +22,7 @@ public class WebSpeechService(IJSRuntime runtime, IComponentIdGenerator Componen
     {
         if (SynthesisModule == null)
         {
-            var moduleName = "./_content/BootstrapBlazor/modules/synthesis.js";
-            logger.LogInformation("load module {moduleName}", moduleName);
-            SynthesisModule = await runtime.LoadModule(moduleName);
+            SynthesisModule = await runtime.LoadModuleByName("synthesis");
         }
         return new WebSpeechSynthesizer(SynthesisModule, ComponentIdGenerator);
     }
@@ -38,9 +35,7 @@ public class WebSpeechService(IJSRuntime runtime, IComponentIdGenerator Componen
     {
         if (RecognitionModule == null)
         {
-            var moduleName = "./_content/BootstrapBlazor/modules/recognition.js";
-            logger.LogInformation("load module {moduleName}", moduleName);
-            RecognitionModule = await runtime.LoadModule(moduleName);
+            RecognitionModule = await runtime.LoadModuleByName("recognition");
         }
         return new WebSpeechRecognition(RecognitionModule, ComponentIdGenerator);
     }

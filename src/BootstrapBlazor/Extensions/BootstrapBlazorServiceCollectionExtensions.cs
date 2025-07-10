@@ -1,10 +1,11 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using BootstrapBlazor.Localization.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using System.Globalization;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -26,7 +27,6 @@ public static class BootstrapBlazorServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddHttpClient();
 
-        services.AddAuthorizationCore();
         services.AddJsonLocalization(localizationConfigure);
 
         services.AddConfiguration();
@@ -37,8 +37,23 @@ public static class BootstrapBlazorServiceCollectionExtensions
         services.TryAddSingleton<IZipArchiveService, DefaultZipArchiveService>();
         services.TryAddSingleton(typeof(IDispatchService<>), typeof(DefaultDispatchService<>));
 
+        // 增加 IHostEnvironment 服务
+        services.TryAddSingleton<IHostEnvironment, MockWasmHostEnvironment>();
+
+        // 增加 OtpOptions 配置支持
+        services.AddOptionsMonitor<OtpOptions>();
+
+        // 增加 ITotpService
+        services.TryAddSingleton<ITotpService, DefaultTotpService>();
+
+        // BootstrapBlazorRootRegisterService 服务
+        services.AddScoped<BootstrapBlazorRootRegisterService>();
+
         // Html2Pdf 服务
         services.TryAddSingleton<IHtml2Pdf, DefaultHtml2PdfService>();
+
+        // Html2Image 服务
+        services.TryAddScoped<IHtml2Image, DefaultHtml2ImageService>();
 
         // Table 导出服务
         services.TryAddScoped<ITableExport, DefaultTableExport>();
@@ -48,9 +63,13 @@ public static class BootstrapBlazorServiceCollectionExtensions
 
         // IP 地理位置定位服务
         services.TryAddSingleton<IIpLocatorFactory, DefaultIpLocatorFactory>();
-        services.AddSingleton<IIpLocatorProvider, JuHeIpLocatorProvider>();
         services.AddSingleton<IIpLocatorProvider, BaiduIpLocatorProvider>();
         services.AddSingleton<IIpLocatorProvider, BaiduIpLocatorProviderV2>();
+
+#if NET8_0_OR_GREATER
+        services.AddKeyedSingleton<IIpLocatorProvider, BaiduIpLocatorProvider>(nameof(BaiduIpLocatorProvider));
+        services.AddKeyedSingleton<IIpLocatorProvider, BaiduIpLocatorProviderV2>(nameof(BaiduIpLocatorProviderV2));
+#endif
 
         // 节日服务
         services.TryAddSingleton<ICalendarFestivals, DefaultCalendarFestivals>();
@@ -69,7 +88,11 @@ public static class BootstrapBlazorServiceCollectionExtensions
         services.TryAddScoped<IGeoLocationService, DefaultGeoLocationService>();
         services.TryAddScoped<IComponentHtmlRenderer, ComponentHtmlRenderer>();
         services.TryAddScoped<IBrowserFingerService, DefaultBrowserFingerService>();
-
+        services.TryAddScoped<ISerialService, DefaultSerialService>();
+        services.TryAddScoped<IBluetooth, DefaultBluetooth>();
+        services.TryAddScoped<IMediaDevices, DefaultMediaDevices>();
+        services.TryAddScoped<IVideoDevice, DefaultVideoDevice>();
+        services.TryAddScoped<IAudioDevice, DefaultAudioDevice>();
         services.AddScoped<TabItemTextOptions>();
         services.AddScoped<DialogService>();
         services.AddScoped<MaskService>();
@@ -85,7 +108,6 @@ public static class BootstrapBlazorServiceCollectionExtensions
         services.AddScoped<AjaxService>();
         services.AddScoped(typeof(DragDropService<>));
         services.AddScoped<ClipboardService>();
-        services.AddScoped<ResizeNotificationService>();
         services.AddScoped<NotificationService>();
         services.AddScoped<EyeDropperService>();
         services.AddScoped<WebSpeechService>();
@@ -218,9 +240,12 @@ public static class BootstrapBlazorServiceCollectionExtensions
     /// <param name="services"></param>
     /// <param name="configureOptions"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureIconThemeOptions(this IServiceCollection services, Action<IconThemeOptions> configureOptions)
+    public static IServiceCollection ConfigureIconThemeOptions(this IServiceCollection services, Action<IconThemeOptions>? configureOptions = null)
     {
-        services.Configure(configureOptions);
+        if (configureOptions != null)
+        {
+            services.Configure(configureOptions);
+        }
         return services;
     }
 }

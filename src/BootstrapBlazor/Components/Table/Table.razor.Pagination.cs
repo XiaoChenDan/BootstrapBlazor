@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -147,6 +148,7 @@ public partial class Table<TItem>
         }
     };
 
+    private bool _shouldScrollTop = false;
     /// <summary>
     /// 点击页码调用此方法
     /// </summary>
@@ -164,10 +166,16 @@ public partial class Table<TItem>
             }
 
             // 无刷新查询数据
-            await QueryAsync(false);
+            await QueryAsync(false, triggerByPagination: true);
 
             // 通知 SelectedRow 双向绑定集合改变
             await OnSelectedRowsChanged();
+
+            // 通知 UI 滚动到顶端
+            if (IsAutoScrollTopWhenClickPage)
+            {
+                _shouldScrollTop = true;
+            }
         }
     }
 

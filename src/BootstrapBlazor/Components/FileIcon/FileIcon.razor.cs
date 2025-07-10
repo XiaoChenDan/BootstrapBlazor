@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -10,6 +11,7 @@ namespace BootstrapBlazor.Components;
 public partial class FileIcon
 {
     private string? ClassString => CssBuilder.Default("file-icon")
+        .AddClass($"file-icon-{Size.ToDescriptionString()}", Size != Size.None)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
@@ -21,9 +23,7 @@ public partial class FileIcon
     /// 获得/设置 文件类型扩展名 
     /// </summary>
     [Parameter]
-#if NET6_0_OR_GREATER
     [EditorRequired]
-#endif
     public string? Extension { get; set; }
 
     /// <summary>
@@ -37,4 +37,10 @@ public partial class FileIcon
     /// </summary>
     [Parameter]
     public Color IconColor { get; set; } = Color.Primary;
+
+    /// <summary>
+    /// 获得/设置 图标大小 默认 Color.None
+    /// </summary>
+    [Parameter]
+    public Size Size { get; set; }
 }

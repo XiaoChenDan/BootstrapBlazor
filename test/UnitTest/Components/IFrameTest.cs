@@ -1,13 +1,14 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Components;
 
 public class IFrameTest : BootstrapBlazorTestBase
 {
     [Fact]
-    public void Frame_Ok()
+    public async Task Frame_Ok()
     {
         var postData = false;
         var cut = Context.RenderComponent<IFrame>(pb =>
@@ -26,10 +27,26 @@ public class IFrameTest : BootstrapBlazorTestBase
             pb.Add(a => a.Data, new { Rows = new List<string>() { "1", "2" } });
         });
 
-        cut.InvokeAsync(async () =>
+        await cut.InvokeAsync(async () =>
         {
-            await cut.Instance.CallbackAsync(new List<string> { "2", "3" });
+            await cut.Instance.TriggerPostData(new List<string> { "2", "3" });
             Assert.True(postData);
         });
+
+        var loaded = false;
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.OnReadyAsync, () =>
+            {
+                loaded = true;
+                return Task.CompletedTask;
+            });
+        });
+
+        await cut.InvokeAsync(async () =>
+        {
+            await cut.Instance.TriggerLoaded();
+        });
+        Assert.True(loaded);
     }
 }

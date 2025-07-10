@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
@@ -96,12 +97,12 @@ public class DynamicElement : BootstrapComponentBase
 
         if (IsTriggerClick())
         {
-            builder.AddAttribute(2, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, e => OnClick!()));
+            builder.AddAttribute(2, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, OnTriggerClick));
         }
 
         if (IsTriggerDoubleClick())
         {
-            builder.AddAttribute(3, "ondblclick", EventCallback.Factory.Create<MouseEventArgs>(this, e => OnDoubleClick!()));
+            builder.AddAttribute(3, "ondblclick", EventCallback.Factory.Create<MouseEventArgs>(this, OnTriggerDoubleClick));
         }
 
         if (IsTriggerClick() || IsTriggerDoubleClick())
@@ -110,9 +111,9 @@ public class DynamicElement : BootstrapComponentBase
             builder.AddEventStopPropagationAttribute(5, "onclick", StopPropagation);
         }
 
-        if (TriggerContextMenu && OnContextMenu != null)
+        if (IsTriggerContextMenu())
         {
-            builder.AddAttribute(6, "oncontextmenu", EventCallback.Factory.Create<MouseEventArgs>(this, e => OnContextMenu(e)));
+            builder.AddAttribute(6, "oncontextmenu", EventCallback.Factory.Create<MouseEventArgs>(this, OnTriggerContextMenu));
             builder.AddEventPreventDefaultAttribute(7, "oncontextmenu", true);
         }
 
@@ -122,8 +123,35 @@ public class DynamicElement : BootstrapComponentBase
         {
             builder.CloseElement();
         }
+    }
 
-        bool IsTriggerClick() => TriggerClick && OnClick != null;
-        bool IsTriggerDoubleClick() => TriggerDoubleClick && OnDoubleClick != null;
+    private bool IsTriggerClick() => TriggerClick && OnClick != null;
+
+    private bool IsTriggerDoubleClick() => TriggerDoubleClick && OnDoubleClick != null;
+
+    private bool IsTriggerContextMenu() => TriggerContextMenu && OnContextMenu != null;
+
+    private async Task OnTriggerClick()
+    {
+        if (OnClick != null)
+        {
+            await OnClick();
+        }
+    }
+
+    private async Task OnTriggerDoubleClick()
+    {
+        if (OnDoubleClick != null)
+        {
+            await OnDoubleClick();
+        }
+    }
+
+    private async Task OnTriggerContextMenu(MouseEventArgs e)
+    {
+        if (OnContextMenu != null)
+        {
+            await OnContextMenu(e);
+        }
     }
 }

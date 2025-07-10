@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -10,19 +11,19 @@ namespace BootstrapBlazor.Components;
 public partial class BootstrapInputGroupLabel
 {
     private string? ClassString => CssBuilder.Default()
-        .AddClass("input-group-text", IsInnerLabel)
-        .AddClass("form-label", !IsInnerLabel)
+        .AddClass("input-group-text", IsInputGroupLabel)
+        .AddClass("form-label", !IsInputGroupLabel)
         .AddClass("justify-content-center", Alignment == Alignment.Center)
         .AddClass("justify-content-end", Alignment == Alignment.Right)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
     private string? StyleString => CssBuilder.Default()
-    .AddClass($"--bb-input-group-label-width: {Width}px;", Width.HasValue)
-    .AddClassFromAttributes(AdditionalAttributes)
-    .Build();
+        .AddClass($"--bb-input-group-label-width: {Width}px;", Width.HasValue)
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
 
-    private bool IsInnerLabel { get; set; }
+    private string TagName => IsInputGroupLabel ? "div" : "label";
 
     /// <summary>
     /// 获得/设置 标签宽度 默认 null 未设置自动适应
@@ -42,7 +43,15 @@ public partial class BootstrapInputGroupLabel
     [Parameter]
     public bool ShowRequiredMark { get; set; }
 
+    /// <summary>
+    /// Gets or sets the child content. Default is null.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
     private string? Required => ShowRequiredMark ? "true" : null;
+
+    private bool IsInputGroupLabel => InputGroup != null;
 
     /// <summary>
     /// OnParametersSet 方法
@@ -51,6 +60,9 @@ public partial class BootstrapInputGroupLabel
     {
         base.OnParametersSet();
 
-        IsInnerLabel = InputGroup != null;
+        if (IsInputGroupLabel)
+        {
+            DisplayText ??= FieldIdentifier?.GetDisplayName();
+        }
     }
 }

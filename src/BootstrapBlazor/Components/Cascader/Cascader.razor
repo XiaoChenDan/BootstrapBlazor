@@ -4,34 +4,35 @@
 
 @if (IsShowLabel)
 {
-    <BootstrapLabel required="@Required" for="@Id" ShowLabelTooltip="ShowLabelTooltip" Value="@DisplayText" />
+    <BootstrapLabel required="@Required" for="@Id" ShowLabelTooltip="ShowLabelTooltip" Value="@DisplayText"></BootstrapLabel>
 }
 <div @attributes="AdditionalAttributes" id="@Id" class="@ClassString" tabindex="-1">
-    <input type="text" id="@InputId" readonly disabled="@Disabled" class="@InputClassName" data-bs-toggle="dropdown" placeholder="@PlaceHolder" value="@DisplayTextString" />
+    <input type="text" id="@InputId" readonly disabled="@Disabled" class="@InputClassName" data-bs-toggle="dropdown" placeholder="@PlaceHolder" value="@DisplayTextString" @onblur="OnBlur" />
     <span class="@AppendClassName"><i class="@Icon"></i></span>
-    @if (!IsDisabled)
+    @if (GetClearable())
     {
-        <div class="dropdown-menu shadow">
-            <CascadingValue Value="SelectedItems">
-                @foreach (var item in Items)
-                {
-                    if (item.HasChildren)
-                    {
-                        <div class="@ActiveItem("has-leaf dropdown-item", item)" data-val="@item.Value" @onclick="@(e => OnItemClick(item))">
-                            <span>@item.Text</span>
-                            <i class="@SubMenuIconString"></i>
-                            <ul class="nav sub-menu" @onclick:stopPropagation>
-                                <SubCascader Items="@item.Items" SubMenuIcon="@SubMenuIconString" OnClick="@OnItemClick" />
-                            </ul>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="@ActiveItem("dropdown-item", item)" data-val="@item.Value" @onclick="@(e => OnItemClick(item))">@item.Text</div>
-                    }
-                }
-            </CascadingValue>
-        </div>
-        <div class="dropdown-menu-arrow"></div>
+        <span class="@ClearClassString" @onclick="OnClearValue"><i class="@ClearIcon"></i></span>
     }
+    <div class="dropdown-menu shadow">
+        <CascadingValue Value="SelectedItems">
+            @foreach (var item in Items)
+            {
+                if (item.HasChildren)
+                {
+                    <div class="@ActiveItem("has-leaf dropdown-item", item)" data-val="@item.Value" @onclick="@(e => OnItemClick(item))">
+                        <span>@item.Text</span>
+                        <i class="@SubMenuIconString"></i>
+                        <ul class="nav sub-menu" @onclick:stopPropagation>
+                            <SubCascader Items="@item.Items" SubMenuIcon="@SubMenuIconString" OnClick="@OnItemClick" />
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="@ActiveItem("dropdown-item", item)" data-val="@item.Value" @onclick="@(e => OnItemClick(item))">@item.Text</div>
+                }
+            }
+        </CascadingValue>
+    </div>
+    <div class="dropdown-menu-arrow"></div>
 </div>

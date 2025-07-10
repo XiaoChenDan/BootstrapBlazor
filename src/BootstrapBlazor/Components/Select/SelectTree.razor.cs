@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 
@@ -49,6 +50,12 @@ public partial class SelectTree<TValue> : IModelEqualityComparer<TValue>
     /// </summary>
     [Parameter]
     public string? PlaceHolder { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether nodes can be expanded or collapsed when the component is disabled. Default is false.
+    /// </summary>
+    [Parameter]
+    public bool CanExpandWhenDisabled { get; set; } = false;
 
     /// <summary>
     /// 获得/设置 字符串比较规则 默认 StringComparison.OrdinalIgnoreCase 大小写不敏感 
@@ -119,6 +126,26 @@ public partial class SelectTree<TValue> : IModelEqualityComparer<TValue>
     [Parameter]
     public bool IsEditable { get; set; }
 
+    /// <summary>
+    /// 获得/设置 是否显示搜索栏 默认 false 不显示
+    /// </summary>
+    [Parameter]
+    public bool ShowSearch { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否固定搜索栏 默认 false 不固定
+    /// </summary>
+    [Parameter]
+    [Obsolete("已弃用，请删除；Deprecated, please delete")]
+    [ExcludeFromCodeCoverage]
+    public bool IsFixedSearch { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否显示重置搜索栏按钮 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool ShowResetSearchButton { get; set; } = true;
+
     [Inject]
     [NotNull]
     private IStringLocalizer<SelectTree<TValue>>? Localizer { get; set; }
@@ -148,6 +175,21 @@ public partial class SelectTree<TValue> : IModelEqualityComparer<TValue>
     [NotNull]
     private IIconTheme? IconTheme { get; set; }
 
+    private string? SelectTreeCustomClassString => CssBuilder.Default(CustomClassString)
+        .AddClass("select-tree", IsPopover)
+        .Build();
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // 处理 Required 标签
+        AddRequiredValidator();
+    }
+
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -164,12 +206,20 @@ public partial class SelectTree<TValue> : IModelEqualityComparer<TValue>
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        await base.OnParametersSetAsync();
+        base.OnParametersSet();
 
         DropdownIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectTreeDropdownIcon);
         PlaceHolder ??= Localizer[nameof(PlaceHolder)];
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
 
         Items ??= [];
 
@@ -177,6 +227,11 @@ public partial class SelectTree<TValue> : IModelEqualityComparer<TValue>
         {
             // 组件未赋值 Value 通过 IsActive 设置默认值
             await TriggerItemChanged(s => s.IsActive);
+        }
+        else
+        {
+            // 组件已赋值 Value 通过 Value 设置默认值
+            await TriggerItemChanged(s => Equals(s.Value, Value));
         }
     }
 
@@ -207,16 +262,17 @@ public partial class SelectTree<TValue> : IModelEqualityComparer<TValue>
         var currentItem = GetExpandedItems().FirstOrDefault(predicate);
         if (currentItem != null)
         {
+            currentItem.IsActive = true;
             await ItemChanged(currentItem);
         }
     }
 
-    private IEnumerable<TreeViewItem<TValue>> GetExpandedItems()
+    private List<TreeViewItem<TValue>> GetExpandedItems()
     {
         if (ItemCache != Items)
         {
             ItemCache = Items;
-            ExpandedItemsCache = TreeItemExtensions.GetAllItems(ItemCache).ToList();
+            ExpandedItemsCache = TreeViewExtensions.GetAllItems(ItemCache).ToList();
         }
         return ExpandedItemsCache;
     }

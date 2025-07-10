@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Routing;
 
@@ -12,15 +13,7 @@ internal static class MenusLocalizerExtensions
     {
         var menus = new List<MenuItem>();
 
-        // 快速入门
         var item = new DemoMenuItem()
-        {
-            Text = Localizer["GetStarted"],
-            Icon = "fa-solid fa-fw fa-font-awesome"
-        };
-        AddQuickStar(item);
-
-        item = new DemoMenuItem()
         {
             Text = Localizer["LayoutComponents"],
             Icon = "fa-fw fa-solid fa-desktop"
@@ -92,6 +85,13 @@ internal static class MenusLocalizerExtensions
 
         item = new DemoMenuItem()
         {
+            Text = Localizer["SocketComponents"],
+            Icon = "fa-fw fa-solid fa-satellite-dish text-danger"
+        };
+        AddSocket(item);
+
+        item = new DemoMenuItem()
+        {
             Text = Localizer["Services"],
             Icon = "fa-fw fa-solid fa-screwdriver-wrench",
         };
@@ -116,16 +116,15 @@ internal static class MenusLocalizerExtensions
             Text = Localizer["Utility"],
             Icon = "fa-fw fa-solid fa-code"
         };
-
         AddBootstrapBlazorUtility(item);
 
+        // 快速入门
         item = new DemoMenuItem()
         {
-            Text = Localizer["Components"],
-            Icon = "fa-solid fa-fw fa-heart fa-beat icon-summary",
-            Url = "components"
+            Text = Localizer["GetStarted"],
+            Icon = "fa-solid fa-fw fa-font-awesome"
         };
-        AddSummary(item);
+        AddQuickStar(item);
 
         return menus;
 
@@ -202,6 +201,32 @@ internal static class MenusLocalizerExtensions
                 }
             };
             AddBadge(item, count: 5);
+        }
+
+        void AddSocket(DemoMenuItem item)
+        {
+            item.Items = new List<DemoMenuItem>
+            {
+                new()
+                {
+                    IsNew = true,
+                    Text = Localizer["SocketManualReceive"],
+                    Url = "socket/manual-receive"
+                },
+                new()
+                {
+                    IsNew = true,
+                    Text = Localizer["SocketAutoReceive"],
+                    Url = "socket/auto-receive"
+                },
+                new()
+                {
+                    IsNew = true,
+                    Text = Localizer["DataPackageAdapter"],
+                    Url = "socket/adapter"
+                }
+            };
+            AddBadge(item, count: 1);
         }
 
         void AddQuickStar(DemoMenuItem item)
@@ -291,7 +316,7 @@ internal static class MenusLocalizerExtensions
                     Url = "layout-page"
                 }
             };
-            AddBadge(item, count: 0);
+            AddSummary(item);
         }
 
         void AddForm(DemoMenuItem item)
@@ -408,6 +433,11 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
+                    Text = Localizer["OtpInput"],
+                    Url = "otp-input"
+                },
+                new()
+                {
                     Text = Localizer["OnScreenKeyboard"],
                     Url = "onscreen-keyboard"
                 },
@@ -479,13 +509,38 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    Text = Localizer["Upload"],
-                    Url = "upload"
+                    Text = Localizer["InputUpload"],
+                    Url = "upload-input"
+                },
+                new()
+                {
+                    Text = Localizer["ButtonUpload"],
+                    Url = "upload-button"
+                },
+                new()
+                {
+                    Text = Localizer["AvatarUpload"],
+                    Url = "upload-avatar"
+                },
+                new()
+                {
+                    Text = Localizer["CardUpload"],
+                    Url = "upload-card"
+                },
+                new()
+                {
+                    Text = Localizer["DropUpload"],
+                    Url = "upload-drop"
                 },
                 new()
                 {
                     Text = Localizer["ValidateForm"],
                     Url = "validate-form"
+                },
+                new()
+                {
+                    Text = Localizer["Vditor"],
+                    Url = "vditor"
                 }
             };
             AddBadge(item);
@@ -499,6 +554,11 @@ internal static class MenusLocalizerExtensions
                 {
                     Text = Localizer["Ajax"],
                     Url = "ajax"
+                },
+                new()
+                {
+                    Text = Localizer["Affix"],
+                    Url = "affix"
                 },
                 new()
                 {
@@ -517,6 +577,11 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
+                    Text = Localizer["ShieldBadge"],
+                    Url = "shield-badge"
+                },
+                new()
+                {
                     Text = Localizer["BarcodeReader"],
                     Url = "barcode-reader"
                 },
@@ -529,11 +594,6 @@ internal static class MenusLocalizerExtensions
                 {
                     Text = Localizer["Block"],
                     Url = "block"
-                },
-                new()
-                {
-                    Text = Localizer["Bluetooth"],
-                    Url = "blue-tooth"
                 },
                 new()
                 {
@@ -600,11 +660,6 @@ internal static class MenusLocalizerExtensions
                     Text=Localizer["Empty"],
                     Url = "empty"
                 },
-                new ()
-                {
-                    Text=Localizer["EyeDropper"],
-                    Url = "eye-dropper"
-                },
                 new()
                 {
                     Text = Localizer["FileIcon"],
@@ -637,6 +692,11 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
+                    Text = Localizer["IFrame"],
+                    Url = "iframe"
+                },
+                new()
+                {
                     Text = Localizer["LinkButton"],
                     Url = "link-button"
                 },
@@ -662,8 +722,30 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
+                    Text = Localizer["Mermaid"],
+                    Url = "mermaid"
+                },
+                new()
+                {
+                    IsNew = true,
+                    Text = Localizer["OfficeViewer"],
+                    Url = "office-viewer"
+                },
+                new()
+                {
                     Text = Localizer["PdfReader"],
                     Url = "pdf-reader"
+                },
+                new()
+                {
+                    IsNew = true,
+                    Text = Localizer["PdfViewer"],
+                    Url = "pdf-viewer"
+                },
+                new()
+                {
+                    Text = Localizer["Player"],
+                    Url = "player"
                 },
                 new()
                 {
@@ -687,6 +769,11 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
+                    Text = Localizer["RDKit"],
+                    Url = "rdkit"
+                },
+                new()
+                {
                     Text = Localizer["Search"],
                     Url = "search"
                 },
@@ -694,6 +781,11 @@ internal static class MenusLocalizerExtensions
                 {
                     Text = Localizer["Segmented"],
                     Url = "segmented"
+                },
+                new()
+                {
+                    Text = Localizer["SmilesDrawer"],
+                    Url = "smiles-drawer"
                 },
                 new()
                 {
@@ -727,11 +819,6 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    Text = Localizer["Tree"],
-                    Url = "tree"
-                },
-                new()
-                {
                     Text = Localizer["TreeView"],
                     Url = "tree-view"
                 },
@@ -739,6 +826,16 @@ internal static class MenusLocalizerExtensions
                 {
                     Text = Localizer["Transition"],
                     Url = "transition"
+                },
+                new()
+                {
+                    Text = Localizer["Typed"],
+                    Url = "typed"
+                },
+                new()
+                {
+                    Text = Localizer["UniverSheet"],
+                    Url = "univer-sheet"
                 },
                 new()
                 {
@@ -752,8 +849,8 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    Text = Localizer["WebSerial"],
-                    Url = "web-serial"
+                    Text = Localizer["Watermark"],
+                    Url = "watermark"
                 }
             };
             AddBadge(item);
@@ -1126,6 +1223,11 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
+                    Text = Localizer["DriverJs"],
+                    Url = "driver-js"
+                },
+                new()
+                {
                     Text = Localizer["EditDialog"],
                     Url = "edit-dialog"
                 },
@@ -1136,9 +1238,8 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    IsNew = true,
-                    Text = Localizer["DriverJs"],
-                    Url = "driver-js"
+                    Text = Localizer["FullScreenButton"],
+                    Url = "fullscreen-button"
                 },
                 new()
                 {
@@ -1147,7 +1248,6 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    IsNew = true,
                     Text = Localizer["IntersectionObserver"],
                     Url = "intersection-observer"
                 },
@@ -1160,6 +1260,11 @@ internal static class MenusLocalizerExtensions
                 {
                     Text = Localizer["Message"],
                     Url = "message"
+                },
+                new()
+                {
+                    Text = Localizer["Meet"],
+                    Url = "meet"
                 },
                 new()
                 {
@@ -1233,7 +1338,6 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    IsNew = true,
                     Text = Localizer["WinBox"],
                     Url = "win-box"
                 }
@@ -1346,7 +1450,6 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    IsNew = true,
                     Text = Localizer["SortableList"],
                     Url = "sortable-list"
                 },
@@ -1390,6 +1493,11 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
+                    Text = Localizer["Bluetooth"],
+                    Url = "blue-tooth"
+                },
+                new()
+                {
                     Text = Localizer["BrowserFinger"],
                     Url = "browser-finger"
                 },
@@ -1425,7 +1533,6 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    IsNew = true,
                     Text = Localizer["DrawerService"],
                     Url = "drawer-service"
                 },
@@ -1433,6 +1540,11 @@ internal static class MenusLocalizerExtensions
                 {
                     Text = Localizer["FullScreen"],
                     Url = "fullscreen"
+                },
+                new ()
+                {
+                    Text=Localizer["EyeDropper"],
+                    Url = "eye-dropper"
                 },
                 new()
                 {
@@ -1448,6 +1560,11 @@ internal static class MenusLocalizerExtensions
                 {
                     Text = Localizer["Geolocation"],
                     Url = "geolocation"
+                },
+                new()
+                {
+                    Text = Localizer["Html2Image"],
+                    Url = "html2image"
                 },
                 new()
                 {
@@ -1481,13 +1598,39 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
+                    IsNew = true,
+                    Text = Localizer["TcpSocketFactory"],
+                    Url = "socket-factory"
+                },
+                new()
+                {
                     Text = Localizer["ThemeProvider"],
                     Url = "theme-provider"
                 },
                 new()
                 {
+                    Text = Localizer["TotpService"],
+                    Url = "otp-service"
+                },
+                new()
+                {
                     Text = Localizer["Title"],
                     Url = "title"
+                },
+                new()
+                {
+                    Text = Localizer["AudioDevice"],
+                    Url = "audio-device"
+                },
+                new()
+                {
+                    Text = Localizer["VideoDevice"],
+                    Url = "video-device"
+                },
+                new()
+                {
+                    Text = Localizer["WebSerial"],
+                    Url = "web-serial"
                 },
                 new()
                 {
@@ -1519,20 +1662,28 @@ internal static class MenusLocalizerExtensions
                 },
                 new()
                 {
-                    IsNew = true,
-                    Text = Localizer["AntDesignIcon"],
-                    Url = "ant-design-icon"
+                    Text = Localizer["OctIcon"],
+                    Url = "oct-icon"
                 },
                 new()
                 {
-                    IsNew = true,
-                    Text = Localizer["ElementIcon"],
-                    Url = "element-icon"
+                    Text = Localizer["UniverIcon"],
+                    Url = "univer-icon"
                 },
                 new()
                 {
                     Text = Localizer["IconPark"],
                     Url = "icon-park"
+                },
+                new()
+                {
+                    Text = Localizer["ElementIcon"],
+                    Url = "element-icon"
+                },
+                new()
+                {
+                    Text = Localizer["AntDesignIcon"],
+                    Url = "ant-design-icon"
                 }
             };
             AddBadge(item);
@@ -1544,7 +1695,7 @@ internal static class MenusLocalizerExtensions
             var count = 0;
             count = menus.OfType<DemoMenuItem>().Sum(i => i.Count);
             AddBadge(item, false, count);
-            menus.Insert(1, item);
+            menus.Insert(0, item);
         }
 
         void AddBadge(DemoMenuItem item, bool append = true, int? count = null)

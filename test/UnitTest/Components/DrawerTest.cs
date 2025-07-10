@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Components;
 
@@ -106,6 +107,25 @@ public class DrawerTest : BootstrapBlazorTestBase
     }
 
     [Fact]
+    public void BodyContext_Ok()
+    {
+        var cut = Context.RenderComponent<Drawer>(builder =>
+        {
+            builder.Add(a => a.BodyContext, "test-body-context");
+            builder.Add(a => a.ChildContent, s =>
+            {
+                s.OpenComponent<MockContent>(0);
+                s.CloseComponent();
+            });
+        });
+
+        var component = cut.FindComponent<MockContent>();
+        Assert.NotNull(component);
+
+        Assert.Equal("test-body-context", component.Instance.GetBodyContext());
+    }
+
+    [Fact]
     public void ShowBackdrop_Ok()
     {
         var cut = Context.RenderComponent<Drawer>(builder =>
@@ -139,5 +159,68 @@ public class DrawerTest : BootstrapBlazorTestBase
             });
         });
         cut.Contains("--bb-drawer-position: absolute;");
+    }
+
+    [Fact]
+    public void ZIndex_Ok()
+    {
+        var cut = Context.RenderComponent<Drawer>(builder =>
+        {
+            builder.Add(a => a.ZIndex, 1055);
+        });
+        cut.Contains("--bb-drawer-zindex: 1055;");
+    }
+
+    [Fact]
+    public void IsKeyboard_Ok()
+    {
+        var cut = Context.RenderComponent<Drawer>(builder =>
+        {
+            builder.Add(a => a.IsKeyboard, true);
+            builder.Add(a => a.ChildContent, s =>
+            {
+                s.OpenComponent<Button>(0);
+                s.CloseComponent();
+            });
+        });
+        cut.Contains("data-bb-keyboard=\"true\"");
+
+        cut.SetParametersAndRender(pb =>
+        {
+            pb.Add(a => a.IsKeyboard, false);
+        });
+        cut.DoesNotContain("data-bb-keyboard=\"true\"");
+    }
+
+    [Fact]
+    public void BodyScroll_Ok()
+    {
+        var cut = Context.RenderComponent<Drawer>(builder =>
+        {
+            builder.Add(a => a.BodyScroll, true);
+            builder.Add(a => a.ChildContent, s =>
+            {
+                s.OpenComponent<Button>(0);
+                s.CloseComponent();
+            });
+        });
+        cut.Contains("data-bb-scroll=\"true\"");
+    }
+
+    [Fact]
+    public async Task Close_Ok()
+    {
+        Context.JSInterop.Setup<bool>("execute", matcher => true).SetResult(true);
+        var cut = Context.RenderComponent<Drawer>();
+        await cut.InvokeAsync(() => cut.Instance.Close());
+    }
+
+    class MockContent : ComponentBase
+    {
+        [CascadingParameter(Name = "BodyContext")]
+        [NotNull]
+        private object? BodyContext { get; set; }
+
+        public string? GetBodyContext() => BodyContext.ToString();
     }
 }

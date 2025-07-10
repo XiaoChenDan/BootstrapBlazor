@@ -1,8 +1,11 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Localization;
+using System.Reflection;
 
 namespace BootstrapBlazor.Components;
 
@@ -31,4 +34,30 @@ public static class FieldIdentifierExtensions
     /// <param name="fieldIdentifier"></param>
     /// <returns></returns>
     public static RangeAttribute? GetRange(this FieldIdentifier fieldIdentifier) => Utility.GetRange(fieldIdentifier.Model, fieldIdentifier.FieldName);
+
+    /// <summary>
+    /// 获得 <see cref="RequiredValidator"/> 实例
+    /// </summary>
+    /// <param name="fieldIdentifier"></param>
+    /// <param name="localizerFactory"></param>
+    /// <returns></returns>
+    public static RequiredValidator? GetRequiredValidator(this FieldIdentifier fieldIdentifier, IStringLocalizerFactory localizerFactory)
+    {
+        RequiredValidator? validator = null;
+        var pi = fieldIdentifier.Model.GetType().GetPropertyByName(fieldIdentifier.FieldName);
+        if (pi != null)
+        {
+            var required = pi.GetCustomAttribute<RequiredAttribute>(true);
+            if (required != null)
+            {
+                validator = new RequiredValidator()
+                {
+                    LocalizerFactory = localizerFactory,
+                    ErrorMessage = required.ErrorMessage,
+                    AllowEmptyString = required.AllowEmptyStrings
+                };
+            }
+        }
+        return validator;
+    }
 }

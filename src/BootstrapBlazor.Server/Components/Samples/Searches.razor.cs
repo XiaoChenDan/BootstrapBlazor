@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -9,53 +10,81 @@ namespace BootstrapBlazor.Server.Components.Samples;
 /// </summary>
 public sealed partial class Searches
 {
+    [Inject, NotNull]
+    private ToastService? ToastService { get; set; }
+
     [NotNull]
     private ConsoleLogger? Logger { get; set; }
+
+    private Task<IEnumerable<string>> OnSearch(string searchText)
+    {
+        Logger.Log($"SearchText: {searchText}");
+        return Task.FromResult<IEnumerable<string>>([$"{searchText}1", $"{searchText}12", $"{searchText}123"]);
+    }
 
     [NotNull]
     private ConsoleLogger? ClearLogger { get; set; }
 
-    private static IEnumerable<string> Items => new string[] { "1", "12", "123", "1234" };
-
-    private Task OnSearch(string searchText)
-    {
-        Logger.Log($"SearchText: {searchText}");
-        return Task.CompletedTask;
-    }
-
-    private Task OnClearSearch(string searchText)
+    private Task<IEnumerable<string>> OnClearSearch(string searchText)
     {
         ClearLogger.Log($"SearchText: {searchText}");
-        return Task.CompletedTask;
+        return Task.FromResult<IEnumerable<string>>([$"{searchText}1", $"{searchText}12", $"{searchText}123"]);
     }
 
     [NotNull]
     private ConsoleLogger? DisplayLogger { get; set; }
 
-    private Task OnDisplaySearch(string searchText)
+    private Task<IEnumerable<string>> OnDisplaySearch(string searchText)
     {
         DisplayLogger.Log($"SearchText: {searchText}");
-        return Task.CompletedTask;
-    }
-
-    private Task OnClear(string searchText)
-    {
-        DisplayLogger.Log($"OnClear: {searchText}");
-        return Task.CompletedTask;
+        return Task.FromResult<IEnumerable<string>>([$"{searchText}1", $"{searchText}12", $"{searchText}123"]);
     }
 
     [NotNull]
     private ConsoleLogger? KeyboardLogger { get; set; }
 
-    private Task OnKeyboardSearch(string searchText)
+    private Task<IEnumerable<string>> OnKeyboardSearch(string searchText)
     {
         KeyboardLogger.Log($"SearchText: {searchText}");
-        return Task.CompletedTask;
+        return Task.FromResult<IEnumerable<string>>([$"{searchText}1", $"{searchText}12", $"{searchText}123"]);
     }
 
-    private Foo Model { get; set; } = new Foo() { Name = "" };
+    private Foo Model { get; } = new() { Name = "" };
 
-    private static List<string> StaticItems => ["1", "12", "123", "1234", "12345", "123456", "abc", "abcdef", "ABC", "aBcDeFg", "ABCDEFG"];
+    private static string? OnGetDisplayText(Foo? foo) => foo?.Name;
+
+    private async Task<IEnumerable<Foo>> OnSearchFoo(string searchText)
+    {
+        // 模拟异步延时
+        await Task.Delay(100);
+        return Enumerable.Range(1, 10).Select(i => new Foo()
+        {
+            Id = i,
+            Name = LocalizerFoo["Foo.Name", $"{i:d4}"],
+            Address = LocalizerFoo["Foo.Address", $"{Random.Shared.Next(1000, 2000)}"],
+            Count = Random.Shared.Next(1, 100)
+        }).ToList();
+    }
+
+    private async Task<IEnumerable<string?>> OnModelSearch(string v)
+    {
+        // 模拟异步延时
+        await Task.Delay(100);
+        return string.IsNullOrEmpty(v)
+            ? Enumerable.Empty<string>()
+            : Enumerable.Range(1, 10).Select(i => LocalizerFoo["Foo.Name", $"{i:d4}"].Value).ToList();
+    }
+
+    private async Task OnClickCamera(SearchContext<string?> context)
+    {
+        await Task.Delay(10);
+
+        await ToastService.Information("Custom IconTemplate", "Click custom icon");
+    }
+
+    private bool _isClearable = true;
+    private bool _showClearButton = false;
+    private bool _showSearchButton = false;
 
     /// <summary>
     /// 获得属性方法
@@ -63,20 +92,6 @@ public sealed partial class Searches
     /// <returns></returns>
     private AttributeItem[] GetAttributes() =>
     [
-        new() {
-            Name = "ChildContent",
-            Description = Localizer["SearchesChildContent"],
-            Type = "RenderFragment",
-            ValueList = " — ",
-            DefaultValue = " — "
-        },
-        new() {
-            Name = "Items",
-            Description = Localizer["SearchesItems"],
-            Type = "IEnumerable<string>",
-            ValueList = " — ",
-            DefaultValue = " — "
-        },
         new() {
             Name = "NoDataTip",
             Description = Localizer["SearchesNoDataTip"],
@@ -86,11 +101,35 @@ public sealed partial class Searches
         },
         new()
         {
-            Name="SearchButtonLoadingIcon",
-            Description = Localizer["SearchesButtonLoadingIcon"],
+            Name="IsClearable",
+            Description = Localizer["SearchesIsClearable"],
+            Type = "bool",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        },
+        new()
+        {
+            Name="ClearIcon",
+            Description = Localizer["SearchesClearIcon"],
             Type = "string",
             ValueList = " — ",
-            DefaultValue = "fa-fw fa-spin fa-solid fa-spinner"
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name="PrefixButtonTemplate",
+            Description = Localizer["SearchesPrefixButtonTemplate"],
+            Type = "RenderFragment",
+            ValueList = " — ",
+            DefaultValue = " — "
+        },
+        new()
+        {
+            Name="ButtonTemplate",
+            Description = Localizer["SearchesButtonTemplate"],
+            Type = "RenderFragment",
+            ValueList = " — ",
+            DefaultValue = " — "
         },
         new() {
             Name = "ClearButtonIcon",
@@ -121,13 +160,6 @@ public sealed partial class Searches
             DefaultValue = "Primary"
         },
         new() {
-            Name = "IsLikeMatch",
-            Description = Localizer["SearchesIsLikeMatch"],
-            Type = "bool",
-            ValueList = "true|false",
-            DefaultValue = "false"
-        },
-        new() {
             Name = "IsAutoFocus",
             Description = Localizer["SearchesIsAutoFocus"],
             Type = "bool",
@@ -142,19 +174,11 @@ public sealed partial class Searches
             DefaultValue = "false"
         },
         new() {
-            Name = "IsOnInputTrigger",
-            Description = Localizer["SearchesIsOnInputTrigger"],
+            Name = "IsTriggerSearchByInput",
+            Description = Localizer["SearchesIsTriggerSearchByInput"],
             Type = "bool",
             ValueList = "true|false",
             DefaultValue = "false"
-        },
-        new()
-        {
-            Name = "IgnoreCase",
-            Description = Localizer["SearchesIgnoreCase"],
-            Type = "bool",
-            ValueList = "true|false",
-            DefaultValue = "true"
         },
         new()
         {

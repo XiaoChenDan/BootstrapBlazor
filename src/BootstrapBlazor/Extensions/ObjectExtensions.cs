@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Globalization;
 using System.Reflection;
@@ -52,6 +53,21 @@ public static class ObjectExtensions
         var targetType = Nullable.GetUnderlyingType(t) ?? t;
         return targetType == typeof(int) || targetType == typeof(long) || targetType == typeof(short) ||
             targetType == typeof(float) || targetType == typeof(double) || targetType == typeof(decimal);
+    }
+
+    /// <summary>
+    /// 检查是否应该渲染成 <see cref="BootstrapInputNumber{TValue}"/>
+    /// </summary>
+    /// <param name="t"></param>
+    /// <returns></returns>
+    public static bool IsNumberWithDotSeparator(this Type t)
+    {
+        var separator = CultureInfo.CurrentUICulture.NumberFormat.NumberDecimalSeparator;
+        if (separator != ".")
+        {
+            return false;
+        }
+        return t.IsNumber();
     }
 
     /// <summary>
@@ -121,14 +137,14 @@ public static class ObjectExtensions
     /// 字符串类型转换为其他数据类型
     /// </summary>
     /// <returns></returns>
-    public static bool TryConvertTo(this string? source, Type type, [MaybeNullWhen(false)] out object? val)
+    public static bool TryConvertTo(this string? source, Type type, out object? val)
     {
         var ret = true;
         val = source;
         if (type != typeof(string))
         {
             ret = false;
-            var methodInfo = Array.Find(typeof(ObjectExtensions).GetMethods(), m => m.Name == nameof(TryConvertTo) && m.IsGenericMethod);
+            var methodInfo = Array.Find(typeof(ObjectExtensions).GetMethods(), m => m is { Name: nameof(TryConvertTo), IsGenericMethod: true });
             if (methodInfo != null)
             {
                 methodInfo = methodInfo.MakeGenericMethod(type);
@@ -143,7 +159,7 @@ public static class ObjectExtensions
     }
 
     /// <summary>
-    /// 
+    /// Tries to convert the string representation of a value to a specified type.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
     /// <param name="source"></param>
@@ -169,13 +185,13 @@ public static class ObjectExtensions
                 }
                 else if (source == string.Empty)
                 {
-                    ret = BindConverter.TryConvertTo<TValue>(source, CultureInfo.InvariantCulture, out val);
+                    ret = BindConverter.TryConvertTo(source, CultureInfo.CurrentCulture, out val);
                 }
                 else
                 {
                     var isBoolean = type == typeof(bool);
                     var v = isBoolean ? (object)source.Equals("true", StringComparison.CurrentCultureIgnoreCase) : source;
-                    ret = BindConverter.TryConvertTo<TValue>(v, CultureInfo.InvariantCulture, out val);
+                    ret = BindConverter.TryConvertTo(v, CultureInfo.CurrentCulture, out val);
                 }
             }
             catch
@@ -187,7 +203,7 @@ public static class ObjectExtensions
     }
 
     /// <summary>
-    /// 格式化为 文件大小与单位格式 字符串
+    /// Formats the file size into a string with appropriate units
     /// </summary>
     /// <param name="fileSize"></param>
     /// <returns></returns>
@@ -217,6 +233,60 @@ public static class ObjectExtensions
                 {
                     var v = p.GetValue(item);
                     p.SetValue(source, v);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Creates an instance of a type and ensures all class-type properties are initialized.
+    /// </summary>
+    /// <typeparam name="TItem">The type to create an instance of.</typeparam>
+    /// <param name="isAutoInitializeModelProperty">Whether to automatically initialize model properties default value is false.</param>
+    /// <returns>An instance of the specified type with initialized properties.</returns>
+    public static TItem? CreateInstance<TItem>(bool isAutoInitializeModelProperty = false)
+    {
+        var instance = Activator.CreateInstance<TItem>();
+        if (isAutoInitializeModelProperty)
+        {
+            instance.EnsureInitialized(isAutoInitializeModelProperty);
+        }
+        return instance;
+    }
+
+    private static object? CreateInstance(Type type, bool isAutoInitializeModelProperty = false)
+    {
+        var instance = Activator.CreateInstance(type);
+        if (isAutoInitializeModelProperty)
+        {
+            instance.EnsureInitialized();
+        }
+        return instance;
+    }
+
+    /// <summary>
+    /// Ensures that all class-type properties of the instance are initialized.
+    /// </summary>
+    /// <param name="isAutoInitializeModelProperty">Whether to automatically initialize model properties default value is false.</param>
+    /// <param name="instance">The instance to initialize properties for.</param>
+    private static void EnsureInitialized(this object? instance, bool isAutoInitializeModelProperty = false)
+    {
+        if (instance is null)
+        {
+            return;
+        }
+
+        // Reflection performance needs to be optimized here
+        foreach (var propertyInfo in instance.GetType().GetProperties().Where(p => p.PropertyType.IsClass && p.PropertyType != typeof(string)))
+        {
+            var type = propertyInfo.PropertyType;
+            var value = propertyInfo.GetValue(instance, null);
+            if (value is null)
+            {
+                var pv = CreateInstance(type, isAutoInitializeModelProperty);
+                if (pv is not null)
+                {
+                    propertyInfo.SetValue(instance, pv);
                 }
             }
         }

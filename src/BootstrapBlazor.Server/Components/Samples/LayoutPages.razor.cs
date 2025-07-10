@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -9,11 +10,14 @@ namespace BootstrapBlazor.Server.Components.Samples;
 /// </summary>
 public sealed partial class LayoutPages
 {
-    private IEnumerable<SelectedItem> SideBarItems { get; set; } = new SelectedItem[]
-    {
-            new SelectedItem("left-right", "左右结构"),
-            new SelectedItem("top-bottom", "上下结构")
-    };
+    private List<SelectedItem> SideBarItems { get; } =
+    [
+        new("left-right", "左右结构"),
+        new("top-bottom", "上下结构")
+    ];
+
+    [NotNull]
+    private SelectedItem? ActiveItem { get; set; }
 
     private string? StyleString => CssBuilder.Default()
         .AddClass($"height: {Height * 100}px", Height > 0)
@@ -27,14 +31,14 @@ public sealed partial class LayoutPages
     private bool ShowFooter { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否固定 TabHeader
-    /// </summary>
-    private bool IsFixedTab { get; set; }
-
-    /// <summary>
     /// 获得/设置 是否固定 Header
     /// </summary>
     private bool IsFixedHeader { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否固定标签页 Header
+    /// </summary>
+    private bool IsFixedTabHeader { get; set; }
 
     /// <summary>
     /// 获得/设置 是否固定页脚
@@ -62,54 +66,78 @@ public sealed partial class LayoutPages
     /// <summary>
     /// OnInitialized 方法
     /// </summary>
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await base.OnInitializedAsync();
+        base.OnInitialized();
 
         IsFullSide = RootPage.IsFullSide;
         IsFixedHeader = RootPage.IsFixedHeader;
         IsFixedFooter = RootPage.IsFixedFooter;
         ShowFooter = RootPage.ShowFooter;
         UseTabSet = RootPage.UseTabSet;
+        IsFixedTabHeader = RootPage.IsFixedTabHeader;
 
-        SideBarItems.ElementAt(IsFullSide ? 0 : 1).Active = true;
+        ActiveItem = IsFullSide ? SideBarItems[0] : SideBarItems[1];
     }
 
-    private Task OnFooterChanged(CheckboxState state, bool val) => UpdateAsync();
-
-    private Task OnTabStateChanged(CheckboxState state, bool val) => UpdateAsync();
-
-    private Task OnHeaderStateChanged(CheckboxState state, bool val) => UpdateAsync();
-
-    private Task OnFooterStateChanged(CheckboxState state, bool val) => UpdateAsync();
-
-    private async Task OnSideChanged(IEnumerable<SelectedItem> values, SelectedItem item)
+    private Task OnFooterChanged(bool val)
     {
-        IsFullSide = item.Value == "left-right";
-        await UpdateAsync();
+        ShowFooter = val;
+        Update();
+        return Task.CompletedTask;
     }
 
-    private Task OnUseTabSetChanged(bool val) => UpdateAsync();
+    private Task OnTabStateChanged(CheckboxState state, bool val)
+    {
+        IsFixedTabHeader = val;
+        Update();
+        return Task.CompletedTask;
+    }
+
+    private Task OnHeaderStateChanged(CheckboxState state, bool val)
+    {
+        IsFixedHeader = val;
+        Update();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFooterStateChanged(CheckboxState state, bool val)
+    {
+        IsFixedFooter = val;
+        Update();
+        return Task.CompletedTask;
+    }
+
+    private Task OnSideChanged(IEnumerable<SelectedItem> values, SelectedItem item)
+    {
+        ActiveItem.Active = false;
+        item.Active = true;
+        ActiveItem = item;
+        IsFullSide = item.Value == "left-right";
+        Update();
+        return Task.CompletedTask;
+    }
+
+    private Task OnUseTabSetChanged(bool val)
+    {
+        UseTabSet = val;
+        Update();
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     /// UpdateAsync 方法
     /// </summary>
     /// <returns></returns>
-    public async Task UpdateAsync()
+    public void Update()
     {
-        var parameters = new Dictionary<string, object?>()
-        {
-            [nameof(RootPage.IsFullSide)] = IsFullSide,
-            [nameof(RootPage.IsFixedFooter)] = IsFixedFooter && ShowFooter,
-            [nameof(RootPage.IsFixedHeader)] = IsFixedHeader,
-            [nameof(RootPage.IsFixedTab)] = IsFixedTab,
-            [nameof(RootPage.ShowFooter)] = ShowFooter,
-            [nameof(RootPage.UseTabSet)] = UseTabSet
-        };
-
-        await RootPage.SetParametersAsync(ParameterView.FromDictionary(parameters));
-
-        // 获得 Razor 示例代码
+        RootPage.IsFullSide = IsFullSide;
+        RootPage.IsFixedFooter = IsFixedFooter && ShowFooter;
+        RootPage.IsFixedHeader = IsFixedHeader;
+        RootPage.IsFixedTabHeader = IsFixedTabHeader;
+        RootPage.ShowFooter = ShowFooter;
+        RootPage.UseTabSet = UseTabSet;
+        StateHasChanged();
         RootPage.Update();
     }
 

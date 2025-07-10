@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Components;
 
@@ -27,9 +28,7 @@ public partial class ImageViewer
     /// </summary>
     [Parameter]
     [NotNull]
-#if NET6_0_OR_GREATER
     [EditorRequired]
-#endif
     public string? Url { get; set; }
 
     /// <summary>
@@ -116,6 +115,12 @@ public partial class ImageViewer
     /// <remarks>不可见时不加载图片，当图片即将可见时才开始加载图片</remarks>
     [Parameter]
     public bool IsIntersectionObserver { get; set; }
+
+    /// <summary>
+    /// 获得/设置 预览缩放速度 默认 null 未设置取 0.015 值
+    /// </summary>
+    [Parameter]
+    public double? ZoomSpeed { get; set; }
 
     [Inject]
     [NotNull]

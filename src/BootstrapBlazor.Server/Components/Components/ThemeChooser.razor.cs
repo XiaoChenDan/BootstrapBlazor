@@ -1,8 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
-
-using Microsoft.Extensions.Options;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Components;
 
@@ -24,9 +23,7 @@ public partial class ThemeChooser
     [NotNull]
     private IStringLocalizer<ThemeChooser>? Localizer { get; set; }
 
-    [Inject]
-    [NotNull]
-    private IOptionsMonitor<WebsiteOptions>? SiteOptions { get; set; }
+    private readonly List<string> _currentTheme = [];
 
     /// <summary>
     /// OnInitialized 方法
@@ -37,21 +34,22 @@ public partial class ThemeChooser
 
         Title ??= Localizer[nameof(Title)];
         HeaderText ??= Localizer[nameof(HeaderText)];
-        Themes = SiteOptions.CurrentValue.Themes.Select(i => new SelectedItem { Text = i.Name, Value = i.Key });
-        SiteOptions.CurrentValue.CurrentTheme = "bootstrap";
+        Themes = WebsiteOption.CurrentValue.Themes.Select(i => new SelectedItem { Text = i.Name, Value = i.Key });
+        WebsiteOption.CurrentValue.CurrentTheme = "bootstrap";
     }
 
-    private async Task OnClickTheme(SelectedItem item)
+    private void OnClickTheme(SelectedItem item)
     {
-        SiteOptions.CurrentValue.CurrentTheme = item.Value;
-        var theme = SiteOptions.CurrentValue.Themes.Find(i => i.Key == item.Value);
-        if (theme != null)
+        _currentTheme.Clear();
+        WebsiteOption.CurrentValue.CurrentTheme = item.Value;
+        var theme = WebsiteOption.CurrentValue.Themes.FirstOrDefault(i => i.Key == item.Value);
+        if (theme is { Files: not null })
         {
-            await InvokeVoidAsync("updateTheme", [theme.Files]);
+            _currentTheme.AddRange(theme.Files);
         }
     }
 
     private string? GetThemeItemClass(SelectedItem item) => CssBuilder.Default("theme-item")
-        .AddClass("active", SiteOptions.CurrentValue.CurrentTheme == item.Value)
+        .AddClass("active", WebsiteOption.CurrentValue.CurrentTheme == item.Value)
         .Build();
 }

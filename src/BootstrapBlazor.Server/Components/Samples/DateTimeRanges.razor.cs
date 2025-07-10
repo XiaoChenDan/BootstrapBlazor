@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -99,6 +100,8 @@ public sealed partial class DateTimeRanges
     /// </summary>
     protected override void OnInitialized()
     {
+        base.OnInitialized();
+
         ValidateFormModel = new ValidateFormRangeFoo()
         {
             DateTime = DateTime.Now,
@@ -147,6 +150,12 @@ public sealed partial class DateTimeRanges
             Name = "OnValueChanged",
             Description="ValueChanged callback delegate",
             Type ="Func<DateTimeRangeValue,Task>"
+        },
+        new()
+        {
+            Name = "OnDateClick",
+            Description="Date cell click event callback",
+            Type ="Func<DateTime,Task>"
         }
     ];
 
@@ -168,6 +177,14 @@ public sealed partial class DateTimeRanges
         {
             Name = "ShowSidebar",
             Description = "Whether to show the shortcut sidebar",
+            Type = "bool",
+            ValueList = "true|false",
+            DefaultValue = "false"
+        },
+        new()
+        {
+            Name = nameof(DateTimeRange.ShowSelectedValue),
+            Description = "Whether to show the selected value",
             Type = "bool",
             ValueList = "true|false",
             DefaultValue = "false"

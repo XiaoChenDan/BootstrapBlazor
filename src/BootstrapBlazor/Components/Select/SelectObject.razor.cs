@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Localization;
 
@@ -46,6 +47,19 @@ public partial class SelectObject<TItem>
     public string? DropdownIcon { get; set; }
 
     /// <summary>
+    /// 获得/设置 是否可清除 默认 false
+    /// </summary>
+    [Parameter]
+    public bool IsClearable { get; set; }
+
+    /// <summary>
+    /// 获得/设置 右侧清除图标 默认 fa-solid fa-angle-up
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? ClearIcon { get; set; }
+
+    /// <summary>
     /// 获得/设置 下拉列表内容模板
     /// </summary>
     [Parameter]
@@ -65,6 +79,7 @@ public partial class SelectObject<TItem>
     /// </summary>
     private string? ClassName => CssBuilder.Default("select select-object dropdown")
         .AddClass("disabled", IsDisabled)
+        .AddClass("cls", IsClearable)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
@@ -88,6 +103,12 @@ public partial class SelectObject<TItem>
         .AddClass($"text-danger", IsValid.HasValue && !IsValid.Value)
         .Build();
 
+    private string? ClearClassString => CssBuilder.Default("clear-icon")
+        .AddClass($"text-{Color.ToDescriptionString()}", Color != Color.None)
+        .AddClass($"text-success", IsValid.HasValue && IsValid.Value)
+        .AddClass($"text-danger", IsValid.HasValue && !IsValid.Value)
+        .Build();
+
     /// <summary>
     /// 获得 PlaceHolder 属性
     /// </summary>
@@ -106,16 +127,15 @@ public partial class SelectObject<TItem>
     [Parameter]
     public RenderFragment<TItem>? Template { get; set; }
 
+    /// <summary>
+    /// 获得/设置 清除文本内容 OnClear 回调方法 默认 null
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnClearAsync { get; set; }
+
     [Inject]
     [NotNull]
     private IStringLocalizer<Select<TItem>>? Localizer { get; set; }
-
-    /// <summary>
-    /// 获得/设置 IStringLocalizerFactory 注入服务实例 默认为 null
-    /// </summary>
-    [Inject]
-    [NotNull]
-    public IStringLocalizerFactory? LocalizerFactory { get; set; }
 
     /// <summary>
     /// 获得 input 组件 Id 方法
@@ -139,10 +159,7 @@ public partial class SelectObject<TItem>
     {
         base.OnInitialized();
 
-        if (ValidateForm != null)
-        {
-            Rules.Add(new RequiredValidator() { LocalizerFactory = LocalizerFactory, ErrorMessage = "{0} is required." });
-        }
+        AddRequiredValidator();
         _context = new InternalSelectObjectContext<TItem>() { Component = this };
     }
 
@@ -160,13 +177,10 @@ public partial class SelectObject<TItem>
 
         PlaceHolder ??= Localizer[nameof(PlaceHolder)];
         DropdownIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectDropdownIcon);
+        ClearIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectClearIcon);
     }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <returns></returns>
-    protected override bool IsRequired() => ValidateForm != null;
+    private bool GetClearable() => IsClearable && !IsDisabled;
 
     /// <summary>
     /// 获得 Text 显示文字
@@ -179,4 +193,15 @@ public partial class SelectObject<TItem>
     /// </summary>
     /// <returns></returns>
     public Task CloseAsync() => InvokeVoidAsync("close", Id);
+
+    private async Task OnClearValue()
+    {
+        if (OnClearAsync != null)
+        {
+            await OnClearAsync();
+        }
+
+        CurrentValue = default;
+        await CloseAsync();
+    }
 }

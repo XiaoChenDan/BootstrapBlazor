@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.AspNetCore.Components.Forms;
 using System.Linq.Expressions;
@@ -47,13 +48,13 @@ public abstract class DisplayBase<TValue> : BootstrapModuleComponentBase
     /// Gets or sets a callback that updates the bound value.
     /// </summary>
     [Parameter]
-    public EventCallback<TValue> ValueChanged { get; set; }
+    public EventCallback<TValue?> ValueChanged { get; set; }
 
     /// <summary>
     /// Gets or sets an expression that identifies the bound value.
     /// </summary>
     [Parameter]
-    public Expression<Func<TValue>>? ValueExpression { get; set; }
+    public Expression<Func<TValue?>>? ValueExpression { get; set; }
 
     /// <summary>
     /// 获得/设置 是否显示前置标签 默认值为 null 为空时默认不显示标签
@@ -163,7 +164,7 @@ public abstract class DisplayBase<TValue> : BootstrapModuleComponentBase
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns>A string representation of the value.</returns>
-    protected virtual string? FormatValueAsString(TValue value)
+    protected virtual string? FormatValueAsString(TValue? value)
     {
         string? ret;
         if (value is SelectedItem item)

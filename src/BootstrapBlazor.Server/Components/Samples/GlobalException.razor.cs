@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Samples;
 
@@ -11,11 +12,17 @@ public partial class GlobalException
 {
     [Inject]
     [NotNull]
+    private NavigationManager? NavigationManager { get; set; }
+
+    [Inject]
+    [NotNull]
     private SwalService? SwalService { get; set; }
+
+    [Inject, NotNull]
+    private DialogService? DialogService { get; set; }
 
     private static void OnClick()
     {
-        // NET6.0 采用 ErrorLogger 统一处理
         var a = 0;
         _ = 1 / a;
     }
@@ -28,6 +35,18 @@ public partial class GlobalException
         ShowFooter = true,
         FooterTemplate = BootstrapDynamicComponent.CreateComponent<SwalFooter>().Render()
     });
+
+    private Task OnShowDialog() => DialogService.Show(new DialogOption()
+    {
+        Title = Localizer["DialogTitle"],
+        Component = BootstrapDynamicComponent.CreateComponent<MockError>()
+    });
+
+    private Task OnGotoPage()
+    {
+        NavigationManager.NavigateTo("/error-page");
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     /// 获得属性方法

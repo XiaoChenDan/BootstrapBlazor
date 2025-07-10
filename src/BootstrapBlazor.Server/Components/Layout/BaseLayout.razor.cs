@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace BootstrapBlazor.Server.Components.Layout;
 
@@ -37,9 +38,6 @@ public partial class BaseLayout : IDisposable
     [NotNull]
     private string? CancelText { get; set; }
 
-    [NotNull]
-    private string? ThemeTooltip { get; set; }
-
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -51,7 +49,6 @@ public partial class BaseLayout : IDisposable
         InstallAppText ??= Localizer[nameof(InstallAppText)];
         InstallText ??= Localizer[nameof(InstallText)];
         CancelText ??= Localizer[nameof(CancelText)];
-        ThemeTooltip ??= Localizer[nameof(ThemeTooltip)];
 
         CommitDispatchService.Subscribe(NotifyCommit);
         RebootDispatchService.Subscribe(NotifyReboot);

@@ -1,6 +1,7 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the Apache 2.0 License
+// See the LICENSE file in the project root for more information.
+// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 namespace UnitTest.Services;
 
@@ -71,7 +72,6 @@ public class ThrottleTest : BootstrapBlazorTestBase
         {
             count++;
         });
-        Assert.Equal(expected, count);
     }
 
     [Fact]
@@ -81,13 +81,14 @@ public class ThrottleTest : BootstrapBlazorTestBase
         var dispatcher = factory.GetOrCreate("Error", new ThrottleOptions() { ResetIntervalOnException = true });
 
         var count = 0;
-        await Assert.ThrowsAnyAsync<InvalidOperationException>(() => dispatcher.ThrottleAsync(() =>
+        await dispatcher.ThrottleAsync(() =>
         {
             count++;
-            throw new InvalidOperationException();
-        }));
+            throw new Exception();
+        });
+        Assert.Equal(1, count);
 
-        Assert.ThrowsAny<InvalidOperationException>(() => dispatcher.Throttle(() => throw new InvalidOperationException()));
+        dispatcher.Throttle(() => throw new InvalidOperationException());
 
         // 发生错误后可以立即执行下一次任务，不限流
         dispatcher.Throttle(() =>
@@ -105,16 +106,21 @@ public class ThrottleTest : BootstrapBlazorTestBase
 
         var cts = new CancellationTokenSource();
         cts.Cancel();
-        Assert.ThrowsAny<OperationCanceledException>(() => dispatcher.Throttle(async () =>
+        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() =>
         {
-            await Task.Delay(300);
-        }, cts.Token));
+            dispatcher.Throttle(() =>
+            {
+
+            }, cts.Token);
+            return Task.CompletedTask;
+        });
+        Assert.NotNull(ex);
 
         cts = new CancellationTokenSource(100);
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => dispatcher.ThrottleAsync(async () =>
+        await dispatcher.ThrottleAsync(async () =>
         {
             await Task.Delay(300);
-        }, cts.Token));
+        }, cts.Token);
     }
 
     [Fact]
@@ -127,37 +133,36 @@ public class ThrottleTest : BootstrapBlazorTestBase
     }
 
     [Fact]
-    public void LatTask_Ok()
+    public void ShouldWait_Ok()
     {
-        var dispatch = new MockDispatcher(new ThrottleOptions());
-        Assert.NotNull(dispatch.TestLastTask());
+        var dispatch = new ThrottleDispatcher(new ThrottleOptions());
+        var count = 0;
+        dispatch.Throttle(() => count++);
+        Assert.Equal(1, count);
+        dispatch.Throttle(() => count++);
+        Assert.Equal(1, count);
     }
 
     [Fact]
-    public void ShouldWait_Ok()
+    public async Task MultipleThread_ThrottleAsync_Ok()
     {
-        var dispatch = new MockDispatcher(new ThrottleOptions());
         var count = 0;
-        dispatch.Throttle(() => count++);
-        Assert.Equal(0, count);
-    }
-
-    class MockDispatcher(ThrottleOptions options) : ThrottleDispatcher(options)
-    {
-        public Task TestLastTask()
+        var dispatch = new ThrottleDispatcher(new ThrottleOptions()
         {
-            return LastTask;
-        }
-
-        private int count = 0;
-
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        /// <returns></returns>
-        protected override bool ShouldWait()
+            Interval = TimeSpan.FromMilliseconds(100),
+            DelayAfterExecution = true
+        });
+        var tasks = Enumerable.Range(1, 2).Select(i => dispatch.ThrottleAsync(() =>
         {
-            return count++ == 1;
-        }
+            count++;
+            return Task.CompletedTask;
+        })).ToList();
+        tasks.Add(dispatch.ThrottleAsync(async () =>
+        {
+            await Task.Delay(120);
+            count++;
+        }));
+        await Task.WhenAll(tasks);
+        Assert.Equal(1, count);
     }
 }

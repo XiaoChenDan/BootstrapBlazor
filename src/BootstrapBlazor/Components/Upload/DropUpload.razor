@@ -1,0 +1,61 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits FileListUploadBase<string>
+
+@if (IsShowLabel)
+{
+    <BootstrapLabel required="@Required" ShowLabelTooltip="ShowLabelTooltip" Value="@DisplayText"/>
+}
+<div @attributes="@AdditionalAttributes" class="@ClassString" id="@Id">
+    <div class="@BodyClassString">
+        @if (BodyTemplate != null)
+        {
+            @BodyTemplate
+        }
+        else
+        {
+            <div class="upload-drop-icon">
+                @if (IconTemplate != null)
+                {
+                    @IconTemplate
+                }
+                else
+                {
+                    <i class="@UploadIcon"></i>
+                }
+            </div>
+            <div class="@TextClassString">
+                @if (TextTemplate != null)
+                {
+                    @TextTemplate
+                }
+                else
+                {
+                    @(new MarkupString(UploadText))
+                }
+            </div>
+            @if (ShowFooter)
+            {
+                <div class="upload-drop-footer">
+                    @if (FooterTemplate != null)
+                    {
+                        @FooterTemplate
+                    }
+                    else
+                    {
+                        <span class="text-muted">@(new MarkupString(FooterText))</span>
+                    }
+                </div>
+            }
+        }
+    </div>
+    @if (ShowUploadFileList)
+    {
+        <UploadPreviewList Items="Files" IsDisabled="@IsDisabled" ShowProgress="@ShowProgress"
+                           OnGetFileFormat="@OnGetFileFormat" OnCancel="OnCancel" CancelIcon="@CancelIcon" LoadingIcon="@LoadingIcon"
+                           InvalidStatusIcon="@InvalidStatusIcon" ValidStatusIcon="@ValidStatusIcon"
+                           ShowDownloadButton="@ShowDownloadButton" DownloadIcon="@DownloadIcon" OnDownload="@OnDownload"
+                           DeleteIcon="@DeleteIcon" OnDelete="@OnFileDelete">
+        </UploadPreviewList>
+    }
+    <InputFile AdditionalAttributes="@GetUploadAdditionalAttributes()" OnChange="OnFileChange"/>
+</div>

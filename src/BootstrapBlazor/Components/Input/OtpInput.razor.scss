@@ -1,0 +1,48 @@
+﻿.bb-otp-input {
+    --bb-otp-item-width: #{$bb-otp-item-width};
+    --bb-otp-item-disabled-color: #{$bb-otp-item-disabled-color};
+    --bb-otp-item-padding: #{$bb-otp-item-padding};
+    --bb-otp-item-margin: #{$bb-otp-item-margin};
+    --bb-otp-font-size: #{$bb-otp-font-size};
+    --bb-otp-border-width: #{$bb-otp-border-width};
+    white-space: nowrap;
+    overflow: hidden;
+
+    .bb-otp-item {
+        display: inline-block;
+        border: var(--bb-otp-border-width) solid var(--bs-border-color);
+        font-size: var(--bb-otp-font-size);
+        padding: var(--bb-otp-item-padding);
+        border-radius: var(--bs-border-radius);
+        width: var(--bb-otp-item-width);
+        height: var(--bb-otp-item-width);
+
+        &:not(:last-child) {
+            margin-right: var(--bb-otp-item-margin);
+        }
+
+        &[type] {
+            padding: 0;
+            text-align: center;
+        }
+
+        &.is-valid {
+            --bs-border-color: var(--bs-success);
+        }
+
+        &.is-invalid {
+            --bs-border-color: var(--bs-danger);
+        }
+
+        &span {
+            color: var(--bb-otp-item-disabled-color);
+        }
+    }
+}
+
+@media (min-width: 768px) {
+    .bb-otp-input {
+        --bb-otp-item-width: 66px;
+        --bb-otp-font-size: 3em;
+    }
+}
